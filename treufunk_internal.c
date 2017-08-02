@@ -1,0 +1,275 @@
+/*
+* treufunk_internal.h
+*
+* Kirthihan Yasotharan
+*
+* Implementation of driver internal functions
+*
+*/
+
+#include "periph/spi.h"
+#include "periph/gpio.h"
+/* TEMP_BEGIN (xtimer) */
+#include "xtimer.h" // Auto Init must be called once at system boot in order to use xtimer. So don't add "DISABLE_MODULE += auto_init" inside the Makefile
+/* TEMP_END */
+#include "treufunk_internal.h"
+#include "treufunk_registers.h"
+
+#define SPIDEV  (dev->params.spi)
+#define CSPIN   (dev->params.cs_pin)
+
+// #define ENABLE_DEBUG (0)
+// #include "debug.h"
+
+#if DUE_SR_MODE
+
+    /* For parallel out */
+    // void due_init_gpio(void)
+    // {
+    //     DEBUG("Shift Reg: GPIO init...\n");
+    //     /* Due pins 52 ... 38 -> SR pins: QA ... QH */
+    //     gpio_init(ARDUINO_PIN_52, GPIO_IN_PU);
+    //     gpio_init(ARDUINO_PIN_50, GPIO_IN_PU);
+    //     gpio_init(ARDUINO_PIN_48, GPIO_IN_PU);
+    //     gpio_init(ARDUINO_PIN_46, GPIO_IN_PU);
+    //     gpio_init(ARDUINO_PIN_44, GPIO_IN_PU);
+    //     gpio_init(ARDUINO_PIN_42, GPIO_IN_PU);
+    //     gpio_init(ARDUINO_PIN_40, GPIO_IN_PU);
+    //     gpio_init(ARDUINO_PIN_38, GPIO_IN_PU);
+    // }
+
+    uint8_t due_shift_read(const treufunk_t *dev)
+    {
+        /* For parallel out */
+        // uint8_t val = 0;
+        // uint8_t one = 1;
+        //
+        // /* read pins */
+        // if(gpio_read(ARDUINO_PIN_52) > 0) val |= one;
+        // if(gpio_read(ARDUINO_PIN_50) > 0) val |= (one<<1);
+        // if(gpio_read(ARDUINO_PIN_48) > 0) val |= (one<<2);
+        // if(gpio_read(ARDUINO_PIN_46) > 0) val |= (one<<3);
+        // if(gpio_read(ARDUINO_PIN_44) > 0) val |= (one<<4);
+        // if(gpio_read(ARDUINO_PIN_42) > 0) val |= (one<<5);
+        // if(gpio_read(ARDUINO_PIN_40) > 0) val |= (one<<6);
+        // if(gpio_read(ARDUINO_PIN_38) > 0) val |= (one<<7);
+        //
+        // return val;
+        uint8_t recv;
+        uint8_t msb = gpio_read(GPIO_PIN(0,25)); /* Read MSB from MISO (PA25) */
+        spi_transfer_bytes(SPIDEV, SPI_CS_UNDEF, false, NULL, &recv, 1);
+        recv = (msb << 7) | (recv >> 1); /* correction */
+
+        return recv;
+
+    }
+
+#endif /* DUE_SR_MODE */
+
+
+/**
+ * Checks if the Register at address "addr" is RO. If so it returns FALSE.
+ */
+static bool reg_writable(unsigned int addr)
+{
+  switch (addr) {
+    case RG_DEM_PD_OUT:
+    case RG_DEM_GC_AOUT:
+    case RG_DEM_GC_BOUT:
+    case RG_DEM_GC_COUT:
+    case RG_DEM_GC_DOUT:
+    case RG_DEM_FREQ_OFFSET_OUT:
+    case RG_SM_STATE:
+    case RG_SM_FIFO:
+    case RG_SM_GLOBAL:
+    case RG_SM_POWER:
+    case RG_SM_RX:
+    case RG_SM_WAKEUP_EN:
+    case RG_SM_DEM_ADC:
+    case RG_SM_PLL_TX:
+    case RG_SM_PLL_CHAN_INT:
+    case RG_SM_PLL_CHAN_FRAC_H:
+    case RG_SM_PLL_CHAN_FRAC_M:
+    case RG_SM_PLL_CHAN_FRAC_L:
+    case RG_SM_TX433:
+    case RG_SM_TX800:
+    case RG_SM_TX24:
+    case RG_PLL_TPM_GAIN_OUT_L:
+    case RG_PLL_TPM_GAIN_OUT_M:
+    case RG_PLL_TPM_GAIN_OUT_H:
+    return false;
+    default:
+    return true;
+  }
+}
+
+static inline void getbus(const treufunk_t *dev)
+{
+    spi_acquire(SPIDEV, CSPIN, SPI_MODE_0, dev->params.spi_clk);
+}
+
+
+uint8_t treufunk_reg_read(const treufunk_t *dev,
+                          const uint8_t addr)
+{
+    uint8_t value;
+
+    getbus(dev);
+    spi_transfer_byte(SPIDEV, CSPIN, true, TREUFUNK_ACCSESS_REG_READ);
+    spi_transfer_byte(SPIDEV, CSPIN, true, addr);
+
+    #if DUE_SR_MODE
+        spi_transfer_byte(SPIDEV, CSPIN, false, 0);
+        value = due_shift_read(dev);
+    #else
+        value = spi_transfer_byte(SPIDEV, CSPIN, false, NULL);
+    #endif /* DUE_SR_MODE */
+
+
+    spi_release(SPIDEV);
+
+    return value;
+}
+
+int treufunk_reg_write(const treufunk_t *dev,
+                         const uint8_t addr,
+                         const uint8_t value)
+{
+    if(!reg_writable(addr))
+    {
+        DEBUG("ERROR (treufunk_reg_write): Register 0x%08x is READ-ONLY! Aborting...\n", addr);
+        return -1;
+    }
+    getbus(dev);
+    spi_transfer_byte(SPIDEV, CSPIN, true, TREUFUNK_ACCSESS_REG_WRITE);
+    spi_transfer_byte(SPIDEV, CSPIN, true, addr);
+    spi_transfer_byte(SPIDEV, CSPIN, false, value);
+    spi_release(SPIDEV);
+
+    /**
+     * TEMP_BEGIN (reg_write)
+     *
+     * reg_check (reg_write): Check if values written are correct
+     */
+    // uint8_t reg_value = treufunk_reg_read(dev, addr);
+    // if(reg_value != value)
+    // {
+    //     DEBUG("ERROR (treufunk_reg_write): Wrong value in register 0x%02x. Value that should have been written: %d (0x%02x). Actual value: %d (0x%02x). Aborting...\n", addr, value, value, reg_value, reg_value);
+    //     return -1;
+    // }
+    //
+    // DEBUG("Value %d (0x%02x) written into register 0x%02x (%d).\n", value, value, addr, addr);
+
+    /* TEMP_END */
+
+    return 0;
+}
+
+
+
+uint8_t treufunk_sub_reg_read(const treufunk_t *dev,
+                            const uint8_t reg_addr,
+                            const uint8_t sub_reg_mask,
+                            const uint8_t offset)
+{
+     uint8_t reg_value;
+     reg_value = treufunk_reg_read(dev, reg_addr);
+     return ((reg_value & sub_reg_mask) >> offset);
+}
+
+ /**
+  * Writes into a sub-register.
+  *
+  * @param reg_addr     Base address of the main register
+  * @param sub_reg_mask Bit-mask for the sub-register
+  * @param offset       position of the sub-register relative to LSB of the register
+  * @param value        Value to be written in the sub-register. Will be left-shifted by offset, before
+  *                     written into the sub-register
+  *
+  * NOTE: Usually we don't have to worry about the correct values for sub_reg_mask and offset, since
+  * they are defined already for all existing sub-registers in "lprf_registers.h".
+  */
+int treufunk_sub_reg_write(const treufunk_t *dev,
+                            const uint8_t reg_addr,
+                            const uint8_t sub_reg_mask,
+                            const uint8_t offset,
+                            const uint8_t value)
+{
+    uint8_t reg_value;
+    /* save current reg content */
+    reg_value = treufunk_reg_read(dev, reg_addr);
+    /* set current bits of sub_reg to 0 */
+    reg_value &= (~sub_reg_mask);
+    /* set new bits */
+    reg_value |= (value << offset);
+    /* write back to reg */
+    /* TEMP_BEGIN (sub_reg_write), reg_check (sub_reg_write), return on error */
+    return treufunk_reg_write(dev, reg_addr, reg_value);
+    /* TEMP_END */
+
+}
+
+
+
+/* TODO (fifo_read): Due to the one byte length field only 255 bytes can be read out the FIFO during one fifo_read access.
+If more bytes need to be read out, one or more fifo_read accesses are necessary.
+*/
+void treufunk_fifo_read(const treufunk_t *dev, uint8_t *data)
+{
+    DEBUG("fifo_read...\n");
+    size_t len;
+    getbus(dev);
+    spi_transfer_byte(SPIDEV, CSPIN, true, TREUFUNK_ACCSESS_FRAME_READ);
+    #if DUE_SR_MODE
+        /* Get number of bytes in FIFO */
+        spi_transfer_byte(SPIDEV, CSPIN, false, 0);
+        len = due_shift_read(dev);
+        DEBUG("fifo_read: %d bytes in FIFO.\n", len);
+        for(int i = 0; i < len; i++)
+        {
+            /* since for the last spi transfer the "cont" parameter of spi_transfer_byte needs to be false, we check this here */
+            if(i == (len - 1)) spi_transfer_byte(SPIDEV, CSPIN, false, 0);
+            else spi_transfer_byte(SPIDEV, CSPIN, true, 0);
+
+            data[i] = due_shift_read(dev);
+        }
+    #else
+        len = spi_transfer_byte(SPIDEV, CSPIN, true, 1);
+        spi_transfer_bytes(SPIDEV, CSPIN, false, NULL, data, len);
+    #endif /* DUE_SR_MODE */
+
+    spi_release(SPIDEV);
+
+
+}
+
+
+void treufunk_fifo_write(const treufunk_t *dev, const uint8_t *data, const size_t len)
+{
+    DEBUG("fifo_write...\n");
+    getbus(dev);
+    spi_transfer_byte(SPIDEV, CSPIN, true, TREUFUNK_ACCSESS_FRAME_WRITE);
+    spi_transfer_byte(SPIDEV, CSPIN, true, len);
+    spi_transfer_bytes(SPIDEV, CSPIN, false, data, NULL, len);
+    spi_release(SPIDEV);
+
+}
+
+/**
+ * Sends one abitrary byte to the Treufunk, and receives back the phy_status byte.
+ */
+uint8_t treufunk_get_phy_status(const treufunk_t *dev)
+{
+    DEBUG("Reading phy_status byte...\n");
+    uint8_t phy_status;
+    getbus(dev);
+    /* Just transfer any byte, e.g. 8 ones or all zeros, on MOSI. Treufunk will send back phy_status on MISO */
+    #if DUE_SR_MODE
+        spi_transfer_byte(SPIDEV, CSPIN, false, 0);
+        phy_status = due_shift_read(dev);
+    #else
+        phy_status = spi_transfer_byte(SPIDEV, CSPIN, false, 0);
+    #endif /* DUE_SR_MODE */
+    spi_release(SPIDEV);
+    return phy_status;
+}
