@@ -5,7 +5,7 @@
 * Interface definition for the Treufunk driver
 */
 
-// Hallo
+
 
 #ifndef TREUFUNK_H
 #define TREUFUNK_H
