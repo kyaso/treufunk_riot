@@ -112,23 +112,27 @@ static inline void getbus(const treufunk_t *dev)
 uint8_t treufunk_reg_read(const treufunk_t *dev,
                           const uint8_t addr)
 {
-    uint8_t value;
+    uint8_t value[3] = {0};
+    //uint8_t temp = 0;
 
     getbus(dev);
-    spi_transfer_byte(SPIDEV, CSPIN, true, TREUFUNK_ACCSESS_REG_READ);
-    spi_transfer_byte(SPIDEV, CSPIN, true, addr);
+    //spi_transfer_byte(SPIDEV, CSPIN, true, TREUFUNK_ACCSESS_REG_READ);
+    //spi_transfer_byte(SPIDEV, CSPIN, true, addr);
+    uint8_t spi_out[3] = {TREUFUNK_ACCSESS_REG_READ, addr, 0};
+    spi_transfer_bytes(SPIDEV, CSPIN, false, spi_out, NULL, 3);
 
     #if DUE_SR_MODE
         spi_transfer_byte(SPIDEV, CSPIN, false, 0);
         value = due_shift_read(dev);
     #else
-        value = spi_transfer_byte(SPIDEV, CSPIN, false, NULL);
+        //value = spi_transfer_byte(SPIDEV, CSPIN, false, NULL);
+        //spi_transfer_bytes(SPIDEV, CSPIN, false, &temp, NULL, 1);
     #endif /* DUE_SR_MODE */
 
 
     spi_release(SPIDEV);
 
-    return value;
+    return value[2];
 }
 
 int treufunk_reg_write(const treufunk_t *dev,
