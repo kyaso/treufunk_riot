@@ -6,7 +6,6 @@
 */
 
 
-//hallo
 #ifndef TREUFUNK_H
 #define TREUFUNK_H
 
