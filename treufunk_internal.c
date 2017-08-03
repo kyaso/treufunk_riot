@@ -119,7 +119,7 @@ uint8_t treufunk_reg_read(const treufunk_t *dev,
     //spi_transfer_byte(SPIDEV, CSPIN, true, TREUFUNK_ACCSESS_REG_READ);
     //spi_transfer_byte(SPIDEV, CSPIN, true, addr);
     uint8_t spi_out[3] = {TREUFUNK_ACCSESS_REG_READ, addr, 0};
-    spi_transfer_bytes(SPIDEV, CSPIN, false, spi_out, NULL, 3);
+    spi_transfer_bytes(SPIDEV, CSPIN, false, spi_out, value, 3);
 
     #if DUE_SR_MODE
         spi_transfer_byte(SPIDEV, CSPIN, false, 0);
@@ -129,6 +129,7 @@ uint8_t treufunk_reg_read(const treufunk_t *dev,
         //spi_transfer_bytes(SPIDEV, CSPIN, false, &temp, NULL, 1);
     #endif /* DUE_SR_MODE */
 
+    DEBUG("0x%04x, 0x%04x\n", value[0], value[1]);
 
     spi_release(SPIDEV);
 

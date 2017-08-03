@@ -24,7 +24,7 @@ extern "C" {
 #define TREUFUNK_PARAM_SPI	(SPI_DEV(0))
 #endif
 #ifndef TREUFUNK_PARAM_SPI_CLK
-#define TREUFUNK_PARAM_SPI_CLK	(SPI_CLK_1MHZ) /* for now 1MHz */
+#define TREUFUNK_PARAM_SPI_CLK	(SPI_CLK_400KHZ) /* for now 1MHz */
 #endif
 #ifndef TREUFUNK_PARAM_CS
 #define TREUFUNK_PARAM_CS	(GPIO_PIN(0, 28)) /* Arduino Due digital pin 10 */
