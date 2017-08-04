@@ -46,7 +46,7 @@ extern "C" {
 #define PHY_TRX_RUNNING (0x02)
 #define PHY_PLL_ON      (0x01)
 
-// state machine states (see Tab. 3.4, phy_status, SysSpec)
+// state machine states as returned by the phy_status byte (see Tab. 3.4, phy_status, SysSpec)
 #define DEEP_SLEEP  (1)
 #define SLEEP       (2)
 #define BUSY        (3)
@@ -76,7 +76,7 @@ typedef struct treufunk_params {
 /* TODO */
 // device descriptor
 typedef struct {
-  netdev_ieee802154_t netdev; /* netdev parent struct; TODO: use ieee802154? */
+  netdev_ieee802154_t netdev; /* netdev parent struct */
   treufunk_params_t params; /* spi params for initialization */
   uint8_t state; /* current state of state machine; phy_status, Tab. 3.4 */
   uint8_t tx_frame_len; /* TODO: do we need this? */
@@ -91,7 +91,7 @@ int treufunk_reset(treufunk_t *dev);
 //uint8_t treufunk_get_phy_status(treufunk_t *dev);
 //void treufunk_set_sub_reg(treufunk_t *dev, uint8_t reg_addr, uint8_t sub_reg_mask, uint8_t value);
 
-/* Adress feature not available on Trefunk */
+/* Address feature not available on Trefunk */
 //uint16_t treufunk_get_addr_short(treufunk_t *dev);
 //void treufunk_set_addr_short(treufunk_t *dev, uint16_t addr);
 //uint64_t treufunk_get_addr_long(treufunk_t *dev);

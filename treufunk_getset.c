@@ -29,19 +29,6 @@ void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower)
 
 }
 
-/**
- * Sends one abitrary byte to the Treufunk, and receives back the phy_status byte.
- */
-// uint8_t treufunk_get_phy_status(treufunk_t *dev)
-// {
-//     DEBUG("Reading phy_status byte...\n");
-//     uint8_t phy_status;
-//     getbus(dev);
-//     /* Just transfer any byte, e.g. 8 ones, on MOSI. Treufunk will send back phy_status on MISO */
-//     phy_status = spi_transfer_byte(SPIDEV, CSPIN, false, 1);
-//     spi_release(SPIDEV);
-//     return phy_status;
-// }
 
 /**
  * Returns the state value corresponding to Tab. 3.4, SysSpec
@@ -139,4 +126,9 @@ void treufunk_reset_fifo(treufunk_t *dev)
 {
     treufunk_sub_reg_write(dev, SR_FIFO_RESETB, 0);
     treufunk_sub_reg_write(dev, SR_FIFO_RESETB, 1);
+}
+
+void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
+{
+
 }
