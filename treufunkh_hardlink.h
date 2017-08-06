@@ -1,9 +1,9 @@
-/*
-* trefunk.h
-* Kirthihan Yasotharan
-*
-* Interface definition for the Treufunk driver
-*/
+/**
+ * trefunk.h
+ * Kirthihan Yasotharan
+ *
+ * Interface definition for the Treufunk driver
+ */
 
 
 #ifndef TREUFUNK_H
@@ -38,7 +38,9 @@ extern "C" {
 
 /* TODO: Parameter Defines */
 
-// phy_status masks
+/**
+ * 	phy_status byte masks
+ */
 #define PHY_SM_STATUS   (0xE0)
 #define PHY_SM_ENABLED  (0x10)
 #define PHY_FIFO_EMPTY  (0x08)
@@ -46,7 +48,9 @@ extern "C" {
 #define PHY_TRX_RUNNING (0x02)
 #define PHY_PLL_ON      (0x01)
 
-// state machine states as returned by the phy_status byte (see Tab. 3.4, phy_status, SysSpec)
+/**
+ * 	state machine states as returned by the phy_status byte (see Tab. 3.4, phy_status, SysSpec)
+ */
 #define DEEP_SLEEP  (1)
 #define SLEEP       (2)
 #define BUSY        (3)
@@ -56,17 +60,30 @@ extern "C" {
 #define RECEIVING   (7)
 
 
-// tx modes, value matches with position of TX_MODE in SM_TX_SET, sub_reg_mask=0x30*/
+/**
+ * 	TX modes, value matches with position of TX_MODE in SM_TX_SET, sub_reg_mask=0x30
+ */
 #define TX_MODE_24    (0x00)
 #define TX_MODE_800   (0x10)
 #define TX_MODE_433   (0x20)
 //#define TX_MODE_433   (0x30)/* 433 appears 2 times in table at SM_TX_SET */
 
-/* 0 dBm */
-#define TREUFUNK_DEFAULT_TXPOWER (0)
+/**
+ * 	Channel configuration
+ */
+#define TREUFUNK_MIN_CHANNEL 			(IEEE802154_CHANNEL_MIN)
+#define TREUFUNK_MAX_CHANNEL           	(IEEE802154_CHANNEL_MAX)
+#define TREUFUNK_DEFAULT_CHANNEL       	(IEEE802154_DEFAULT_CHANNEL)
+
+/**
+ * 	Default TX power (0dBm)
+ */
+#define TREUFUNK_DEFAULT_TXPOWER 		(IEEE802154_DEFAULT_TXPOWER)
 
 
-// Spi parameters
+/**
+ * 	SPI parameters
+ */
 typedef struct treufunk_params {
   spi_t spi; /* SPI bus the device is connected to */
   spi_clk_t spi_clk; /* SPI clock frequency */
