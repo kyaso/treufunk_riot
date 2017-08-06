@@ -79,7 +79,7 @@ typedef struct {
   netdev_ieee802154_t netdev; /* netdev parent struct */
   treufunk_params_t params; /* spi params for initialization */
   uint8_t state; /* current state of state machine; phy_status, Tab. 3.4 */
-  uint8_t tx_frame_len; /* TODO: do we need this? */
+  //uint8_t tx_frame_len; /* TODO: do we need this? */
 
   /* TODO */
 } treufunk_t;

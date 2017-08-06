@@ -28,8 +28,7 @@
 void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
 {
     DEBUG("treufunk_setup()...\n");
-    netdev_t *netdev = (netdev_t *)dev;
-    netdev->driver = &treufunk_driver;
+    dev->netdev.netdev.driver = &treufunk_driver;
 
     memcpy(&dev->params, params, sizeof(treufunk_params_t));
     dev->state = SLEEP;
@@ -292,11 +291,10 @@ size_t treufunk_tx_load(treufunk_t *dev, uint8_t *data, size_t len)
 void treufunk_tx_exec(treufunk_t *dev)
 {
     DEBUG("exec...\n");
-    //netdev_t *netdev = (netdev_t *)dev;
 
     DEBUG("treufunk_tx_exec(): putting into TX...\n");
     treufunk_set_state(dev, STATE_CMD_TX);
 
     /* TODO (tx_exec): event_callback */
-    //if(netdev->event_callback && (dev->netdev.flags & TREUNK_))
+    //if(dev->netdev.netdev.event_callback && (dev->netdev.flags & TREUNK_))
 }
