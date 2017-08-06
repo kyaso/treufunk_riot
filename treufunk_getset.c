@@ -141,5 +141,9 @@ void treufunk_reset_fifo(treufunk_t *dev)
 /* TODO (set_chan) */
 void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
 {
-
+    if((chan < TREUFUNK_MIN_CHANNEL) ||
+        (chan > TREUFUNK_MAX_CHANNEL) ||
+        (dev->netdev.chan == channel)) {
+            return;
+        }
 }

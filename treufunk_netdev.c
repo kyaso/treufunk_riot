@@ -39,22 +39,20 @@ const netdev_driver_t treufunk_driver = {
     .send = _send,
     //.recv = _recv,
     .init = _init,
-    //.isr = _isr,
+    .isr = _isr,
     //.get = _get,
     //.set = _set,
 };
 /* TEMP_END */
 
-/* TEMP_BEGIN (_irq_handler) */
-// static void _irq_handler(void *arg)
-// {
-//     netdev_t *dev = (netdev_t *) arg;
-//
-//     if (dev->event_callback) {
-//         dev->event_callback(dev, NETDEV_EVENT_ISR);
-//     }
-// }
-/* TEMP_END */
+static void _irq_handler(void *arg)
+{
+    netdev_t *dev = (netdev_t *) arg;
+
+    if (dev->event_callback) {
+        dev->event_callback(dev, NETDEV_EVENT_ISR);
+    }
+}
 
 static int _init(netdev_t *netdev)
 {
@@ -99,7 +97,6 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
 {
     DEBUG("netdev/_send()...\n");
     treufunk_t *dev = (treufunk_t *)netdev;
-    const struct iovec *ptr = vector;
     size_t len = 0;
 
     treufunk_tx_prepare(dev);
@@ -108,7 +105,7 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
     for(unsigned i = 0; i < count; i++, ptr++)
     {
         /* TODO (_send): Check for max length */
-        len = treufunk_tx_load(dev, ptr->iov_base, ptr->iov_len);
+        len = treufunk_tx_load(dev, vector->iov_base, vector->iov_len);
     }
 
     /* send out data */
@@ -116,4 +113,37 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
 
     /* return number of bytes that were send out */
     return (int)len;
+}
+
+static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len)
+{
+    int res = -ENOTSUP;
+    if(netdev == NULL) return -ENODEV;
+
+    treufunk_t *dev = (treufunk_t *) netdev;
+
+    switch(opt)
+    {
+        case NETOPT_CHANNEL:
+            assert(len == sizeof(uint8_t));
+            uint8_t chan = ((uint8_t *)val)[0];
+            if((chan < TREUFUNK_MIN_CHANNEL) ||
+                (chan > TREUFUNK_MAX_CHANNEL)) {
+                    res = -EINVAL;
+                    break;
+            }
+            treufunk_set_chan(dev, chan);
+            break;
+
+        case NETOPT_TX_POWER:
+            assert(len == sizeof(uint8_t));
+            treufunk_set_txpower(dev, *((uint8_t *)val));
+            res = sizeof(uint8_t);
+            break;
+
+        case NETOPT_STATE:
+            assert(len == sizeof(netopt_state_t));
+            /* TODO */
+            break;
+    }
 }
