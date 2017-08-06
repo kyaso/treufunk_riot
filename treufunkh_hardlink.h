@@ -123,6 +123,7 @@ int treufunk_reset(treufunk_t *dev);
 /*TODO */ int16_t treufunk_get_txpower(treufunk_t *dev);
 void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower);
 
+/* TODO */ void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state);
 uint8_t treufunk_get_state(treufunk_t *dev);
 void treufunk_set_state(treufunk_t *dev, uint8_t state_cmd);
 void treufunk_reset_state_machine(treufunk_t *dev);
