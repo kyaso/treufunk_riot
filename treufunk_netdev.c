@@ -137,6 +137,7 @@ static int _set_state(treufunk_t *dev, netopt_state_t state)
     return sizeof(netopt_state_t);
 }
 
+/* Some NETOPT states where added manually to include all possible states of Treufunk. See netopt.h */
 netopt_state_t _get_state(treufunk_t *dev)
 {
     switch(treufunk_(dev))
