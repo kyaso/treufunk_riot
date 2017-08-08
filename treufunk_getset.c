@@ -41,7 +41,7 @@ void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower)
 
 
 /**
- * Returns the state value corresponding to Tab. 3.4, SysSpec
+ * Returns the state value corresponding to Tab. 3.4, SysSpec (phy_status)
  */
 uint8_t treufunk_get_state(treufunk_t *dev)
 {

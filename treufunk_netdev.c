@@ -115,6 +115,49 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
     return (int)len;
 }
 
+static int _set_state(treufunk_t *dev, netopt_state_t state)
+{
+    switch(state)
+    {
+        case NETOPT_STATE_SLEEP:
+            treufunk_set_state(dev, STATE_CMD_SLEEP);
+            break;
+        case NETOPT_STATE_TX:
+            treufunk_tx_exec(dev);
+            break;
+        case NETOPT_STATE_RESET:
+            treufunk_reset(dev);
+            break;
+        default:
+            return -ENOTSUP;
+    }
+
+    return sizeof(netopt_state_t);
+}
+
+netopt_state_t _get_state(treufunk_t *dev)
+{
+    switch(treufunk_(dev))
+    {
+        case DEEP_SLEEP:
+            return NETOPT_STATE_DEEPSLEEP;
+        case SLEEP:
+            return NETOPT_STATE_SLEEP;
+        case BUSY:
+            return NETOPT_STATE_BUSY;
+        case TX_RDY:
+            return NETOPT_STATE_TXRDY;
+        case SENDING:
+            return NETOPT_STATE_RX;
+        case RX_RDY:
+            return NETOPT_STATE_RXRDY;
+        case RECEIVING:
+            return NETOPT_STATE_RX;
+        default:
+            return NETOPT_STATE_IDLE;
+    }
+}
+
 static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len)
 {
     int res = -ENOTSUP;
@@ -143,7 +186,16 @@ static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len)
 
         case NETOPT_STATE:
             assert(len == sizeof(netopt_state_t));
-            /* TODO */
+            res = _set_state(dev, *((netopt_state_t *)val));
+            break;
+        default:
             break;
     }
+
+    if(res == -ENOTSUP)
+    {
+        res = netdev_ieee802154_set(&(dev->netdev), opt, val, len);
+    }
+
+    return res;
 }
