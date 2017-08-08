@@ -30,9 +30,9 @@
 static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count);
 //static int _recv(netdev_t *netdev, void *buf, size_t len, void *info);
 static int _init(netdev_t *netdev);
-//static void _isr(netdev_t *netdev);
-//static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len);
-//static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len);
+static void _isr(netdev_t *netdev);
+static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len);
+static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len);
 
 /* TEMP_BEGIN (treufunk_driver) */
 const netdev_driver_t treufunk_driver = {
@@ -40,8 +40,8 @@ const netdev_driver_t treufunk_driver = {
     //.recv = _recv,
     .init = _init,
     .isr = _isr,
-    //.get = _get,
-    //.set = _set,
+    .get = _get,
+    .set = _set,
 };
 /* TEMP_END */
 
@@ -83,6 +83,16 @@ static int _init(netdev_t *netdev)
 
     /* reset Treufunk to default values and put it into RX state */
     return treufunk_reset(dev);
+}
+
+static void _isr(netdev_t *netdev)
+{
+    /* TODO: Obviously we don't need an ISR because Treufunk has no interrupt functionality. But we still have to implement it, therefore just return
+
+    Or do this instead: netdev->event_callback(netdev, NETDEV_EVENT_RX_COMPLETE);
+    This activates the event_callback (implemented in user-space). The callback then calls treufunk_netdevs _recv() function to fetch the received packet.
+    */
+    return;
 }
 
 static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
@@ -148,6 +158,43 @@ netopt_state_t _get_state(treufunk_t *dev)
         default:
             return NETOPT_STATE_IDLE;
     }
+}
+
+static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len)
+{
+    int res = -ENOTSUP;
+    if(netdev == NULL) return -ENODEV;
+
+    treufunk_t *dev = (treufunk_t *)netdev;
+
+    switch(opt)
+    {
+        case NETOPT_CHANNEL:
+            /* TODO (_get) */
+            break;
+
+        case NETOPT_TX_POWER:
+            assert(max_len >= sizeof(uint16_t));
+            *((uint16_t *)val) = treufunk_get_txpower(dev);
+            res = sizeof(uint16_t);
+            break;
+
+        case NETOPT_STATE:
+            assert(max_len >= sizeof(netopt_state_t));
+            *((netopt_state_t *)val) = _get_state(dev);
+            res = sizeof(netopt_state_t);
+            break;
+
+        default:
+            break;
+    }
+
+    if(res == -ENOTSUP)
+    {
+        res = netdev_ieee802154_get(&(dev->netdev), opt, val, max_len);
+    }
+
+    return res;
 }
 
 static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len)
