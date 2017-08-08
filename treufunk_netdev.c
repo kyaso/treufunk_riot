@@ -45,14 +45,6 @@ const netdev_driver_t treufunk_driver = {
 };
 /* TEMP_END */
 
-static void _irq_handler(void *arg)
-{
-    netdev_t *dev = (netdev_t *) arg;
-
-    if (dev->event_callback) {
-        dev->event_callback(dev, NETDEV_EVENT_ISR);
-    }
-}
 
 static int _init(netdev_t *netdev)
 {
