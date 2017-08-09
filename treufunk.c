@@ -17,7 +17,6 @@
 
 // #define ENABLE_DEBUG (0)
 // #include "debug.h"
-// hallo
 
 /**
  * First function to be called during the initialization of the transceiver.
@@ -45,7 +44,9 @@ int treufunk_reset(treufunk_t *dev)
     DEBUG("treufunk_reset()...\n");
     // treufunk_hardware_reset(dev);    /* TODO (treufunk_reset): Hardware reset neccessary? */
 
-    /* TEMP_BEGIN (treufunk_reset), reg_check (treufunk_reset) */ int ret = 0; /* TEMP_END */
+    /* TEMP_BEGIN (treufunk_reset), reg_check (treufunk_reset) */
+    int ret = 0;
+    /* TEMP_END */
 
     /* Reset sequence number and options */
     dev->netdev.seq = 0;

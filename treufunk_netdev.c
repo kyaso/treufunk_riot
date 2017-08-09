@@ -57,6 +57,7 @@ static int _init(netdev_t *netdev)
     // #if DUE_SR_MODE
     //     due_init_gpio();
     // #endif
+    
     /* TODO (_init): Maybe also hardware reset pin */
 
     /**

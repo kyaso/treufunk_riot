@@ -147,3 +147,15 @@ void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
             return;
         }
 }
+
+void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state)
+{
+    if(state)
+    {
+        dev->netdev.flags |= option;
+    }
+    else
+    {
+        dev->netdev.flags &= ~(option);
+    }
+}
