@@ -15,7 +15,7 @@
 // #define ENABLE_DEBUG (0)
 // #include "debug.h"
 
-/* TODO */
+/* TODO (tx_pow_to_dbm) */
 static const int8_t tx_pow_to_dbm[??] = { ... };
 
 int16_t treufunk_get_txpower(treufunk_t *dev)

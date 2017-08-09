@@ -36,7 +36,10 @@
 extern "C" {
 #endif
 
-/* TODO: Parameter Defines */
+/**
+ *	Maximum frame size (default = 127 bytes)
+ */
+#define TREUFUNK_MAX_PKT_LENGTH        (IEEE802154_FRAME_LEN_MAX)
 
 /**
  * 	phy_status byte masks

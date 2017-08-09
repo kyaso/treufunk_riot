@@ -53,7 +53,7 @@ int treufunk_reset(treufunk_t *dev)
     dev->netdev.flags = 0;
 
     /* set default options
-    TODO: Which of them true/false?
+    TODO (treufunk_reset): Which of them true/false?
     */
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_START, false);
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_END, true);

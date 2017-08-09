@@ -34,7 +34,6 @@ static void _isr(netdev_t *netdev);
 static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len);
 static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len);
 
-/* TEMP_BEGIN (treufunk_driver) */
 const netdev_driver_t treufunk_driver = {
     .send = _send,
     //.recv = _recv,
@@ -43,7 +42,6 @@ const netdev_driver_t treufunk_driver = {
     .get = _get,
     .set = _set,
 };
-/* TEMP_END */
 
 
 static int _init(netdev_t *netdev)
@@ -104,11 +102,17 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
 
     treufunk_tx_prepare(dev);
 
+    /* TODO (_send): Maybe check for length first, instead of immediately starting to write into FIFO and checking for length while doing so */
     /* load data into FIFO */
     for(unsigned i = 0; i < count; i++, ptr++)
     {
-        /* TODO (_send): Check for max length */
-        len = treufunk_tx_load(dev, vector->iov_base, vector->iov_len);
+        if((len + ptr->iov_len + 2) > TREUFUNK_MAX_PKT_LENGTH)
+        {
+            /* current packet data + FCS too long */
+            DEBUG("[treufunk] error: packet too large (%u bytes) to be send\n", (unsigned)len + 2);
+            return -EOVERFLOW;
+        }
+        len += treufunk_tx_load(dev, vector->iov_base, vector->iov_len);
     }
 
     /* send out data */
@@ -141,7 +145,7 @@ static int _set_state(treufunk_t *dev, netopt_state_t state)
 /* Some NETOPT states where added manually to include all possible states of Treufunk. See netopt.h */
 netopt_state_t _get_state(treufunk_t *dev)
 {
-    switch(treufunk_(dev))
+    switch(treufunk_get_state(dev))
     {
         case DEEP_SLEEP:
             return NETOPT_STATE_DEEPSLEEP;
@@ -211,6 +215,7 @@ static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len)
             break;
     }
 
+    /* fall back to IEEE802154 */
     if(res == -ENOTSUP)
     {
         res = netdev_ieee802154_get(&(dev->netdev), opt, val, max_len);
@@ -280,6 +285,7 @@ static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len)
             break;
     }
 
+    /* fall back to IEEE802154 */
     if(res == -ENOTSUP)
     {
         res = netdev_ieee802154_set(&(dev->netdev), opt, val, len);
