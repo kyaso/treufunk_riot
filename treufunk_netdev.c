@@ -57,7 +57,7 @@ static int _init(netdev_t *netdev)
     // #if DUE_SR_MODE
     //     due_init_gpio();
     // #endif
-    
+
     /* TODO (_init): Maybe also hardware reset pin */
 
     /**
@@ -187,6 +187,26 @@ static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len)
             res = sizeof(netopt_state_t);
             break;
 
+        case NETOPT_RX_START_IRQ:
+            *((netopt_enable_t *)val) = !!(dev->netdev.flags & TREUFUNK_OPT_TELL_RX_START); /* !!(s) converts s into a boolean */
+            res = sizeof(netopt_enable_t);
+            break;
+
+        case NETOPT_RX_END_IRQ:
+            *((netopt_enable_t *)val) = !!(dev->netdev.flags & TREUFUNK_OPT_TELL_RX_END);
+            res = sizeof(netopt_enable_t);
+            break;
+
+        case NETOPT_TX_START_IRQ:
+            *((netopt_enable_t *)val) = !!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_START);
+            res = sizeof(netopt_enable_t);
+            break;
+
+        case NETOPT_TX_END_IRQ:
+            *((netopt_enable_t *)val) = !!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_END);
+            res = sizeof(netopt_enable_t);
+            break;
+
         default:
             break;
     }
@@ -229,6 +249,33 @@ static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len)
             assert(len == sizeof(netopt_state_t));
             res = _set_state(dev, *((netopt_state_t *)val));
             break;
+
+        /**
+         *  Altough the Treufunk does not support interrupts,
+         *  the following flags can be used by the driver to
+         *  signal the MAC layer that one of the four events
+         *  happened.
+         */
+        case NETOPT_RX_START_IRQ:
+            treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_START, *((bool *)val));
+            res = sizeof(netopt_enable_t);
+            break;
+
+        case NETOPT_RX_END_IRQ:
+            treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_END, *((bool *)val));
+            res = sizeof(netopt_enable_t);
+            break;
+
+        case NETOPT_TX_START_IRQ:
+            treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_START, *((bool *)val));
+            res = sizeof(netopt_enable_t);
+            break;
+
+        case NETOPT_TX_END_IRQ:
+            treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_END, *((bool *)val));
+            res = sizeof(netopt_enable_t);
+            break;
+
         default:
             break;
     }
