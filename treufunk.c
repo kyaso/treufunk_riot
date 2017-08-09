@@ -52,6 +52,21 @@ int treufunk_reset(treufunk_t *dev)
     dev->netdev.seq = 0;
     dev->netdev.flags = 0;
 
+    /* set default options
+    TODO: Which of them true/false?
+    */
+    treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_START, false);
+    treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_END, true);
+    treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_START, false);
+    treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_END, false);
+
+    /* set default protocol */
+    #ifdef MODULE_GNRC_SIXLOWPAN
+        dev->netdev.proto = GNRC_NETTYPE_SIXLOWPAN;
+    #elif MODULE_GNRC
+        dev->netdev.proto = GNRC_NETTYPE_UNDEF;
+    #endif
+
     /* TODO (treufunk_reset): Driver side addresses ? */
 
     /* Reset all and load initial values */
@@ -296,6 +311,8 @@ void treufunk_tx_exec(treufunk_t *dev)
     DEBUG("treufunk_tx_exec(): putting into TX...\n");
     treufunk_set_state(dev, STATE_CMD_TX);
 
-    /* TODO (tx_exec): event_callback */
-    //if(dev->netdev.netdev.event_callback && (dev->netdev.flags & TREUNK_))
+    if(dev->netdev.netdev.event_callback && (dev->netdev.flags & TREUFUNK_OPT_TELL_TX_START))
+    {
+        dev->netdev.netdev.event_callback(&(dev->netdev.netdev), NETDEV_EVENT_TX_STARTED);
+    }
 }
