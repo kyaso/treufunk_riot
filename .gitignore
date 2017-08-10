@@ -1,2 +1,1 @@
-# ignore the symlink to lprf_registers.h
-include/lprf_registers.h
+# add paths to files here which should not be pushed to the remote repo
