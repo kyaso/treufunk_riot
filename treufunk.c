@@ -264,8 +264,11 @@ size_t treufunk_send(treufunk_t *dev, uint8_t *data, size_t len)
 /**
  * Prepare for TX.
  * Before put into TX mode, the SM needs to be put into SLEEP first.
+ * Also writes SHR and PHR into FIFO.
+ *
+ * @param phr Length of payload (PSDU/MPDU)
  */
-void treufunk_tx_prepare(treufunk_t *dev)
+void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
 {
     DEBUG("prepare...\n");
 
@@ -282,6 +285,13 @@ void treufunk_tx_prepare(treufunk_t *dev)
     /* Put SM into SLEEP */
     DEBUG("treufunk_tx_prepare(): putting into SLEEP...\n");
     treufunk_set_state(dev, STATE_CMD_SLEEP);
+
+    /* TODO (tx_prepare): wait some time, till SM is settled ? */
+
+    /* TODO (tx_prepare): Write SHR into FIFO */
+
+    /* Write PHR (= payload/PSDU length) into FIFO */
+    treufunk_fifo_write(dev, &phr, 1);
 
 }
 

@@ -147,7 +147,7 @@ void treufunk_reset_fifo(treufunk_t *dev); /* TODO: remove if not needed */
 
 
 size_t treufunk_send(treufunk_t *dev, uint8_t *data, size_t len);
-void treufunk_tx_prepare(treufunk_t *dev);
+void treufunk_tx_prepare(treufunk_t *dev, size_t phr);
 size_t treufunk_tx_load(treufunk_t *dev, uint8_t *data, size_t len);
 void treufunk_tx_exec(treufunk_t *dev);
 
