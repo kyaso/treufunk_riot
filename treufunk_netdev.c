@@ -28,7 +28,7 @@
 
 /* TODO (netdev.c): Wieder auskommentieren; TEMP */
 static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count);
-//static int _recv(netdev_t *netdev, void *buf, size_t len, void *info);
+static int _recv(netdev_t *netdev, void *buf, size_t len, void *info);
 static int _init(netdev_t *netdev);
 static void _isr(netdev_t *netdev);
 static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len);
@@ -98,28 +98,55 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
 {
     DEBUG("netdev/_send()...\n");
     treufunk_t *dev = (treufunk_t *)netdev;
-    size_t len = 0;
+    size_t len = 2; /* 2 bytes FCS */
 
-    treufunk_tx_prepare(dev);
+    /* determine length of payload. This value later is PHR */
+    for(unsigned i = 0; i < count; i++)
+    {
+        len += vector[i].iov_len;
+    }
+    /* check if packet is too long */
+    if(len > TREUFUNK_MAX_PKT_LENGTH)
+    {
+        DEBUG("[treufunk] error: packet too large (%u bytes) to be send\n", (unsigned)len + 2);
+        return -EOVERFLOW;
+    }
 
-    /* TODO (_send): Maybe check for length first, instead of immediately starting to write into FIFO and checking for length while doing so */
-    /* load data into FIFO */
+    treufunk_tx_prepare(dev, len);
+
+    // /* TODO (_send): Maybe check for length first, instead of immediately starting to write into FIFO and checking for length while doing so */
+    // /* load data into FIFO */
+    // for(unsigned i = 0; i < count; i++, vector++)
+    // {
+    //     if((len + vector->iov_len + 2) > TREUFUNK_MAX_PKT_LENGTH)
+    //     {
+    //         /* current packet data + FCS too long */
+    //         DEBUG("[treufunk] error: packet too large (%u bytes) to be send\n", (unsigned)len + 2);
+    //         return -EOVERFLOW;
+    //     }
+    //     len += treufunk_tx_load(dev, vector->iov_base, vector->iov_len);
+    // }
+
+    /* load payload (PSDU) data into FIFO */
     for(unsigned i = 0; i < count; i++, vector++)
     {
-        if((len + vector->iov_len + 2) > TREUFUNK_MAX_PKT_LENGTH)
-        {
-            /* current packet data + FCS too long */
-            DEBUG("[treufunk] error: packet too large (%u bytes) to be send\n", (unsigned)len + 2);
-            return -EOVERFLOW;
-        }
-        len += treufunk_tx_load(dev, vector->iov_base, vector->iov_len);
+        treufunk_tx_load(dev, vector->iov_base, vector->iov_len);
     }
 
     /* send out data */
     treufunk_tx_exec(dev);
 
     /* return number of bytes that were send out */
+    /* TODO (_send): What exactly is this? Only payload, or also with headers? */
     return (int)len;
+}
+
+static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
+{
+    /* TODO */
+    /* get length of received packet (PHR) */
+    /* if (buf) == NULL: just return length of data in FIFO */
+    /* read out data to (buf) */
 }
 
 static int _set_state(treufunk_t *dev, netopt_state_t state)
