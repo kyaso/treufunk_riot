@@ -104,9 +104,9 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
 
     /* TODO (_send): Maybe check for length first, instead of immediately starting to write into FIFO and checking for length while doing so */
     /* load data into FIFO */
-    for(unsigned i = 0; i < count; i++, ptr++)
+    for(unsigned i = 0; i < count; i++, vector++)
     {
-        if((len + ptr->iov_len + 2) > TREUFUNK_MAX_PKT_LENGTH)
+        if((len + vector->iov_len + 2) > TREUFUNK_MAX_PKT_LENGTH)
         {
             /* current packet data + FCS too long */
             DEBUG("[treufunk] error: packet too large (%u bytes) to be send\n", (unsigned)len + 2);
