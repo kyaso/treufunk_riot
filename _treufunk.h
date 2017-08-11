@@ -96,6 +96,9 @@ extern "C" {
 #define TREUFUNK_OPT_TELL_RX_START	(0x0400)
 #define TREUFUNK_OPT_TELL_RX_END	(0x0800)
 
+/* IEEE 802154 Synchronization header. 4 bytes preamble, 1 byte Start frame delimiter (SFD) */
+static uint8_t SHR[] = {0x55, 0x55, 0x55, 0x55, 0xe5};
+
 /**
  * 	SPI parameters
  */
@@ -105,14 +108,15 @@ typedef struct treufunk_params {
   spi_cs_t cs_pin; /* GPIO pin connected to chip select */
 } treufunk_params_t;
 
-/* TODO */
+/* TODO (treufunk_t): Maybe add more */
 // device descriptor
 typedef struct {
   netdev_ieee802154_t netdev; /* netdev parent struct */
   treufunk_params_t params; /* spi params for initialization */
+  /* TODO (treufunk_t/state): This is only set when executing set_state() [...]
+  Currently there is no mechanism that changes is during the automatic
+  transition from TX to RX. Maybe we don't need this variable at all. */
   uint8_t state; /* current state of state machine; phy_status, Tab. 3.4 */
-
-  /* TODO */
 } treufunk_t;
 
 void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params);
