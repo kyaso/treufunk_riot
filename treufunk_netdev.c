@@ -26,7 +26,6 @@
 
 //#define _MAX_MHR_OVERHEAD   (25)
 
-/* TODO (netdev.c): Wieder auskommentieren; TEMP */
 static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count);
 static int _recv(netdev_t *netdev, void *buf, size_t len, void *info);
 static int _init(netdev_t *netdev);
@@ -86,7 +85,8 @@ static int _init(netdev_t *netdev)
 
 static void _isr(netdev_t *netdev)
 {
-    /* TODO: Obviously we don't need an ISR because Treufunk has no interrupt functionality. But we still have to implement it, therefore just return
+    /* TODO: Obviously we don't need an ISR because Treufunk has no interrupt functionality. [...]
+    But we still have to implement it, therefore just return
 
     Or do this instead: netdev->event_callback(netdev, NETDEV_EVENT_RX_COMPLETE);
     This activates the event_callback (implemented in user-space). The callback then calls treufunk_netdevs _recv() function to fetch the received packet.
@@ -100,7 +100,7 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
     treufunk_t *dev = (treufunk_t *)netdev;
     size_t len = 2; /* 2 bytes FCS */
 
-    /* determine length of payload. This value later is PHR */
+    /* determine length of payload. This value is PHR later */
     for(unsigned i = 0; i < count; i++)
     {
         len += vector[i].iov_len;
@@ -112,9 +112,10 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
         return -EOVERFLOW;
     }
 
+    /* put SM into SLEEP and write SHR + PHR into FIFO */
     treufunk_tx_prepare(dev, len);
 
-    // /* TODO (_send): Maybe check for length first, instead of immediately starting to write into FIFO and checking for length while doing so */
+    // /* Maybe check for length first, instead of immediately starting to write into FIFO and checking for length while doing so */
     // /* load data into FIFO */
     // for(unsigned i = 0; i < count; i++, vector++)
     // {

@@ -216,7 +216,8 @@ int treufunk_sub_reg_write(const treufunk_t *dev,
 
 
 
-/* TODO (fifo_read): Due to the one byte length field only 255 bytes can be read out the FIFO during one fifo_read access.
+/* TODO (fifo_read): Due to the one byte length field only 255 bytes can [...]
+be read out the FIFO during one fifo_read access.
 If more bytes need to be read out, one or more fifo_read accesses are necessary.
 */
 void treufunk_fifo_read(const treufunk_t *dev, uint8_t *data)

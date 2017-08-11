@@ -35,8 +35,6 @@ void treufunk_fifo_write(const treufunk_t *dev, const uint8_t *data, const size_
 
 uint8_t treufunk_get_phy_status(const treufunk_t *dev);
 
-/* TODO more functions (?)*/
-
 #ifdef __cplusplus
 }
 #endif

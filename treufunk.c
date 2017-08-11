@@ -30,6 +30,7 @@ void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
     dev->netdev.netdev.driver = &treufunk_driver;
 
     memcpy(&dev->params, params, sizeof(treufunk_params_t));
+    /* TODO (setup): Maybe we don't need a state variable */
     dev->state = SLEEP;
 }
 
@@ -234,8 +235,9 @@ int treufunk_reset(treufunk_t *dev)
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_SM_EN,       1));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_FIFO_RESETB, 0));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_FIFO_RESETB, 1));
+    /* TODO (treufunk_reset): Call function reset_state_machine() or leave this ? */
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_SM_RESETB,   0));
-    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_SM_RESETB,   1)); /* TODO (treufunk_reset): Call function reset_state_machine() or leave this ? */
+    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_SM_RESETB,   1));
 
 
 
@@ -270,8 +272,6 @@ size_t treufunk_send(treufunk_t *dev, uint8_t *data, size_t len)
  */
 void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
 {
-    DEBUG("prepare...\n");
-
     uint8_t state;
 
     /* wait until ongoing transmissions are finished */
@@ -288,9 +288,12 @@ void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
 
     /* TODO (tx_prepare): wait some time, till SM is settled ? */
 
-    /* TODO (tx_prepare): Write SHR into FIFO */
+    /* Write SHR into FIFO */
+    DEBUG("treufunk_tx_prepare(): writing SHR into FIFO...\n");
+    treufunk_fifo_write(dev, SHR, 5);
 
     /* Write PHR (= payload/PSDU length) into FIFO */
+    DEBUG("treufunk_tx_prepare(): writing PHR into FIFO...\n");
     treufunk_fifo_write(dev, &phr, 1);
 
 }
@@ -304,8 +307,6 @@ void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
  */
 size_t treufunk_tx_load(treufunk_t *dev, uint8_t *data, size_t len)
 {
-    DEBUG("load...\n");
-
     DEBUG("treufunk_tx_load(): writing data into FIFO...\n");
     treufunk_fifo_write(dev, data, len);
     return len;
@@ -316,9 +317,7 @@ size_t treufunk_tx_load(treufunk_t *dev, uint8_t *data, size_t len)
  */
 void treufunk_tx_exec(treufunk_t *dev)
 {
-    DEBUG("exec...\n");
-
-    DEBUG("treufunk_tx_exec(): putting into TX...\n");
+    DEBUG("treufunk_tx_exec(): putting SM into TX...\n");
     treufunk_set_state(dev, STATE_CMD_TX);
 
     if(dev->netdev.netdev.event_callback && (dev->netdev.flags & TREUFUNK_OPT_TELL_TX_START))

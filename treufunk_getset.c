@@ -93,10 +93,12 @@ static void _rx_resets(treufunk_t *dev)
 void treufunk_set_state(treufunk_t *dev, uint8_t state_cmd)
 {
     DEBUG("Setting state %d...\n", state_cmd);
-    /* TODO (set_state): Check if states match */
+    /* TODO (set_state): Check if states match [...]
+    Maybe we don't need the state variable
+    */
     // uint8_t old_state = treufunk_get_state(dev);
 
-    /* Before transitioning into RX/TX, some manual reset have to be done */
+    /* Before transitioning into RX/TX, some manual resets have to be done */
     if(state_cmd == STATE_CMD_RX || state_cmd == STATE_CMD_TX) {
         _rx_resets(dev);
         DEBUG("rx_resets done.\n");
@@ -125,7 +127,8 @@ void treufunk_reset_state_machine(treufunk_t *dev)
 {
     treufunk_sub_reg_write(dev, SR_SM_RESETB, 0);
     treufunk_sub_reg_write(dev, SR_SM_RESETB, 1);
-    /* TODO (reset_state_machine): After reset in SLEEP ??? */
+    /* TODO (reset_state_machine): After reset in SLEEP ??? [...]
+    Maybe we don't need the state variable */
     //dev->state = SLEEP;
 }
 
