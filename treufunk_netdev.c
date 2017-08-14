@@ -35,7 +35,7 @@ static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len);
 
 const netdev_driver_t treufunk_driver = {
     .send = _send,
-    //.recv = _recv,
+    .recv = _recv,
     .init = _init,
     .isr = _isr,
     .get = _get,
@@ -138,16 +138,55 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
     treufunk_tx_exec(dev);
 
     /* return number of bytes that were send out */
-    /* TODO (_send): What exactly is this? Only payload, or also with headers? */
     return (int)len;
 }
 
 static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
 {
-    /* TODO */
-    /* get length of received packet (PHR) */
-    /* if (buf) == NULL: just return length of data in FIFO */
-    /* read out data to (buf) */
+    /* TODO
+     1. read received data from FIFO (into buf)
+     2. remove additional preamble bits (because Treufunk only has 8 bit preamble detection) and correct misaligned bits
+     3. get length of received packet (PHR)
+     4. if (buf) == NULL: just return length of data in FIFO
+     (5. read out data to (buf))
+
+    */
+
+    treufunk_t *dev = (treufunk_t *)netdev;
+    uint8_t phr;
+    size_t pkt_len;
+
+    /**
+     * temporary buffer to put in all received bytes (including SHR + PHR)
+     * SHR + PHR = 6
+     * 10 additional bytes to have more room for misalignment, TODO (_recv): This value needs to be discussed
+     */
+    size_t temp_len = TREUFUNK_MAX_PKT_LENGTH + 6 + 10;
+    uint8_t *temp = (uint8_t*)malloc(temp_len);
+
+    /* read FIFO data into buf */
+    treufunk_fifo_read(dev, (temp, temp_len);
+
+    /* remove preamble and correct alignment */
+
+    /* get PHR (size of received packet) */
+    phr = (uint8_t)(temp[0]);
+    pkt_len = (phr & 0x7f) - 2; /* only 7 bits are needed for phr (0-127). Subtract length of FCS as it can be discarded */
+    if(pkt_len > len)
+    {
+        DEBUG("ERRROR _recv(): Not enough space in receive buffer!\n");
+        return -ENOBUFS;
+    }
+
+    /* copy payload data (PSDU) from temp to buf */
+    memcpy(buf, temp+1, pkt_len);
+
+    /* do info processing */
+
+    /* free temp */
+    free(temp);
+
+    return pkt_len;
 }
 
 static int _set_state(treufunk_t *dev, netopt_state_t state)
