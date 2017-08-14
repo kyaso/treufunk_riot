@@ -50,11 +50,6 @@ static int _init(netdev_t *netdev)
 
     /* init gpios */
     spi_init_cs(dev->params.spi, dev->params.cs_pin);
-    /* For parallel out */
-    // #if DUE_SR_MODE
-    //     due_init_gpio();
-    // #endif
-
     /* TODO (_init): Maybe also hardware reset pin */
 
     /**
@@ -114,19 +109,6 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
 
     /* put SM into SLEEP and write SHR + PHR into FIFO */
     treufunk_tx_prepare(dev, len);
-
-    // /* Maybe check for length first, instead of immediately starting to write into FIFO and checking for length while doing so */
-    // /* load data into FIFO */
-    // for(unsigned i = 0; i < count; i++, vector++)
-    // {
-    //     if((len + vector->iov_len + 2) > TREUFUNK_MAX_PKT_LENGTH)
-    //     {
-    //         /* current packet data + FCS too long */
-    //         DEBUG("[treufunk] error: packet too large (%u bytes) to be send\n", (unsigned)len + 2);
-    //         return -EOVERFLOW;
-    //     }
-    //     len += treufunk_tx_load(dev, vector->iov_base, vector->iov_len);
-    // }
 
     /* load payload (PSDU) data into FIFO */
     for(unsigned i = 0; i < count; i++, vector++)
