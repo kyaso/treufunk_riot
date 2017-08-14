@@ -96,8 +96,10 @@ extern "C" {
 #define TREUFUNK_OPT_TELL_RX_START	(0x0400)
 #define TREUFUNK_OPT_TELL_RX_END	(0x0800)
 
-/* IEEE 802154 Synchronization header. 4 bytes preamble, 1 byte Start frame delimiter (SFD) */
-static uint8_t SHR[] = {0x55, 0x55, 0x55, 0x55, 0xe5};
+/* IEEE 802154 Synchronization header. 4 bytes preamble, 1 byte Start frame delimiter (SFD)
+	see IEEE802154 Standard Doc Chap. 12.1 (O-QPSK PHY, PPDU format)
+*/
+static uint8_t SHR[] = {0x00, 0x00, 0x00, 0x00, 0xA7};
 
 /**
  * 	SPI parameters
