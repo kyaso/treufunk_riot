@@ -74,8 +74,8 @@ extern "C" {
 /**
  * 	Channel configuration
  */
-#define TREUFUNK_MIN_CHANNEL 			(IEEE802154_CHANNEL_MIN)
-#define TREUFUNK_MAX_CHANNEL           	(IEEE802154_CHANNEL_MAX)
+#define TREUFUNK_MIN_CHANNEL 			(IEEE802154_CHANNEL_MIN) /* 11 */
+#define TREUFUNK_MAX_CHANNEL           	(IEEE802154_CHANNEL_MAX) /* 26 */
 #define TREUFUNK_DEFAULT_CHANNEL       	(IEEE802154_DEFAULT_CHANNEL)
 
 /**
@@ -132,14 +132,14 @@ void treufunk_set_addr_short(treufunk_t *dev, uint16_t addr);
 uint64_t treufunk_get_addr_long(treufunk_t *dev);
 void treufunk_set_addr_long(treufunk_t *dev, uint64_t addr);
 
-/*TODO */ uint8_t treufunk_get_chan(treufunk_t *dev);
-/*TODO */ void treufunk_set_chan(treufunk_t *dev, uint8_t chan);
-/*TODO */ uint8_t treufunk_get_page(treufunk_t *dev);
-/*TODO */ void treufunk_set_page(treufunk_t *dev, uint8_t page);
-/*TODO */ uint16_t treufunk_get_pan(treufunk_t *dev);
-/*TODO */ void treufunk_set_pan(treufunk_t *dev, uint16_t pan);
+uint8_t treufunk_get_chan(treufunk_t *dev);
+/* TODO */ void treufunk_set_chan(treufunk_t *dev, uint8_t chan);
 
-/*TODO */ int16_t treufunk_get_txpower(treufunk_t *dev);
+
+/* TODO */ uint16_t treufunk_get_pan(treufunk_t *dev);
+/* TODO */ void treufunk_set_pan(treufunk_t *dev, uint16_t pan);
+
+/* TODO */ int16_t treufunk_get_txpower(treufunk_t *dev);
 void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower);
 
 void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state);

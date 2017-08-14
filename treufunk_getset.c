@@ -174,14 +174,30 @@ void treufunk_reset_fifo(treufunk_t *dev)
     treufunk_sub_reg_write(dev, SR_FIFO_RESETB, 1);
 }
 
+uint8_t treufunk_get_chan(treufunk_t *dev)
+{
+    return dev->netdev.chan;
+}
+
 /* TODO (set_chan) */
 void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
 {
     if((chan < TREUFUNK_MIN_CHANNEL) ||
         (chan > TREUFUNK_MAX_CHANNEL) ||
-        (dev->netdev.chan == channel)) {
+        (dev->netdev.chan == chan)) {
             return;
-        }
+    }
+
+    dev->netdev.chan = chan;
+
+    /* Calculate channel center frequency in MHz according to the ieee802154 standard (channel page 0) */
+    int center_freq = 2405 + 5 * (chan - 11);
+
+    /* TODO (set_chan): */
+
+    /* Calculate PLL values for RX and TX */
+
+    /* Calculate VCO tune */
 }
 
 void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state)

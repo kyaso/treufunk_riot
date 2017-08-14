@@ -224,9 +224,19 @@ static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len)
 
     switch(opt)
     {
-        case NETOPT_CHANNEL:
-            /* TODO (_get) */
+        /* TODO (_get) */ case NETOPT_CHANNEL:
             break;
+
+        case NETOPT_CHANNEL_PAGE:
+            assert(max_len >= sizeof(uint16_t));
+            ((uint8_t *)val)[1] = 0;
+            ((uint8_t *)val)[0] = 0;
+            res = sizeof(uint16_t);
+            break;
+
+        /* TODO (_get) */ case NETOPT_MAX_PACKET_SIZE:
+            break;
+
 
         case NETOPT_TX_POWER:
             assert(max_len >= sizeof(uint16_t));
@@ -291,6 +301,20 @@ static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len)
                     break;
             }
             treufunk_set_chan(dev, chan);
+            break;
+
+        case NETOPT_CHANNEL_PAGE:
+            assert(len != sizeof(uint8_t));
+            uint8_t page = ((uint8_t *)val)[0];
+            /* We only support channel page 0 */
+            if(page != 0)
+            {
+                res = -EINVAL;
+            }
+            else
+            {
+                res = sizeof(uint8_t);
+            }
             break;
 
         case NETOPT_TX_POWER:
