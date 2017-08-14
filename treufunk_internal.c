@@ -25,7 +25,7 @@
 
     uint8_t due_shift_read(const treufunk_t *dev)
     {
-        uint8_t recv;
+        uint8_t recv = 0;
         uint8_t msb = gpio_read(GPIO_PIN(0,25)); /* Read MSB from MISO (PA25) */
         spi_transfer_bytes(SPIDEV, SPI_CS_UNDEF, false, NULL, &recv, 1);
         recv = (msb << 7) | (recv >> 1); /* correction */
@@ -81,28 +81,22 @@ static inline void getbus(const treufunk_t *dev)
 uint8_t treufunk_reg_read(const treufunk_t *dev,
                           const uint8_t addr)
 {
-    uint8_t value[3] = {0};
-    //uint8_t temp = 0;
+    uint8_t value;
 
     getbus(dev);
-    //spi_transfer_byte(SPIDEV, CSPIN, true, TREUFUNK_ACCSESS_REG_READ);
-    //spi_transfer_byte(SPIDEV, CSPIN, true, addr);
-    uint8_t spi_out[3] = {TREUFUNK_ACCSESS_REG_READ, addr, 0};
-    spi_transfer_bytes(SPIDEV, CSPIN, false, spi_out, value, 3);
+    spi_transfer_byte(SPIDEV, CSPIN, true, TREUFUNK_ACCSESS_REG_READ);
+    spi_transfer_byte(SPIDEV, CSPIN, true, addr);
 
     #if DUE_SR_MODE
         spi_transfer_byte(SPIDEV, CSPIN, false, 0);
         value = due_shift_read(dev);
     #else
-        //value = spi_transfer_byte(SPIDEV, CSPIN, false, NULL);
-        //spi_transfer_bytes(SPIDEV, CSPIN, false, &temp, NULL, 1);
+        value = spi_transfer_byte(SPIDEV, CSPIN, false, NULL);
     #endif /* DUE_SR_MODE */
-
-    DEBUG("0x%04x, 0x%04x\n", value[0], value[1]);
 
     spi_release(SPIDEV);
 
-    return value[2];
+    return value;
 }
 
 int treufunk_reg_write(const treufunk_t *dev,
@@ -189,8 +183,9 @@ int treufunk_sub_reg_write(const treufunk_t *dev,
 be read out the FIFO during one fifo_read access.
 If more bytes need to be read out, one or more fifo_read accesses are necessary.
 */
-/* TODO (fifo_read): return error when buf is to small */
-void treufunk_fifo_read(const treufunk_t *dev, uint8_t *data, const size_t buf_len)
+void treufunk_fifo_read(const treufunk_t *dev,
+                        uint8_t *buf,
+                        const size_t buf_len)
 {
     DEBUG("fifo_read...\n");
     size_t len;
@@ -198,17 +193,24 @@ void treufunk_fifo_read(const treufunk_t *dev, uint8_t *data, const size_t buf_l
     spi_transfer_byte(SPIDEV, CSPIN, true, TREUFUNK_ACCSESS_FRAME_READ);
     #if DUE_SR_MODE
         /* Get number of bytes in FIFO */
-        spi_transfer_byte(SPIDEV, CSPIN, false, 0);
+        spi_transfer_byte(SPIDEV, CSPIN, true, 0);
         len = due_shift_read(dev);
         DEBUG("fifo_read: %d bytes in FIFO.\n", len);
-        for(int i = 0; i < len; i++)
+        if(len > buf_len)
         {
-            /* since for the last spi transfer the "cont" parameter of spi_transfer_byte needs to be false, we check this here */
-            if(i == (len - 1)) spi_transfer_byte(SPIDEV, CSPIN, false, 0);
-            else spi_transfer_byte(SPIDEV, CSPIN, true, 0);
-
-            data[i] = due_shift_read(dev);
+            DEBUG("ERROR (fifo_read): Data in FIFO is %d bytes but buffer is only of size %d. Aborting!\n", len, buf_len);
+            spi_release(SPIDEV);
+            return;
         }
+
+        spi_transfer_byte(SPIDEV, CSPIN, true, 0);  /* Get first FIFO byte into shiftreg */
+        for(int i = 0; i < len-1; i++)              /* Shift out the first len-1 bytes */
+        {
+            buf[i] = due_shift_read(dev);
+        }
+        gpio_set((gpio_t)CSPIN);                    /* Disable CS */
+        buf[i] = due_shift_read(dev);               /* Shift out the last byte */
+
     #else
         len = spi_transfer_byte(SPIDEV, CSPIN, false, 1);
         if(len > buf_len)
@@ -217,7 +219,7 @@ void treufunk_fifo_read(const treufunk_t *dev, uint8_t *data, const size_t buf_l
         }
         else
         {
-            spi_transfer_bytes(SPIDEV, CSPIN, false, NULL, data, len);
+            spi_transfer_bytes(SPIDEV, CSPIN, false, NULL, buf, len);
         }
     #endif /* DUE_SR_MODE */
 
@@ -227,7 +229,9 @@ void treufunk_fifo_read(const treufunk_t *dev, uint8_t *data, const size_t buf_l
 }
 
 
-void treufunk_fifo_write(const treufunk_t *dev, const uint8_t *data, const size_t len)
+void treufunk_fifo_write(const treufunk_t *dev,
+                            const uint8_t *data,
+                            const size_t len)
 {
     DEBUG("fifo_write...\n");
     getbus(dev);
