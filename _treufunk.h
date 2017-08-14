@@ -37,7 +37,7 @@ extern "C" {
 #endif
 
 /**
- *	Maximum frame size (default = 127 bytes)
+ *	Maximum frame size (default = 127 bytes) (w/o SHR + PHR)
  */
 #define TREUFUNK_MAX_PKT_LENGTH        (IEEE802154_FRAME_LEN_MAX)
 
