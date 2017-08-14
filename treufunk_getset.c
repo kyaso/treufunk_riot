@@ -25,6 +25,39 @@ int16_t treufunk_get_txpower(treufunk_t *dev)
     return tx_pow_to_dbm[txpower];
 }
 
+uint16_t treufunk_get_addr_short(treufunk_t *dev)
+{
+    return (dev->netdev.short_addr[0] << 8) | dev->netdev.short_addr[1];
+}
+
+void treufunk_set_addr_short(treufunk_t *dev, uint16_t addr)
+{
+    dev->netdev.short_addr[0] = (uint8_t)(addr);
+    dev->netdev.short_addr[1] = (uint8_t)(addr >> 8);
+#ifdef MODULE_SIXLOWPAN
+    /* https://tools.ietf.org/html/rfc4944#section-12 requires the first bit to
+     * 0 for unicast addresses */
+    dev->netdev.short_addr[0] &= 0x7F;
+#endif
+}
+
+uint64_t treufunk_get_addr_long(treufunk_t *dev)
+{
+    uint64_t addr;
+    uint8_t *ap = (uint8_t *)(&addr);
+    for (int i = 0; i < 8; i++) {
+        ap[i] = dev->netdev.long_addr[i];
+    }
+    return addr;
+}
+
+void treufunk_set_addr_long(treufunk_t *dev, uint64_t addr)
+{
+    for (int i = 0; i < 8; i++) {
+        dev->netdev.long_addr[i] = (uint8_t)(addr >> (i * 8));
+    }
+}
+
 /**
  * Sets the desired TX Power by writing into the SM_TX_POWER_CTRL (0x8B) register.
  * @param txpower The desired TX power. Valid values: 0 .. 15 (0dBm .. 15dBm)

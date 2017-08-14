@@ -121,18 +121,17 @@ typedef struct {
   uint8_t state; /* current state of state machine; phy_status, Tab. 3.4 */
 } treufunk_t;
 
+
+
 void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params);
 int treufunk_reset(treufunk_t *dev);
 
-/* following getter/setter functions need to/should be implemented in treufunk_getset.h */
-//uint8_t treufunk_get_phy_status(treufunk_t *dev);
-//void treufunk_set_sub_reg(treufunk_t *dev, uint8_t reg_addr, uint8_t sub_reg_mask, uint8_t value);
+/** Addresses can only be managed by driver, because Treufunk does not support addresses */
+uint16_t treufunk_get_addr_short(treufunk_t *dev);
+void treufunk_set_addr_short(treufunk_t *dev, uint16_t addr);
+uint64_t treufunk_get_addr_long(treufunk_t *dev);
+void treufunk_set_addr_long(treufunk_t *dev, uint64_t addr);
 
-/* Address feature not available on Trefunk */
-//uint16_t treufunk_get_addr_short(treufunk_t *dev);
-//void treufunk_set_addr_short(treufunk_t *dev, uint16_t addr);
-//uint64_t treufunk_get_addr_long(treufunk_t *dev);
-//void treufunk_set_addr_long(treufunk_t *dev, uint64_t addr);
 /*TODO */ uint8_t treufunk_get_chan(treufunk_t *dev);
 /*TODO */ void treufunk_set_chan(treufunk_t *dev, uint8_t chan);
 /*TODO */ uint8_t treufunk_get_page(treufunk_t *dev);
