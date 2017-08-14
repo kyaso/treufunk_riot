@@ -23,45 +23,14 @@
 
 #if DUE_SR_MODE
 
-    /* For parallel out */
-    // void due_init_gpio(void)
-    // {
-    //     DEBUG("Shift Reg: GPIO init...\n");
-    //     /* Due pins 52 ... 38 -> SR pins: QA ... QH */
-    //     gpio_init(ARDUINO_PIN_52, GPIO_IN_PU);
-    //     gpio_init(ARDUINO_PIN_50, GPIO_IN_PU);
-    //     gpio_init(ARDUINO_PIN_48, GPIO_IN_PU);
-    //     gpio_init(ARDUINO_PIN_46, GPIO_IN_PU);
-    //     gpio_init(ARDUINO_PIN_44, GPIO_IN_PU);
-    //     gpio_init(ARDUINO_PIN_42, GPIO_IN_PU);
-    //     gpio_init(ARDUINO_PIN_40, GPIO_IN_PU);
-    //     gpio_init(ARDUINO_PIN_38, GPIO_IN_PU);
-    // }
-
     uint8_t due_shift_read(const treufunk_t *dev)
     {
-        /* For parallel out */
-        // uint8_t val = 0;
-        // uint8_t one = 1;
-        //
-        // /* read pins */
-        // if(gpio_read(ARDUINO_PIN_52) > 0) val |= one;
-        // if(gpio_read(ARDUINO_PIN_50) > 0) val |= (one<<1);
-        // if(gpio_read(ARDUINO_PIN_48) > 0) val |= (one<<2);
-        // if(gpio_read(ARDUINO_PIN_46) > 0) val |= (one<<3);
-        // if(gpio_read(ARDUINO_PIN_44) > 0) val |= (one<<4);
-        // if(gpio_read(ARDUINO_PIN_42) > 0) val |= (one<<5);
-        // if(gpio_read(ARDUINO_PIN_40) > 0) val |= (one<<6);
-        // if(gpio_read(ARDUINO_PIN_38) > 0) val |= (one<<7);
-        //
-        // return val;
         uint8_t recv;
         uint8_t msb = gpio_read(GPIO_PIN(0,25)); /* Read MSB from MISO (PA25) */
         spi_transfer_bytes(SPIDEV, SPI_CS_UNDEF, false, NULL, &recv, 1);
         recv = (msb << 7) | (recv >> 1); /* correction */
 
         return recv;
-
     }
 
 #endif /* DUE_SR_MODE */
