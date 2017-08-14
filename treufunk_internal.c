@@ -220,7 +220,8 @@ int treufunk_sub_reg_write(const treufunk_t *dev,
 be read out the FIFO during one fifo_read access.
 If more bytes need to be read out, one or more fifo_read accesses are necessary.
 */
-void treufunk_fifo_read(const treufunk_t *dev, uint8_t *data)
+/* TODO (fifo_read): return error when buf is to small */
+void treufunk_fifo_read(const treufunk_t *dev, uint8_t *data, const size_t buf_len)
 {
     DEBUG("fifo_read...\n");
     size_t len;
@@ -240,8 +241,15 @@ void treufunk_fifo_read(const treufunk_t *dev, uint8_t *data)
             data[i] = due_shift_read(dev);
         }
     #else
-        len = spi_transfer_byte(SPIDEV, CSPIN, true, 1);
-        spi_transfer_bytes(SPIDEV, CSPIN, false, NULL, data, len);
+        len = spi_transfer_byte(SPIDEV, CSPIN, false, 1);
+        if(len > buf_len)
+        {
+            DEBUG("ERROR (fifo_read): Data in FIFO is %d bytes but buffer is only of size %d. Aborting!\n", len, buf_len);
+        }
+        else
+        {
+            spi_transfer_bytes(SPIDEV, CSPIN, false, NULL, data, len);
+        }
     #endif /* DUE_SR_MODE */
 
     spi_release(SPIDEV);
