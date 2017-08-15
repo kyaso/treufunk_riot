@@ -68,7 +68,19 @@ int treufunk_reset(treufunk_t *dev)
         dev->netdev.proto = GNRC_NETTYPE_UNDEF;
     #endif
 
-    /* TODO (treufunk_reset): Driver side addresses ? */
+    /* get an 8-byte unique ID to use as hardware address */
+    luid_get(addr_long.uint8, IEEE802154_LONG_ADDRESS_LEN);
+    /* make sure we mark the address as non-multicast and not globally unique */
+    addr_long.uint8[0] &= ~(0x01);
+    addr_long.uint8[0] |=  (0x02);
+    /* set short and long address */
+    treufunk_set_addr_long(dev, NTOHLL(addr_long.uint64.u64));
+    treufunk_set_addr_short(dev, NTOHS(addr_long.uint16[0].u16));
+
+    /* set default pan id */
+    treufunk_set_pan(dev, IEEE802154_DEFAULT_PANID);
+    /* set default channel */
+    treufunk_set_chan(dev, IEEE802154_DEFAULT_CHANNEL);
 
     /* Reset all and load initial values */
     DEBUG("Doing global resets...\n");
