@@ -64,15 +64,6 @@ extern "C" {
 
 
 /**
- * 	TX modes, value matches with position of TX_MODE in SM_TX_SET, sub_reg_mask=0x30
- */
-#define TX_MODE_24    (0x00)
-#define TX_MODE_800   (0x10)
-#define TX_MODE_433   (0x20)
-//#define TX_MODE_433   (0x30)/* 433 appears 2 times in table at SM_TX_SET */
-
-
-/**
  * 	Default TX power (0dBm)
  */
 #define TREUFUNK_DEFAULT_TXPOWER 		(IEEE802154_DEFAULT_TXPOWER)

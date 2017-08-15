@@ -134,9 +134,9 @@ static uint8_t state_to_statecmd(uint8_t state)
             return STATE_CMD_TX;
         case TX_RDY:
             return STATE_CMD_TXIDLE;
-        case RECEIVING;
+        case RECEIVING:
             return STATE_CMD_RX;
-        case RX_RDY;
+        case RX_RDY:
             return STATE_CMD_RXHOLD;
 
         default:

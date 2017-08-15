@@ -144,16 +144,19 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
      * 10 additional bytes to have more room for misalignment, TODO (_recv): This value needs to be discussed
      */
     size_t temp_len = TREUFUNK_MAX_PKT_LENGTH + 6 + 10;
-    uint8_t *temp = (uint8_t*)malloc(temp_len);
+    uint8_t *temp = malloc(temp_len);
 
     /* read FIFO data into buf */
-    treufunk_fifo_read(dev, (temp, temp_len);
+    treufunk_fifo_read(dev, temp, temp_len);
 
-    /* remove preamble and correct alignment */
+    /* TODO (_recv): remove preamble and correct alignment */
 
     /* get PHR (size of received packet) */
-    phr = (uint8_t)(temp[0]);
+    phr = temp[0];
     pkt_len = (phr & 0x7f) - 2; /* only 7 bits are needed for phr (0-127). Subtract length of FCS as it can be discarded */
+
+    if(buf == NULL) return pkt_len;
+
     if(pkt_len > len)
     {
         DEBUG("ERRROR _recv(): Not enough space in receive buffer!\n");
@@ -161,7 +164,7 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
     }
 
     /* copy payload data (PSDU) from temp to buf */
-    memcpy(buf, temp+1, pkt_len);
+    memcpy((uint8_t*)buf, temp+1, pkt_len);
 
     /* do info processing */
 
