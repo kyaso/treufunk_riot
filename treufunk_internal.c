@@ -23,11 +23,18 @@
 
 #if DUE_SR_MODE
 
+    /**
+     * This function reads out the shift register serially.
+     *
+     * Note that we have to read the MSB first manually,
+     * since otherwise it would be kicked out of the SR with the
+     * first rising SPI_CLK edge.
+     */
     uint8_t due_shift_read(const treufunk_t *dev)
     {
         uint8_t recv = 0;
         uint8_t msb = gpio_read(GPIO_PIN(0,25)); /* Read MSB from MISO (PA25) */
-        spi_transfer_bytes(SPIDEV, SPI_CS_UNDEF, false, NULL, &recv, 1);
+        spi_transfer_bytes(SPIDEV, SPI_CS_UNDEF, false, NULL, &recv, 1); /* We use SPI_CS_UNDEF because the SR has no latch enable feature; we just need clock and MOSI/SER */
         recv = (msb << 7) | (recv >> 1); /* correction */
 
         return recv;

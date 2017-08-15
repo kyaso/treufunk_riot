@@ -22,7 +22,7 @@
 #define ENABLE_DEBUG (1)
 #include "debug.h"
 
-/* Set this to 1, if you want to use the shift register workaround with Arduino Due */
+/* Set this to 1, if you want to use the shift register (SN74HC595) workaround with Arduino Due */
 #define DUE_SR_MODE (0)
 
 /* TEMP, reg_check */
