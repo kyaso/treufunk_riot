@@ -136,8 +136,8 @@ uint8_t treufunk_get_chan(treufunk_t *dev);
 /* TODO */ void treufunk_set_chan(treufunk_t *dev, uint8_t chan);
 
 
-/* TODO */ uint16_t treufunk_get_pan(treufunk_t *dev);
-/* TODO */ void treufunk_set_pan(treufunk_t *dev, uint16_t pan);
+uint16_t treufunk_get_pan(treufunk_t *dev);
+void treufunk_set_pan(treufunk_t *dev, uint16_t pan);
 
 /* TODO */ int16_t treufunk_get_txpower(treufunk_t *dev);
 void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower);

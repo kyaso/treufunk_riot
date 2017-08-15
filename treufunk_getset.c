@@ -58,6 +58,16 @@ void treufunk_set_addr_long(treufunk_t *dev, uint64_t addr)
     }
 }
 
+uint16_t treufunk_get_pan(treufunk_t *dev)
+{
+    return dev->netdev.pan;
+}
+
+void treufunk_set_pan(treufunk_t *dev, uint16_t pan)
+{
+    dev->netdev.pan = pan;
+}
+
 /**
  * Sets the desired TX Power by writing into the SM_TX_POWER_CTRL (0x8B) register.
  * @param txpower The desired TX power. Valid values: 0 .. 15 (0dBm .. 15dBm)
