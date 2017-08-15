@@ -209,8 +209,8 @@ uint8_t treufunk_get_chan(treufunk_t *dev)
 /* TODO (set_chan) */
 void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
 {
-    if((chan < TREUFUNK_MIN_CHANNEL) ||
-        (chan > TREUFUNK_MAX_CHANNEL) ||
+    if((chan < IEEE802154_CHANNEL_MIN) ||
+        (chan > IEEE802154_CHANNEL_MAX) ||
         (dev->netdev.chan == chan)) {
             return;
     }

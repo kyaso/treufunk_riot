@@ -71,12 +71,6 @@ extern "C" {
 #define TX_MODE_433   (0x20)
 //#define TX_MODE_433   (0x30)/* 433 appears 2 times in table at SM_TX_SET */
 
-/**
- * 	Channel configuration
- */
-#define TREUFUNK_MIN_CHANNEL 			(IEEE802154_CHANNEL_MIN) /* 11 */
-#define TREUFUNK_MAX_CHANNEL           	(IEEE802154_CHANNEL_MAX) /* 26 */
-#define TREUFUNK_DEFAULT_CHANNEL       	(IEEE802154_DEFAULT_CHANNEL)
 
 /**
  * 	Default TX power (0dBm)

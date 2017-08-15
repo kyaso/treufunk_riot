@@ -295,8 +295,8 @@ static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len)
         case NETOPT_CHANNEL:
             assert(len == sizeof(uint8_t));
             uint8_t chan = ((uint8_t *)val)[0];
-            if((chan < TREUFUNK_MIN_CHANNEL) ||
-                (chan > TREUFUNK_MAX_CHANNEL)) {
+            if((chan < IEEE802154_CHANNEL_MIN) ||
+                (chan > IEEE802154_CHANNEL_MAX)) {
                     res = -EINVAL;
                     break;
             }
