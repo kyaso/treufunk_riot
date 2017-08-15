@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-/* Due to a bug in the interface between Arduino and Treufunk we put a shift register inbetween both. The Treufunk writes into it and Arduino reads it out parallel */
+/* Due to a bug in the interface between Arduino and Treufunk we put a shift register inbetween both. The Treufunk writes into it and Arduino reads it out serially */
 #if DUE_SR_MODE
     uint8_t due_shift_read(const treufunk_t *dev);
 #endif

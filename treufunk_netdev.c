@@ -224,9 +224,6 @@ static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len)
 
     switch(opt)
     {
-        /* TODO (_get) */ case NETOPT_CHANNEL:
-            break;
-
         case NETOPT_CHANNEL_PAGE:
             assert(max_len >= sizeof(uint16_t));
             ((uint8_t *)val)[1] = 0;
