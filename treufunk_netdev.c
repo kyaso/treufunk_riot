@@ -123,6 +123,22 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
     return (int)len;
 }
 
+/**
+ * Gets the received data from the FIFO.
+ *
+ * Since the Treufunk does not handle it automatically, we have
+ * to remove the preamble etc. manually.
+ *
+ * @param  buf    The buffer in which the received data is written
+ * @param  len    Length of the receive buffer.
+ *                Because we have to read out the whole FIFO first,
+ *                the buffer should be at least of size
+ *                  TREUFUNK_MAX_PKT_LENGTH + 6 + 10
+ *                6 = SHR length
+ *                10 additional bytes because of possible misalignment
+ * @param  info   [description]
+ * @return        [description]
+ */
 static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
 {
     /* TODO
@@ -138,38 +154,30 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
     uint8_t phr;
     size_t pkt_len;
 
-    /**
-     * temporary buffer to put in all received bytes (including SHR + PHR)
-     * SHR + PHR = 6
-     * 10 additional bytes to have more room for misalignment, TODO (_recv): This value needs to be discussed
-     */
-    size_t temp_len = TREUFUNK_MAX_PKT_LENGTH + 6 + 10;
-    uint8_t *temp = malloc(temp_len);
 
     /* read FIFO data into buf */
-    treufunk_fifo_read(dev, temp, temp_len);
+    treufunk_fifo_read(dev, (uint8_t*)buf, len);
 
     /* TODO (_recv): remove preamble and correct alignment */
 
     /* get PHR (size of received packet) */
-    phr = temp[0];
+    phr = buf[0];
     pkt_len = (phr & 0x7f) - 2; /* only 7 bits are needed for phr (0-127). Subtract length of FCS as it can be discarded */
 
-    if(buf == NULL) return pkt_len;
+    /* Move payload to front of buffer */
+    memmove(buf, buf+1, pkt_len);
 
-    if(pkt_len > len)
-    {
-        DEBUG("ERRROR _recv(): Not enough space in receive buffer!\n");
-        return -ENOBUFS;
-    }
+    /* TODO (_recv) */ //if(buf == NULL) return pkt_len;
 
-    /* copy payload data (PSDU) from temp to buf */
-    memcpy((uint8_t*)buf, temp+1, pkt_len);
+    // if(pkt_len > len)
+    // {
+    //     DEBUG("ERRROR _recv(): Not enough space in receive buffer!\n");
+    //     return -ENOBUFS;
+    // }
+
 
     /* do info processing */
 
-    /* free temp */
-    free(temp);
 
     return pkt_len;
 }
