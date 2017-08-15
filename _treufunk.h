@@ -144,7 +144,7 @@ void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower);
 
 void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state);
 uint8_t treufunk_get_state(treufunk_t *dev);
-void treufunk_set_state(treufunk_t *dev, uint8_t state_cmd);
+void treufunk_set_state(treufunk_t *dev, uint8_t state);
 void treufunk_reset_state_machine(treufunk_t *dev);
 
 void treufunk_reset_fifo(treufunk_t *dev); /* TODO: remove if not needed */

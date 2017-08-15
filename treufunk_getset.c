@@ -96,12 +96,6 @@ uint8_t treufunk_get_state(treufunk_t *dev)
 }
 
 
-
-// static inline void _set_state(treufunk_t *dev, uint8_t state, uint8_t state, uint8_t cmd)
-// {
-//
-// }
-
 /**
  * Everytime the chip is put into RX or TX state, some manual resets have to be done.
  */
@@ -125,21 +119,44 @@ static void _rx_resets(treufunk_t *dev)
     */
 }
 
+/**
+ * Converts a state (phy_status) to the corresponding STATE_CMD (for SM_MAIN)
+ */
+static uint8_t state_to_statecmd(uint8_t state)
+{
+    switch(state)
+    {
+        case SLEEP:
+            return STATE_CMD_SLEEP;
+        case DEEP_SLEEP:
+            return STATE_CMD_DEEPSLEEP;
+        case SENDING:
+            return STATE_CMD_TX;
+        case TX_RDY:
+            return STATE_CMD_TXIDLE;
+        case RECEIVING;
+            return STATE_CMD_RX;
+        case RX_RDY;
+            return STATE_CMD_RXHOLD;
+
+        default:
+            return -1;
+    }
+}
 
 /**
  * Sets the state of the state machine.
  * Note: Before changing to TX the SM needs to be put into SLEEP first. Then the frame is written
  * into the FIFO. Finally transition to TX is initiated. This all happens in treufunk.c (prepare, load, exec).
  *
- * @param state_cmd: See lprf_registers, "commands, (SM_MAIN)"
+ * @param state: state as in phy_status
  */
-void treufunk_set_state(treufunk_t *dev, uint8_t state_cmd)
+void treufunk_set_state(treufunk_t *dev, uint8_t state)
 {
-    DEBUG("Setting state %d...\n", state_cmd);
-    /* TODO (set_state): Check if states match [...]
-    Maybe we don't need the state variable
-    */
-    // uint8_t old_state = treufunk_get_state(dev);
+    DEBUG("Setting state %d...\n", state);
+    uint8_t state_cmd = state_to_statecmd(state);
+    if(dev->state == state) return;
+    else if(state_cmd == -1) return;
 
     /* Before transitioning into RX/TX, some manual resets have to be done */
     if(state_cmd == STATE_CMD_RX || state_cmd == STATE_CMD_TX) {

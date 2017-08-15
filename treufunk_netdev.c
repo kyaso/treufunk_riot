@@ -176,7 +176,7 @@ static int _set_state(treufunk_t *dev, netopt_state_t state)
     switch(state)
     {
         case NETOPT_STATE_SLEEP:
-            treufunk_set_state(dev, STATE_CMD_SLEEP);
+            treufunk_set_state(dev, SLEEP);
             break;
         case NETOPT_STATE_TX:
             treufunk_tx_exec(dev);

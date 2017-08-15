@@ -242,7 +242,7 @@ int treufunk_reset(treufunk_t *dev)
 
 
     //go into RX state
-    treufunk_set_state(dev, STATE_CMD_RX);
+    treufunk_set_state(dev, RECEIVING);
 
     DEBUG("trefunk_reset(): reset complete.\n");
 
@@ -284,7 +284,7 @@ void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
 
     /* Put SM into SLEEP */
     DEBUG("treufunk_tx_prepare(): putting into SLEEP...\n");
-    treufunk_set_state(dev, STATE_CMD_SLEEP);
+    treufunk_set_state(dev, SLEEP);
 
     /* TODO (tx_prepare): wait some time, till SM is settled ? */
 
@@ -318,7 +318,7 @@ size_t treufunk_tx_load(treufunk_t *dev, uint8_t *data, size_t len)
 void treufunk_tx_exec(treufunk_t *dev)
 {
     DEBUG("treufunk_tx_exec(): putting SM into TX...\n");
-    treufunk_set_state(dev, STATE_CMD_TX);
+    treufunk_set_state(dev, SENDING);
 
     if(dev->netdev.netdev.event_callback && (dev->netdev.flags & TREUFUNK_OPT_TELL_TX_START))
     {
