@@ -197,7 +197,6 @@ int treufunk_reset(treufunk_t *dev)
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_FIFO_SLEEP, 0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_IDLE_MODE_EN,  0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_PWR_CTRL,     15)); /* Maximum TX output power (15dBm) */
-    /* or this? treufunk_set_txpower(dev, TREUFUNK_DEFAULT_TXPOWER); */
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_MAXAMP,        0));
 
     /* SM RX */
