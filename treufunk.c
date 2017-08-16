@@ -18,6 +18,15 @@
 // #define ENABLE_DEBUG (0)
 // #include "debug.h"
 
+/* TODO (rx_poll_func)
+    Implement this function here or elsewhere?
+*/
+void *rx_poll_func(void *arg)
+{
+    // do polling...
+}
+
+
 /**
  * First function to be called during the initialization of the transceiver.
  *
@@ -30,8 +39,9 @@ void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
     dev->netdev.netdev.driver = &treufunk_driver;
 
     memcpy(&dev->params, params, sizeof(treufunk_params_t));
-    /* TODO (setup): Maybe we don't need a state variable */
     dev->state = SLEEP;
+    /* TODO (setup): Discuss thread priority and flags */
+    dev->rx_poll_th = thread_create(rx_thread_stack, sizeof(rx_thread_stack), THREAD_PRIORITY_MAIN-1, THREAD_CREATE_SLEEPING, rx_poll_func, NULL, "rx_poll_thread");
 }
 
 /**
@@ -252,8 +262,11 @@ int treufunk_reset(treufunk_t *dev)
 
 
 
-    //go into RX state
+    /* go into RX state */
     treufunk_set_state(dev, RECEIVING);
+
+    /* start polling */
+    thread_wakeup(dev->rx_poll_th);
 
     DEBUG("trefunk_reset(): reset complete.\n");
 
