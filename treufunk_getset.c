@@ -187,9 +187,9 @@ void treufunk_reset_state_machine(treufunk_t *dev)
 {
     treufunk_sub_reg_write(dev, SR_SM_RESETB, 0);
     treufunk_sub_reg_write(dev, SR_SM_RESETB, 1);
-    /* TODO (reset_state_machine): After reset in SLEEP ??? [...]
-    Maybe we don't need the state variable */
-    //dev->state = SLEEP;
+
+    /* TODO (reset_state_machine): Wait for SM to settle? */
+    dev->state = treufunk_get_state(dev);
 }
 
 /* TODO (reset_fifo): Do we need this extra function, or would the two lines
