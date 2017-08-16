@@ -18,6 +18,8 @@
 #include "net/netdev.h"
 #include "net/netdev/ieee802154.h"
 #include "net/gnrc/nettype.h"
+#include "thread.h"
+#include "xtimer.h"
 
 #define ENABLE_DEBUG (1)
 #include "debug.h"
@@ -86,6 +88,8 @@ extern "C" {
 */
 static uint8_t SHR[] = {0x00, 0x00, 0x00, 0x00, 0xA7};
 
+char poll_thread_stack[THREAD_STACKSIZE_MAIN]; /* TODO: Discuss thread size; for ex. measure stack usage by setting flag THREAD_CREATE_STACKTEST during thread creation */
+
 /**
  * 	SPI parameters
  */
@@ -104,6 +108,7 @@ typedef struct {
   Currently there is no mechanism that changes is during the automatic
   transition from TX to RX. Maybe we don't need this variable at all. */
   uint8_t state; /* current state of state machine; phy_status, Tab. 3.4 */
+  kernel_pid_t poll_th; /* The polling thread PID */
 } treufunk_t;
 
 
