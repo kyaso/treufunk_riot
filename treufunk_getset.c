@@ -90,7 +90,7 @@ uint8_t treufunk_get_state(treufunk_t *dev)
 {
     /* right shift 5 neccessary because state bits are the first three bits of phy_status */
     DEBUG("Getting current state...\n");
-    uint8_t state = (treufunk_get_phy_status(dev) & PHY_SM_STATUS) >> 5;
+    uint8_t state = PHY_SM_STATUS(treufunk_get_phy_status(dev));
     DEBUG("treufunk_get_state(): STATE = 0x%03x\n", state);
     return (state);
 }
@@ -163,10 +163,6 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
         _rx_resets(dev);
         DEBUG("rx_resets done.\n");
     }
-    if(state_cmd != STATE_CMD_RX)
-    {
-        /* TODO (set_state): make thread sleep */
-    }
 
     /* write state_cmd to SM_COMMAND sub_reg of SM_MAIN */
     DEBUG("Writing state_cmd (%d) into SM_MAIN reg...\n", state_cmd);
@@ -180,6 +176,16 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
 
     /* set state attribute of the Treufunk device descriptor */
     dev->state = treufunk_get_state(dev);
+
+    /* Start polling timer if RX */
+    if(state == RECEIVING)
+    {
+        xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL); /* TODO (set_state): Discuss polling interval */
+    }
+    else if(state == SENDING)
+    {
+        xtimer_remove(&(dev->poll_timer));
+    }
 }
 
 

@@ -18,20 +18,13 @@
 // #define ENABLE_DEBUG (0)
 // #include "debug.h"
 
-/* TODO (poll_func)
-    Implement this function here or elsewhere?
-*/
-void *poll_func(void *arg)
-{
-    // do polling...
-}
 
 
 /**
  * First function to be called during the initialization of the transceiver.
  *
  * Sets up the driver struct and copies the passed spi parameters to the device struct.
- * Also creates the polling thread.
+ * Also sets up the polling timer.
  * Actual init of spi pins happens in netdev.c/_init()
  */
 void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
@@ -41,8 +34,6 @@ void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
 
     memcpy(&dev->params, params, sizeof(treufunk_params_t));
     dev->state = SLEEP;
-    /* TODO (setup): Discuss thread priority and flags */
-    dev->poll_th = thread_create(poll_thread_stack, sizeof(poll_thread_stack), THREAD_PRIORITY_MAIN-1, THREAD_CREATE_SLEEPING, poll_func, NULL, "poll_thread");
 }
 
 /**
@@ -266,8 +257,9 @@ int treufunk_reset(treufunk_t *dev)
     /* go into RX state */
     treufunk_set_state(dev, RECEIVING);
 
-    /* start polling */
-    thread_wakeup(dev->rx_poll_th);
+    /* start polling timer */
+    //xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
+    // not needed to be done here. timer is set in _set_state
 
     DEBUG("trefunk_reset(): reset complete.\n");
 
