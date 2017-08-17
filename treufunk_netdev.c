@@ -42,12 +42,25 @@ const netdev_driver_t treufunk_driver = {
     .set = _set,
 };
 
+static void _irq_handler(void *arg)
+{
+    netdev_t *dev = (netdev_t *) arg;
+
+    if (dev->event_callback) {
+        dev->event_callback(dev, NETDEV_EVENT_ISR);
+    }
+}
+
 
 static int _init(netdev_t *netdev)
 {
     DEBUG("netdev/_init()...\n");
     treufunk_t *dev = (treufunk_t *) netdev;
 
+    /* Setup polling timer */
+    dev->poll_timer.next = NULL;
+    dev->poll_timer.callback = _irq_handler;
+    dev->poll_timer.arg = dev;
     /* init gpios */
     spi_init_cs(dev->params.spi, dev->params.cs_pin);
     /* TODO (_init): Maybe also hardware reset pin */
@@ -78,15 +91,30 @@ static int _init(netdev_t *netdev)
     return treufunk_reset(dev);
 }
 
+/* TODO (_isr) */
 static void _isr(netdev_t *netdev)
 {
-    /* TODO: Obviously we don't need an ISR because Treufunk has no interrupt functionality. [...]
-    But we still have to implement it, therefore just return
+    treufunk_t *dev = (treufunk_t *)netdev;
 
-    Or do this instead: netdev->event_callback(netdev, NETDEV_EVENT_RX_COMPLETE);
-    This activates the event_callback (implemented in user-space). The callback then calls treufunk_netdevs _recv() function to fetch the received packet.
-    */
-    return;
+    phy_status = treufunk_get_phy_status(dev);
+
+
+    /* Check if RX data is available */
+    if(PHY_SM_STATUS(phy_status) == SLEEP && !PHY_FIFO_EMPTY(phy_status))
+    {
+        DEBUG("[treufunk] EVT - RX_END\n");
+        if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_RX_END)) {
+            return;
+        }
+        netdev->event_callback(netdev, NETDEV_EVENT_RX_COMPLETE);
+        phy_status = treufunk_get_phy_status(dev);
+    }
+
+    /* Change to back RX, if RX data is transferred to driver and chip is sleeping */
+    if(PHY_SM_STATUS(phy_status) == SLEEP && PHY_FIFO_EMPTY(phy_status))
+    {
+        treufunk_set_state(dev, RECEIVING);
+    }
 }
 
 static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
