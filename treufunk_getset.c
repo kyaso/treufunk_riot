@@ -206,6 +206,15 @@ uint8_t treufunk_get_chan(treufunk_t *dev)
     return dev->netdev.chan;
 }
 
+static int _calculate_pll_values(uint32_t rf_freq,
+                                uint32_t if_freq,
+                                int *int_val,
+                                int *frac_val)
+{
+    uint32_t f_lo = 0;
+    int frac
+}
+
 /* TODO (set_chan) */
 void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
 {
@@ -218,7 +227,8 @@ void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
     dev->netdev.chan = chan;
 
     /* Calculate channel center frequency in MHz according to the ieee802154 standard (channel page 0) */
-    int center_freq = 2405 + 5 * (chan - 11);
+    int center_freq = (2405 + 5 * (chan - 11)) * 1000000U;
+    DEBUG("Setting to center freq = %d Hz\n", center_freq);
 
     /* TODO (set_chan): */
 
