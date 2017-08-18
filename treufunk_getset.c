@@ -79,7 +79,6 @@ void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower)
     treufunk_sub_reg_write(dev, SR_TX_PWR_CTRL, txpower);
 }
 
-
 /**
  * Returns the state value corresponding to Tab. 3.4, SysSpec (phy_status)
  */
@@ -91,7 +90,6 @@ uint8_t treufunk_get_state(treufunk_t *dev)
     DEBUG("treufunk_get_state(): STATE = 0x%03x\n", state);
     return (state);
 }
-
 
 /**
  * Everytime the chip is put into RX or TX state, some manual resets have to be done.
