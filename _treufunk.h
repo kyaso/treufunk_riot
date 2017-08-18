@@ -100,8 +100,6 @@ extern "C" {
 */
 static uint8_t SHR[] = {0x00, 0x00, 0x00, 0x00, 0xA7};
 
-char rx_thread_stack[THREAD_STACKSIZE_MAIN]; /* TODO: Discuss thread size; for ex. measure stack usage by setting flag THREAD_CREATE_STACKTEST during thread creation */
-
 /**
  * 	SPI parameters
  */

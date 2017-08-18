@@ -34,8 +34,6 @@ void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
 
     memcpy(&dev->params, params, sizeof(treufunk_params_t));
     dev->state = SLEEP;
-    /* TODO (setup): Discuss thread priority and flags */
-    dev->rx_poll_th = thread_create(rx_thread_stack, sizeof(rx_thread_stack), THREAD_PRIORITY_MAIN-1, THREAD_CREATE_SLEEPING, rx_poll_func, NULL, "rx_poll_thread");
 }
 
 /**

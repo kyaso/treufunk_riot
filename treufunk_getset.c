@@ -163,10 +163,6 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
         _rx_resets(dev);
         DEBUG("rx_resets done.\n");
     }
-    if(state_cmd != STATE_CMD_RX)
-    {
-        /* TODO (set_state): make thread sleep */
-    }
 
     /* write state_cmd to SM_COMMAND sub_reg of SM_MAIN */
     DEBUG("Writing state_cmd (%d) into SM_MAIN reg...\n", state_cmd);
