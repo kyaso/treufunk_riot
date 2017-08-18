@@ -299,6 +299,7 @@ void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
         state = treufunk_get_state(dev);
     } while(state == SENDING || state == RECEIVING || state == BUSY);
 
+    dev->tx_active = true;
 
     /* Put SM into SLEEP */
     DEBUG("treufunk_tx_prepare(): putting into SLEEP...\n");
