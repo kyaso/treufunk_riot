@@ -162,9 +162,11 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     /* write state_cmd to SM_COMMAND sub_reg of SM_MAIN */
     DEBUG("Writing state_cmd (%d) into SM_MAIN reg...\n", state_cmd);
     treufunk_sub_reg_write(dev, SR_SM_COMMAND, state_cmd);
+
     /* Wait until state transition is complete */
     DEBUG("Waiting until state transition is finished...\n");
     while(treufunk_get_state(dev) == BUSY);
+    
     /* set SM_COMMAND back to CMD_NONE */
     DEBUG("Resetting state_cmd sub-reg (SM_MAIN)\n");
     treufunk_sub_reg_write(dev, SR_SM_COMMAND, STATE_CMD_NONE);

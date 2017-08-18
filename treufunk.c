@@ -298,8 +298,6 @@ void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
     DEBUG("treufunk_tx_prepare(): putting into SLEEP...\n");
     treufunk_set_state(dev, SLEEP);
 
-    /* TODO (tx_prepare): wait some time, till SM is settled ? */
-
     /* Write SHR into FIFO */
     DEBUG("treufunk_tx_prepare(): writing SHR into FIFO...\n");
     treufunk_fifo_write(dev, SHR, 5);
