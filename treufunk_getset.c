@@ -15,16 +15,6 @@
 // #define ENABLE_DEBUG (0)
 // #include "debug.h"
 
-/* TODO (tx_pow_to_dbm) */
-static const int8_t tx_pow_to_dbm[??] = { ... };
-
-int16_t treufunk_get_txpower(treufunk_t *dev)
-{
-    uint8_t txpower = treufunk_sub_reg_read(dev, SR_TX_PWR_CTRL);
-    /* TODO (get_txpower): Convert to dBm */
-    return tx_pow_to_dbm[txpower];
-}
-
 uint16_t treufunk_get_addr_short(treufunk_t *dev)
 {
     return (dev->netdev.short_addr[0] << 8) | dev->netdev.short_addr[1];
@@ -69,8 +59,16 @@ void treufunk_set_pan(treufunk_t *dev, uint16_t pan)
 }
 
 /**
+ * Get current TX power
+ */
+uint8_t treufunk_get_txpower(treufunk_t *dev)
+{
+    return treufunk_sub_reg_read(dev, SR_TX_PWR_CTRL);
+}
+
+/**
  * Sets the desired TX Power by writing into the SM_TX_POWER_CTRL (0x8B) register.
- * @param txpower The desired TX power. Valid values: 0 .. 15 (0dBm .. 15dBm)
+ * @param txpower The desired TX power. Valid values: 0 .. 15 (0dBm .. 15dBm?)
  */
 void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower)
 {
@@ -79,7 +77,6 @@ void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower)
     else if(txpower > 15) txpower = 15;
 
     treufunk_sub_reg_write(dev, SR_TX_PWR_CTRL, txpower);
-
 }
 
 
