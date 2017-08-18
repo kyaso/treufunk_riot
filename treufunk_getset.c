@@ -177,12 +177,13 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     /* set state attribute of the Treufunk device descriptor */
     dev->state = treufunk_get_state(dev);
 
-    /* Start polling timer if RX */
-    if(state == RECEIVING)
+    /* Start polling timer for RX and TX */
+    if(state == RECEIVING || state == SENDING)
     {
         xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL); /* TODO (set_state): Discuss polling interval */
     }
-    else if(state == SENDING)
+    /* Remove polling timer when SLEEP */
+    else if(state == SLEEP)
     {
         xtimer_remove(&(dev->poll_timer));
     }
