@@ -99,8 +99,9 @@ extern "C" {
 
 /**
  * Polling intervals (TODO)
+ * Microseconds
  */
-#define RX_POLLING_INTERVAL (200U)
+#define RX_POLLING_INTERVAL (5000U)
 
 /* IEEE 802154 Synchronization header. 4 bytes preamble, 1 byte Start frame delimiter (SFD)
 	see IEEE802154 Standard Doc Chap. 12.1 (O-QPSK PHY, PPDU format)
@@ -125,6 +126,7 @@ typedef struct {
   Currently there is no mechanism that changes is during the automatic
   transition from TX to RX. Maybe we don't need this variable at all. */
   uint8_t state; /* current state of state machine; phy_status, Tab. 3.4 */
+  bool tx_active; /* TODO (treufunk_t): Doc */
   xtimer_t poll_timer; /* Polling timer */
 } treufunk_t;
 
