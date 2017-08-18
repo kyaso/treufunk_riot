@@ -31,6 +31,13 @@
 		return ret; \
 }
 
+/**
+ * Macros for H, M and L byte of 24 bit value
+ */
+#define BIT24_H_BYTE(c) (((c) & 0xFF0000) >> 16)
+#define BIT24_M_BYTE(c) (((c) & 0x00FF00) >> 8)
+#define BIT24_L_BYTE(c) ((c) & 0x0000FF)
+
 
 #ifdef __cplusplus
 extern "C" {
