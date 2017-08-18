@@ -113,19 +113,29 @@ static void _isr(netdev_t *netdev)
     if(PHY_SM_STATUS(phy_status) == SLEEP && PHY_FIFO_EMPTY(phy_status))
     {
         treufunk_set_state(dev, RECEIVING);
+        return;
     }
 
     /* Check if transmission is complete */
-    if(PHY_SM_STATUS(phy_status) == RX && PHY_FIFO_EMPTY(phy_status))
+    if(PHY_SM_STATUS(phy_status) == RECEIVING && PHY_FIFO_EMPTY(phy_status) && dev->tx_active)
     {
         DEBUG("[treufunk] EVT - TX_END\n");
+
+        dev->tx_active = false;
+
         if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_END)) {
             return;
         }
         netdev->event_callback(netdev, NETDEV_EVENT_TX_COMPLETE);
+
+        /* Change back to RX */
+        treufunk_set_state(dev, RECEIVING);
+
+        return;
     }
 
-    /* TODO (_isr): Maybe set timer here and not in set_state() */
+    /* Set timer again if still listening for packets OR waiting for transmission to finish */
+    xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
 
 }
 
