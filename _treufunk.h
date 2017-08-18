@@ -32,6 +32,13 @@
 		return ret; \
 }
 
+/**
+ * Macros for H, M and L byte of 24 bit value
+ */
+#define BIT24_H_BYTE(c) (((c) & 0xFF0000) >> 16)
+#define BIT24_M_BYTE(c) (((c) & 0x00FF00) >> 8)
+#define BIT24_L_BYTE(c) ((c) & 0x0000FF)
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -132,22 +139,24 @@ void treufunk_set_addr_short(treufunk_t *dev, uint16_t addr);
 uint64_t treufunk_get_addr_long(treufunk_t *dev);
 void treufunk_set_addr_long(treufunk_t *dev, uint64_t addr);
 
-uint8_t treufunk_get_chan(treufunk_t *dev);
-/* TODO */ void treufunk_set_chan(treufunk_t *dev, uint8_t chan);
-
 
 uint16_t treufunk_get_pan(treufunk_t *dev);
 void treufunk_set_pan(treufunk_t *dev, uint16_t pan);
 
-/* TODO */ int16_t treufunk_get_txpower(treufunk_t *dev);
+uint8_t treufunk_get_txpower(treufunk_t *dev);
 void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower);
 
-void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state);
 uint8_t treufunk_get_state(treufunk_t *dev);
 void treufunk_set_state(treufunk_t *dev, uint8_t state);
 void treufunk_reset_state_machine(treufunk_t *dev);
 
 void treufunk_reset_fifo(treufunk_t *dev); /* TODO: remove if not needed */
+
+uint8_t treufunk_get_chan(treufunk_t *dev);
+/* TODO */ void treufunk_set_chan(treufunk_t *dev, uint8_t chan);
+
+void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state);
+
 
 
 size_t treufunk_send(treufunk_t *dev, uint8_t *data, size_t len);

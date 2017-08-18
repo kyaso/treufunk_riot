@@ -287,9 +287,9 @@ static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len)
 
 
         case NETOPT_TX_POWER:
-            assert(max_len >= sizeof(uint16_t));
-            *((uint16_t *)val) = treufunk_get_txpower(dev);
-            res = sizeof(uint16_t);
+            assert(max_len >= sizeof(uint8_t));
+            *((uint8_t *)val) = treufunk_get_txpower(dev);
+            res = sizeof(uint8_t);
             break;
 
         case NETOPT_STATE:
