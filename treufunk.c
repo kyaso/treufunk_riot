@@ -59,7 +59,7 @@ int treufunk_reset(treufunk_t *dev)
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_START, false);
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_END, true);
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_START, false);
-    treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_END, false);
+    treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_END, true);
 
     /* set default protocol */
     #ifdef MODULE_GNRC_SIXLOWPAN
@@ -79,8 +79,7 @@ int treufunk_reset(treufunk_t *dev)
 
     /* set default pan id */
     treufunk_set_pan(dev, IEEE802154_DEFAULT_PANID);
-    /* set default channel */
-    treufunk_set_chan(dev, IEEE802154_DEFAULT_CHANNEL);
+
 
     /* Reset all and load initial values */
     DEBUG("Doing global resets...\n");
@@ -118,7 +117,7 @@ int treufunk_reset(treufunk_t *dev)
     /* PLL config */
     DEBUG("Configuring PLL...\n");
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_IREF_PLL_CTRLB,   0));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_VCO_TUNE,   235));
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_VCO_TUNE,   235)); /* Channel 12 */
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_LPF_C,        0));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_LPF_R,        9));
 
@@ -208,7 +207,7 @@ int treufunk_reset(treufunk_t *dev)
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_FIFO_IDLE,  0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_FIFO_SLEEP, 0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_IDLE_MODE_EN,  0));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_PWR_CTRL,     15)); /* Maximum TX output power (15dBm) */
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_PWR_CTRL,     15)); /* Maximum TX output power (15dBm?) */
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_MAXAMP,        0));
 
     /* SM RX */
@@ -250,7 +249,9 @@ int treufunk_reset(treufunk_t *dev)
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_SM_RESETB,   0));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_SM_RESETB,   1));
 
-
+    /* set default channel */
+    /* TODO (reset): Do we have to call set channel? */
+    //treufunk_set_chan(dev, IEEE802154_DEFAULT_CHANNEL);
 
     //go into RX state
     treufunk_set_state(dev, RECEIVING);
