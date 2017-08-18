@@ -60,7 +60,7 @@ static int _init(netdev_t *netdev)
     /* Setup polling timer */
     dev->poll_timer.next = NULL;
     dev->poll_timer.callback = _irq_handler;
-    dev->poll_timer.arg = dev;
+    dev->poll_timer.arg = (void *)dev;
     /* init gpios */
     spi_init_cs(dev->params.spi, dev->params.cs_pin);
     /* TODO (_init): Maybe also hardware reset pin */
@@ -98,7 +98,6 @@ static void _isr(netdev_t *netdev)
 
     phy_status = treufunk_get_phy_status(dev);
 
-
     /* Check if RX data is available */
     if(PHY_SM_STATUS(phy_status) == SLEEP && !PHY_FIFO_EMPTY(phy_status))
     {
@@ -115,6 +114,19 @@ static void _isr(netdev_t *netdev)
     {
         treufunk_set_state(dev, RECEIVING);
     }
+
+    /* Check if transmission is complete */
+    if(PHY_SM_STATUS(phy_status) == RX && PHY_FIFO_EMPTY(phy_status))
+    {
+        DEBUG("[treufunk] EVT - TX_END\n");
+        if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_END)) {
+            return;
+        }
+        netdev->event_callback(netdev, NETDEV_EVENT_TX_COMPLETE);
+    }
+
+    /* TODO (_isr): Maybe set timer here and not in set_state() */
+
 }
 
 static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
