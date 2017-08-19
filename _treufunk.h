@@ -106,7 +106,7 @@ extern "C" {
  * Polling intervals (TODO)
  * Microseconds
  */
-#define RX_POLLING_INTERVAL (5000U)
+#define RX_POLLING_INTERVAL (5000000)
 
 /* IEEE 802154 Synchronization header. 4 bytes preamble, 1 byte Start frame delimiter (SFD)
 	see IEEE802154 Standard Doc Chap. 12.1 (O-QPSK PHY, PPDU format)
