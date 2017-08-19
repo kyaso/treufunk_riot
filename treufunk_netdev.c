@@ -42,12 +42,25 @@ const netdev_driver_t treufunk_driver = {
     .set = _set,
 };
 
+static void _irq_handler(void *arg)
+{
+    netdev_t *dev = (netdev_t *) arg;
+
+    if (dev->event_callback) {
+        dev->event_callback(dev, NETDEV_EVENT_ISR);
+    }
+}
+
 
 static int _init(netdev_t *netdev)
 {
     DEBUG("netdev/_init()...\n");
     treufunk_t *dev = (treufunk_t *) netdev;
 
+    /* Setup polling timer */
+    dev->poll_timer.next = NULL;
+    dev->poll_timer.callback = _irq_handler;
+    dev->poll_timer.arg = (void *)dev;
     /* init gpios */
     spi_init_cs(dev->params.spi, dev->params.cs_pin);
     /* TODO (_init): Maybe also hardware reset pin */
@@ -78,15 +91,52 @@ static int _init(netdev_t *netdev)
     return treufunk_reset(dev);
 }
 
+/* TODO (_isr) */
 static void _isr(netdev_t *netdev)
 {
-    /* TODO: Obviously we don't need an ISR because Treufunk has no interrupt functionality. [...]
-    But we still have to implement it, therefore just return
+    treufunk_t *dev = (treufunk_t *)netdev;
 
-    Or do this instead: netdev->event_callback(netdev, NETDEV_EVENT_RX_COMPLETE);
-    This activates the event_callback (implemented in user-space). The callback then calls treufunk_netdevs _recv() function to fetch the received packet.
-    */
-    return;
+    phy_status = treufunk_get_phy_status(dev);
+
+    /* Check if RX data is available */
+    if(PHY_SM_STATUS(phy_status) == SLEEP && !PHY_FIFO_EMPTY(phy_status))
+    {
+        DEBUG("[treufunk] EVT - RX_END\n");
+        if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_RX_END)) {
+            return;
+        }
+        netdev->event_callback(netdev, NETDEV_EVENT_RX_COMPLETE);
+        phy_status = treufunk_get_phy_status(dev);
+    }
+
+    /* Change to back RX, if RX data is transferred to driver and chip is sleeping */
+    if(PHY_SM_STATUS(phy_status) == SLEEP && PHY_FIFO_EMPTY(phy_status))
+    {
+        treufunk_set_state(dev, RECEIVING);
+        return;
+    }
+
+    /* Check if transmission is complete */
+    if(PHY_SM_STATUS(phy_status) == RECEIVING && PHY_FIFO_EMPTY(phy_status) && dev->tx_active)
+    {
+        DEBUG("[treufunk] EVT - TX_END\n");
+
+        dev->tx_active = false;
+
+        if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_END)) {
+            return;
+        }
+        netdev->event_callback(netdev, NETDEV_EVENT_TX_COMPLETE);
+
+        /* Change back to RX */
+        treufunk_set_state(dev, RECEIVING);
+
+        return;
+    }
+
+    /* Set timer again if still listening for packets OR waiting for transmission to finish */
+    xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
+
 }
 
 static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
@@ -124,6 +174,80 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
 }
 
 /**
+ * Calculates the number of equal bits in x1 and x2. Needed for SFD detection (see below)
+ */
+static inline uint8_t _number_of_equal_bits(uint32_t x1, uint32_t x2, uint8_t number_of_bits)
+{
+    uint8_t i = 0;
+	uint8_t counter = 0;
+	uint32_t combined = ~(x1 ^ x2);
+
+	for (i = 0; i < number_of_bits; ++i) {
+		counter += combined & 1;
+		combined >>= 1;
+	}
+    return counter;
+}
+
+/**
+ * Calculates the data shift from the start of frame delimiter
+ * @param  data            rx_data received from chip. Bit order and polarity needs to be
+ * 	                       already corrected
+ * @param  data_length     number of bytes in data
+ * @param  sfd             start of frame delimiter, i.e. 0xA7
+ * @param  preamble_length number of octets in the preamble. The maximum supported
+ * 	                       length is 4 octets
+ * @return                 the shift value (6/7/8) or zero if sfd was not found
+ *
+ * The lprf chip (^= Treufunk) has a hardware preamble detection. However, the hardware
+ * preamble detection is limited to a 8 bit preamble (or optionally 5 bit). In
+ * the IEEE 802.15.4 standard the preamble has a length of 4 byte.
+ * Additionally the data from the chip is sometimes misaligned by one bit.
+ * Therefore the additional preamble bits have to be removed and the
+ * misalignment has to be adjusted in software.
+ */
+static int _find_SFD_and_shift_data(uint8_t *data, uint8_t *data_length,
+		uint8_t sfd, uint8_t preamble_length)
+{
+	uint8_t i;
+	uint8_t sfd_start_postion = preamble_length - 1;
+	uint8_t data_start_position = sfd_start_postion + 1;
+	uint8_t shift = 8;
+	uint8_t no_shift, one_bit_shift, two_bit_shift;
+
+	if (*data_length < sfd_start_postion + 2)
+		return -EFAULT;
+
+	no_shift = _number_of_equal_bits(sfd, data[sfd_start_postion], 8);
+	one_bit_shift = _number_of_equal_bits(sfd,
+				((data[sfd_start_postion] << 8) |
+				data[sfd_start_postion+1]) >> 7, 8);
+	two_bit_shift = _number_of_equal_bits(sfd,
+				((data[sfd_start_postion] << 8) |
+				data[sfd_start_postion+1]) >> 6, 8);
+
+	if(no_shift < 7 && one_bit_shift < 7 && two_bit_shift < 7) {
+		DEBUG("SFD not found.\n");
+		return 0;
+	}
+
+	if (one_bit_shift >= 7)
+		shift -= 1;
+	else if (two_bit_shift >= 7)
+		shift -= 2;
+
+	DEBUG("Data will be shifted by %d bits to the right\n", shift);
+
+	for (i = 0; i < *data_length - sfd_start_postion - 1; ++i) {
+		data[i] = ((data[i + data_start_position] << 8) |
+				data[i + data_start_position + 1]) >> shift;
+	}
+	*data_length -= (sfd_start_postion + 1);
+
+	return shift;
+}
+
+/**
  * Gets the received data from the FIFO.
  *
  * Since the Treufunk does not handle it automatically, we have
@@ -133,19 +257,20 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
  * @param  len    Length of the receive buffer.
  *                Because we have to read out the whole FIFO first,
  *                the buffer should be at least of size
- *                  TREUFUNK_MAX_PKT_LENGTH + 6 + 10
+ *                  TREUFUNK_MAX_PKT_LENGTH + 6 + 2
  *                6 = SHR length
- *                10 additional bytes because of possible misalignment
+ *                2 additional bytes because of possible misalignment
  * @param  info   [description]
  * @return        [description]
  */
+/* TODO (_recv): If buf == NULL this function should just return the size of the frame. For now we don't support this feature */
 static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
 {
     /* TODO
      1. read received data from FIFO (into buf)
      2. remove additional preamble bits (because Treufunk only has 8 bit preamble detection) and correct misaligned bits
      3. get length of received packet (PHR)
-     4. if (buf) == NULL: just return length of data in FIFO
+     4. if (buf) == NULL: just return length of data in FIFO (not supported, see description)
      (5. read out data to (buf))
 
     */
@@ -158,7 +283,17 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
     /* read FIFO data into buf */
     treufunk_fifo_read(dev, (uint8_t*)buf, len);
 
-    /* TODO (_recv): remove preamble and correct alignment */
+    /* remove preamble and correct alignment */
+    if(_find_SFD_and_shift_data(buf, &len, 0xA7, 4) == 0)
+    {
+        DEBUG("SFD not found, ignoring frame\n");
+		return -EINVAL;
+    }
+
+    #if ENABLE_DEBUG
+        /* print out memory dump of buffer */
+        od_hex_dump(buf, len, 16);
+    #endif
 
     /* get PHR (size of received packet) */
     phr = buf[0];

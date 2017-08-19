@@ -18,10 +18,13 @@
 // #define ENABLE_DEBUG (0)
 // #include "debug.h"
 
+
+
 /**
  * First function to be called during the initialization of the transceiver.
  *
- * Just sets up the driver struct and copies the passed spi parameters to the device struct.
+ * Sets up the driver struct and copies the passed spi parameters to the device struct.
+ * Also sets up the polling timer.
  * Actual init of spi pins happens in netdev.c/_init()
  */
 void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
@@ -30,7 +33,6 @@ void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
     dev->netdev.netdev.driver = &treufunk_driver;
 
     memcpy(&dev->params, params, sizeof(treufunk_params_t));
-    /* TODO (setup): Maybe we don't need a state variable */
     dev->state = SLEEP;
 }
 
@@ -253,8 +255,12 @@ int treufunk_reset(treufunk_t *dev)
     /* TODO (reset): Do we have to call set channel? */
     //treufunk_set_chan(dev, IEEE802154_DEFAULT_CHANNEL);
 
-    //go into RX state
+    /* go into RX state */
     treufunk_set_state(dev, RECEIVING);
+
+    /* start polling timer */
+    //xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
+    // not needed to be done here. timer is set in _set_state
 
     DEBUG("trefunk_reset(): reset complete.\n");
 
@@ -293,6 +299,7 @@ void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
         state = treufunk_get_state(dev);
     } while(state == SENDING || state == RECEIVING || state == BUSY);
 
+    dev->tx_active = true;
 
     /* Put SM into SLEEP */
     DEBUG("treufunk_tx_prepare(): putting into SLEEP...\n");

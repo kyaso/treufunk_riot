@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h> /* for memmove() in netdev/_recv */
 
 #include "board.h"
 #include "periph/spi.h"
@@ -18,9 +19,14 @@
 #include "net/netdev.h"
 #include "net/netdev/ieee802154.h"
 #include "net/gnrc/nettype.h"
+#include "xtimer.h"
 
 #define ENABLE_DEBUG (1)
 #include "debug.h"
+
+#if ENABLE_DEBUG
+	#include "od.h"
+#endif
 
 /* Set this to 1, if you want to use the shift register (SN74HC595) workaround with Arduino Due */
 #define DUE_SR_MODE (0)
@@ -51,12 +57,20 @@ extern "C" {
 /**
  * 	phy_status byte masks
  */
-#define PHY_SM_STATUS   (0xE0)
-#define PHY_SM_ENABLED  (0x10)
-#define PHY_FIFO_EMPTY  (0x08)
-#define PHY_FIFO_FULL   (0x04)
-#define PHY_TRX_RUNNING (0x02)
-#define PHY_PLL_ON      (0x01)
+#define PHY_SM_STATUS_MSK   (0xE0) /* >> 5 */
+#define PHY_SM_ENABLED_MSK  (0x10) /* >> 4 */
+#define PHY_FIFO_EMPTY_MSK  (0x08) /* >> 3 */
+#define PHY_FIFO_FULL_MSK   (0x04) /* >> 2 */
+#define PHY_TRX_RUNNING_MSK (0x02) /* >> 1 */
+#define PHY_PLL_ON_MSK      (0x01)
+
+#define PHY_SM_STATUS(phy) 		((phy & PHY_SM_STATUS_MSK)>>5)
+#define PHY_SM_ENABLED(phy) 	((phy & PHY_SM_ENABLED_MSK)>>4)
+#define PHY_FIFO_EMPTY(phy) 	((phy & PHY_FIFO_EMPTY_MSK)>>3)
+#define PHY_FIFO_FULL(phy) 		((phy & PHY_FIFO_FULL_MSK)>>2)
+#define PHY_TRX_RUNNING(phy) 	((phy & PHY_TRX_RUNNING_MSK)>>1)
+#define PHY_PLL_ON(phy) 		((phy & PHY_PLL_ON_MSK))
+
 
 /**
  * 	state machine states as returned by the phy_status byte (see Tab. 3.4, phy_status, SysSpec)
@@ -88,6 +102,12 @@ extern "C" {
 #define TREUFUNK_OPT_TELL_RX_START	(0x0400)
 #define TREUFUNK_OPT_TELL_RX_END	(0x0800)
 
+/**
+ * Polling intervals (TODO)
+ * Microseconds
+ */
+#define RX_POLLING_INTERVAL (5000U)
+
 /* IEEE 802154 Synchronization header. 4 bytes preamble, 1 byte Start frame delimiter (SFD)
 	see IEEE802154 Standard Doc Chap. 12.1 (O-QPSK PHY, PPDU format)
 */
@@ -111,6 +131,8 @@ typedef struct {
   Currently there is no mechanism that changes is during the automatic
   transition from TX to RX. Maybe we don't need this variable at all. */
   uint8_t state; /* current state of state machine; phy_status, Tab. 3.4 */
+  bool tx_active; /* TODO (treufunk_t): Doc */
+  xtimer_t poll_timer; /* Polling timer */
 } treufunk_t;
 
 
