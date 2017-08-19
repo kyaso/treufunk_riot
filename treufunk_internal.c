@@ -195,6 +195,27 @@ void treufunk_fifo_read(const treufunk_t *dev,
                         const size_t buf_len)
 {
     /* TODO: Write loop which writes valid dummy packet into buf */
+    if(buf_len < 32)
+    {
+        DEBUG("ERROR (fifo_read): provided buffer too small!\n");
+        return;
+    }
+
+    int i;
+    /* fill buffer with preamble (only 3 bytes instead of 4, because the Treufunk removes the first byte automatically) */
+    for(i = 0; i < 3; i++)
+    {
+        buf[i] = 0x00;
+    }
+    /* SFD */
+    buf[3] = 0xA7;
+    /* phr (10 bytes payload) */
+    buf[4] = 10;
+    /* fill with payload */
+    for(i = 5; i < 15; i++)
+    {
+        buf[i] = i;
+    }
 
 
 }
