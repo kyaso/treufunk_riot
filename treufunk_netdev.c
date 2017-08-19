@@ -62,7 +62,7 @@ static int _init(netdev_t *netdev)
     dev->poll_timer.callback = _irq_handler;
     dev->poll_timer.arg = (void *)dev;
     /* init gpios */
-    spi_init_cs(dev->params.spi, dev->params.cs_pin);
+    // spi_init_cs(dev->params.spi, dev->params.cs_pin);
     /* TODO (_init): Maybe also hardware reset pin */
 
     /**
@@ -70,21 +70,21 @@ static int _init(netdev_t *netdev)
      * CHIP_ID_L and CHIP_ID_H. They contain predefined values: 0x51, 0x1A
      */
     DEBUG("Reading chip id l (at 0x04)...\n");
-    uint8_t id_l = treufunk_reg_read(dev, RG_CHIP_ID_L); /* 0x04 */
+    // uint8_t id_l = treufunk_reg_read(dev, RG_CHIP_ID_L); /* 0x04 */
     DEBUG("Reading chip id h (at 0x05)...\n");
-    uint8_t id_h = treufunk_reg_read(dev, RG_CHIP_ID_H); /* 0x05 */
-    DEBUG("Chip ID l = 0x%02x, Chip ID h = 0x%02x\n", id_l, id_h);
-    if(id_l != 0x51 || id_h != 0x1A)
-    {
-        DEBUG("[treufunk] error: unable to read correct chip id\n");
-        return -1;
-    }
+    // uint8_t id_h = treufunk_reg_read(dev, RG_CHIP_ID_H); /* 0x05 */
+    // DEBUG("Chip ID l = 0x%02x, Chip ID h = 0x%02x\n", id_l, id_h);
+    // if(id_l != 0x51 || id_h != 0x1A)
+    // {
+    //     DEBUG("[treufunk] error: unable to read correct chip id\n");
+    //     return -1;
+    // }
 
     DEBUG("Success: chip id correct! Doing reset now...\n");
 
     /* TEMP_BEGIN (_init): Remove the comment if you just want to read out the chip id and
     skip the whole init process */
-    return -1;
+    // return -1;
     /* TEMP_END */
 
     /* reset Treufunk to default values and put it into RX state */
@@ -381,11 +381,11 @@ static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len)
             break;
 
 
-        case NETOPT_TX_POWER:
-            assert(max_len >= sizeof(uint8_t));
-            *((uint8_t *)val) = treufunk_get_txpower(dev);
-            res = sizeof(uint8_t);
-            break;
+        // case NETOPT_TX_POWER:
+        //     assert(max_len >= sizeof(uint8_t));
+        //     *((uint8_t *)val) = treufunk_get_txpower(dev);
+        //     res = sizeof(uint8_t);
+        //     break;
 
         case NETOPT_STATE:
             assert(max_len >= sizeof(netopt_state_t));
@@ -435,16 +435,16 @@ static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len)
 
     switch(opt)
     {
-        case NETOPT_CHANNEL:
-            assert(len == sizeof(uint8_t));
-            uint8_t chan = ((uint8_t *)val)[0];
-            if((chan < IEEE802154_CHANNEL_MIN) ||
-                (chan > IEEE802154_CHANNEL_MAX)) {
-                    res = -EINVAL;
-                    break;
-            }
-            treufunk_set_chan(dev, chan);
-            break;
+        // case NETOPT_CHANNEL:
+        //     assert(len == sizeof(uint8_t));
+        //     uint8_t chan = ((uint8_t *)val)[0];
+        //     if((chan < IEEE802154_CHANNEL_MIN) ||
+        //         (chan > IEEE802154_CHANNEL_MAX)) {
+        //             res = -EINVAL;
+        //             break;
+        //     }
+        //     treufunk_set_chan(dev, chan);
+        //     break;
 
         case NETOPT_CHANNEL_PAGE:
             assert(len != sizeof(uint8_t));
@@ -460,11 +460,11 @@ static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len)
             }
             break;
 
-        case NETOPT_TX_POWER:
-            assert(len == sizeof(uint8_t));
-            treufunk_set_txpower(dev, *((uint8_t *)val));
-            res = sizeof(uint8_t);
-            break;
+        // case NETOPT_TX_POWER:
+        //     assert(len == sizeof(uint8_t));
+        //     treufunk_set_txpower(dev, *((uint8_t *)val));
+        //     res = sizeof(uint8_t);
+        //     break;
 
         case NETOPT_STATE:
             assert(len == sizeof(netopt_state_t));
