@@ -94,6 +94,7 @@ static int _init(netdev_t *netdev)
 /* TODO (_isr) */
 static void _isr(netdev_t *netdev)
 {
+    DEBUG("POLLING ISR called\n");
     treufunk_t *dev = (treufunk_t *)netdev;
 
     uint8_t phy_status = treufunk_get_phy_status(dev);
