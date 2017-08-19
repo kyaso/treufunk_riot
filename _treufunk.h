@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h> /* for memmove() in netdev/_recv */
 
 #include "board.h"
 #include "periph/spi.h"
