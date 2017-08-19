@@ -96,7 +96,7 @@ static void _isr(netdev_t *netdev)
 {
     treufunk_t *dev = (treufunk_t *)netdev;
 
-    phy_status = treufunk_get_phy_status(dev);
+    uint8_t phy_status = treufunk_get_phy_status(dev);
 
     /* Check if RX data is available */
     if(PHY_SM_STATUS(phy_status) == SLEEP && !PHY_FIFO_EMPTY(phy_status))
