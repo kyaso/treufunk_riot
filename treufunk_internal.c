@@ -241,5 +241,6 @@ uint8_t treufunk_get_phy_status(const treufunk_t *dev)
 {
     DEBUG("Reading phy_status byte...\n");
     /* TODO: How can we simulate phy_status? */
+    uint8_t phy_status = 0
     return phy_status;
 }

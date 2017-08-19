@@ -133,7 +133,7 @@ static void _isr(netdev_t *netdev)
 
         return;
     }
-
+    DEBUG("POLL: nothing happended. Setting timer again...\n");
     /* Set timer again if still listening for packets OR waiting for transmission to finish */
     xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
 
