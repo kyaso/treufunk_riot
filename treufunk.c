@@ -78,8 +78,8 @@ int treufunk_reset(treufunk_t *dev)
     addr_long.uint8[0] &= ~(0x01);
     addr_long.uint8[0] |=  (0x02);
     /* set short and long address */
-    treufunk_set_addr_long(dev, NTOHLL(addr_long.uint64.u64));
-    treufunk_set_addr_short(dev, NTOHS(addr_long.uint16[0].u16));
+    // treufunk_set_addr_long(dev, NTOHLL(addr_long.uint64.u64));
+    // treufunk_set_addr_short(dev, NTOHS(addr_long.uint16[0].u16));
 
     /* set default pan id */
     treufunk_set_pan(dev, IEEE802154_DEFAULT_PANID);

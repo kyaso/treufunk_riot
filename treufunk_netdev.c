@@ -388,11 +388,11 @@ static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len)
         //     res = sizeof(uint8_t);
         //     break;
 
-        case NETOPT_STATE:
-            assert(max_len >= sizeof(netopt_state_t));
-            *((netopt_state_t *)val) = _get_state(dev);
-            res = sizeof(netopt_state_t);
-            break;
+        // case NETOPT_STATE:
+        //     assert(max_len >= sizeof(netopt_state_t));
+        //     *((netopt_state_t *)val) = _get_state(dev);
+        //     res = sizeof(netopt_state_t);
+        //     break;
 
         case NETOPT_RX_START_IRQ:
             *((netopt_enable_t *)val) = !!(dev->netdev.flags & TREUFUNK_OPT_TELL_RX_START); /* !!(s) converts s into a boolean */
