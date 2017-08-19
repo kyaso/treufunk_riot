@@ -1,1 +1,3 @@
 # add paths to files here which should not be pushed to the remote repo
+
+test/bin/
