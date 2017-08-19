@@ -47,6 +47,8 @@ int treufunk_reset(treufunk_t *dev)
     DEBUG("treufunk_reset()...\n");
     // treufunk_hardware_reset(dev);    /* TODO (treufunk_reset): Hardware reset neccessary? */
 
+    eui64_t addr_long;
+
     /* TEMP_BEGIN (treufunk_reset), reg_check (treufunk_reset) */
     int ret = 0;
     /* TEMP_END */
