@@ -339,28 +339,28 @@ static int _set_state(treufunk_t *dev, netopt_state_t state)
 }
 
 /* Some NETOPT states where added manually to include all possible states of Treufunk. See netopt.h */
-netopt_state_t _get_state(treufunk_t *dev)
-{
-    switch(treufunk_get_state(dev))
-    {
-        case DEEP_SLEEP:
-            return NETOPT_STATE_DEEPSLEEP;
-        case SLEEP:
-            return NETOPT_STATE_SLEEP;
-        case BUSY:
-            return NETOPT_STATE_BUSY;
-        case TX_RDY:
-            return NETOPT_STATE_TXRDY;
-        case SENDING:
-            return NETOPT_STATE_RX;
-        case RX_RDY:
-            return NETOPT_STATE_RXRDY;
-        case RECEIVING:
-            return NETOPT_STATE_RX;
-        default:
-            return NETOPT_STATE_IDLE;
-    }
-}
+// netopt_state_t _get_state(treufunk_t *dev)
+// {
+//     switch(treufunk_get_state(dev))
+//     {
+//         case DEEP_SLEEP:
+//             return NETOPT_STATE_DEEPSLEEP;
+//         case SLEEP:
+//             return NETOPT_STATE_SLEEP;
+//         case BUSY:
+//             return NETOPT_STATE_BUSY;
+//         case TX_RDY:
+//             return NETOPT_STATE_TXRDY;
+//         case SENDING:
+//             return NETOPT_STATE_RX;
+//         case RX_RDY:
+//             return NETOPT_STATE_RXRDY;
+//         case RECEIVING:
+//             return NETOPT_STATE_RX;
+//         default:
+//             return NETOPT_STATE_IDLE;
+//     }
+// }
 
 static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len)
 {

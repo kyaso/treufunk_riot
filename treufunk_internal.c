@@ -46,38 +46,38 @@
 /**
  * Checks if the Register at address "addr" is RO. If so it returns FALSE.
  */
-static bool reg_writable(unsigned int addr)
-{
-  switch (addr) {
-    case RG_DEM_PD_OUT:
-    case RG_DEM_GC_AOUT:
-    case RG_DEM_GC_BOUT:
-    case RG_DEM_GC_COUT:
-    case RG_DEM_GC_DOUT:
-    case RG_DEM_FREQ_OFFSET_OUT:
-    case RG_SM_STATE:
-    case RG_SM_FIFO:
-    case RG_SM_GLOBAL:
-    case RG_SM_POWER:
-    case RG_SM_RX:
-    case RG_SM_WAKEUP_EN:
-    case RG_SM_DEM_ADC:
-    case RG_SM_PLL_TX:
-    case RG_SM_PLL_CHAN_INT:
-    case RG_SM_PLL_CHAN_FRAC_H:
-    case RG_SM_PLL_CHAN_FRAC_M:
-    case RG_SM_PLL_CHAN_FRAC_L:
-    case RG_SM_TX433:
-    case RG_SM_TX800:
-    case RG_SM_TX24:
-    case RG_PLL_TPM_GAIN_OUT_L:
-    case RG_PLL_TPM_GAIN_OUT_M:
-    case RG_PLL_TPM_GAIN_OUT_H:
-    return false;
-    default:
-    return true;
-  }
-}
+// static bool reg_writable(unsigned int addr)
+// {
+//   switch (addr) {
+//     case RG_DEM_PD_OUT:
+//     case RG_DEM_GC_AOUT:
+//     case RG_DEM_GC_BOUT:
+//     case RG_DEM_GC_COUT:
+//     case RG_DEM_GC_DOUT:
+//     case RG_DEM_FREQ_OFFSET_OUT:
+//     case RG_SM_STATE:
+//     case RG_SM_FIFO:
+//     case RG_SM_GLOBAL:
+//     case RG_SM_POWER:
+//     case RG_SM_RX:
+//     case RG_SM_WAKEUP_EN:
+//     case RG_SM_DEM_ADC:
+//     case RG_SM_PLL_TX:
+//     case RG_SM_PLL_CHAN_INT:
+//     case RG_SM_PLL_CHAN_FRAC_H:
+//     case RG_SM_PLL_CHAN_FRAC_M:
+//     case RG_SM_PLL_CHAN_FRAC_L:
+//     case RG_SM_TX433:
+//     case RG_SM_TX800:
+//     case RG_SM_TX24:
+//     case RG_PLL_TPM_GAIN_OUT_L:
+//     case RG_PLL_TPM_GAIN_OUT_M:
+//     case RG_PLL_TPM_GAIN_OUT_H:
+//     return false;
+//     default:
+//     return true;
+//   }
+// }
 
 // static inline void getbus(const treufunk_t *dev)
 // {
@@ -241,6 +241,6 @@ uint8_t treufunk_get_phy_status(const treufunk_t *dev)
 {
     DEBUG("Reading phy_status byte...\n");
     /* TODO: How can we simulate phy_status? */
-    uint8_t phy_status = 0
+    uint8_t phy_status = 0;
     return phy_status;
 }
