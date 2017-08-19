@@ -166,7 +166,7 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     /* Wait until state transition is complete */
     DEBUG("Waiting until state transition is finished...\n");
     while(treufunk_get_state(dev) == BUSY);
-    
+
     /* set SM_COMMAND back to CMD_NONE */
     DEBUG("Resetting state_cmd sub-reg (SM_MAIN)\n");
     treufunk_sub_reg_write(dev, SR_SM_COMMAND, STATE_CMD_NONE);
@@ -177,11 +177,13 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     /* Start polling timer for RX and TX */
     if(state == RECEIVING || state == SENDING)
     {
+        DEBUG("Setting timer...\n");
         xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL); /* TODO (set_state): Discuss polling interval */
     }
     /* Remove polling timer when SLEEP */
     else if(state == SLEEP)
     {
+        DEBUG("Disabling timer...\n");
         xtimer_remove(&(dev->poll_timer));
     }
 }
