@@ -101,7 +101,7 @@ static void _isr(netdev_t *netdev)
     /* Check if RX data is available */
     if(PHY_SM_STATUS(phy_status) == SLEEP && !PHY_FIFO_EMPTY(phy_status))
     {
-        DEBUG("[treufunk] EVT - RX_END\n");
+        DEBUG("POLL: EVT - RX_END\n");
         if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_RX_END)) {
             return;
         }
@@ -119,7 +119,7 @@ static void _isr(netdev_t *netdev)
     /* Check if transmission is complete */
     if(PHY_SM_STATUS(phy_status) == RECEIVING && PHY_FIFO_EMPTY(phy_status) && dev->tx_active)
     {
-        DEBUG("[treufunk] EVT - TX_END\n");
+        DEBUG("POLL: EVT - TX_END\n");
 
         dev->tx_active = false;
 
@@ -134,6 +134,7 @@ static void _isr(netdev_t *netdev)
         return;
     }
 
+    DEBUG("POLL: nothing happened. Setting timer again...\n");
     /* Set timer again if still listening for packets OR waiting for transmission to finish */
     xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
 
