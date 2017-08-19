@@ -197,32 +197,37 @@ void treufunk_fifo_read(const treufunk_t *dev,
     DEBUG("fifo_read...\n");
     size_t len;
     getbus(dev);
+    /* Write FRAME_READ access command */
     spi_transfer_byte(SPIDEV, CSPIN, true, TREUFUNK_ACCSESS_FRAME_READ);
     #if DUE_SR_MODE
         /* Get number of bytes in FIFO */
         spi_transfer_byte(SPIDEV, CSPIN, true, 0);
-        len = due_shift_read(dev);
+        len = due_shift_read(dev); /* Note: While we shift out the length byte out of the SR, the Treufunk already shifts in the first FIFO byte! */
         DEBUG("fifo_read: %d bytes in FIFO.\n", len);
         if(len > buf_len)
         {
             DEBUG("ERROR (fifo_read): Data in FIFO is %d bytes but buffer is only of size %d. Aborting!\n", len, buf_len);
+            /* Disable CS */
+            gpio_set((gpio_t)CSPIN);
             spi_release(SPIDEV);
             return;
         }
 
-        spi_transfer_byte(SPIDEV, CSPIN, true, 0);  /* Get first FIFO byte into shiftreg */
-        for(int i = 0; i < len-1; i++)              /* Shift out the first len-1 bytes */
+        /* Shift out all bytes in FIFO */
+        for(int i = 0; i < len; i++)
         {
             buf[i] = due_shift_read(dev);
         }
-        gpio_set((gpio_t)CSPIN);                    /* Disable CS */
-        buf[i] = due_shift_read(dev);               /* Shift out the last byte */
+        /* Disable CS */
+        gpio_set((gpio_t)CSPIN);
 
     #else
-        len = spi_transfer_byte(SPIDEV, CSPIN, false, 1);
+        len = spi_transfer_byte(SPIDEV, CSPIN, true, 0);
         if(len > buf_len)
         {
             DEBUG("ERROR (fifo_read): Data in FIFO is %d bytes but buffer is only of size %d. Aborting!\n", len, buf_len);
+            /* Disable CS */
+            gpio_set((gpio_t)CSPIN);
         }
         else
         {
