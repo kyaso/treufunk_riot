@@ -297,11 +297,11 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
     #endif
 
     /* get PHR (size of received packet) */
-    phr = buf[0];
+    phr = *((uint8_t *)buf);
     pkt_len = (phr & 0x7f) - 2; /* only 7 bits are needed for phr (0-127). Subtract length of FCS as it can be discarded */
 
     /* Move payload to front of buffer */
-    memmove(buf, buf+1, pkt_len);
+    memmove(buf, ((uint8_t *)buf) + 1, pkt_len);
 
     /* TODO (_recv) */ //if(buf == NULL) return pkt_len;
 
