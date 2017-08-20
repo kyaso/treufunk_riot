@@ -86,9 +86,9 @@ uint8_t treufunk_get_state(treufunk_t *dev)
 {
     /* right shift 5 neccessary because state bits are the first three bits of phy_status */
     DEBUG("Getting current state...\n");
-    // uint8_t state = PHY_SM_STATUS(treufunk_get_phy_status(dev));
-    DEBUG("treufunk_get_state(): STATE = 0x%03x\n", dev->state);
-    return (dev->state);
+    uint8_t state = PHY_SM_STATUS(treufunk_get_phy_status(dev));
+    DEBUG("treufunk_get_state(): STATE = 0x%03x\n", state);
+    return (state);
 }
 
 /**
@@ -150,7 +150,7 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
 {
     DEBUG("Setting state %d...\n", state);
     uint8_t state_cmd = state_to_statecmd(state);
-    if(dev->state == state) return;
+    if(treufunk_get_state(dev) == state) return;
     else if(state_cmd == -1) return;
 
     /* Before transitioning into RX/TX, some manual resets have to be done */
