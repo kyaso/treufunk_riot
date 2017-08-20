@@ -18,7 +18,7 @@
 #include "periph/gpio.h"
 #include "net/netdev.h"
 #include "net/netdev/ieee802154.h"
-#include "net/gnrc/nettype.h"
+// #include "net/gnrc/nettype.h"
 //#include "xtimer.h"
 
 #define ENABLE_DEBUG (1)
@@ -52,7 +52,7 @@ extern "C" {
 /**
  *	Maximum frame size (default = 127 bytes) (w/o SHR + PHR)
  */
-#define TREUFUNK_MAX_PKT_LENGTH        (IEEE802154_FRAME_LEN_MAX)
+// #define TREUFUNK_MAX_PKT_LENGTH        (IEEE802154_FRAME_LEN_MAX)
 
 /**
  * 	phy_status byte masks
@@ -87,7 +87,7 @@ extern "C" {
 /**
  * 	Default TX power (0dBm)
  */
-#define TREUFUNK_DEFAULT_TXPOWER 		(IEEE802154_DEFAULT_TXPOWER)
+// #define TREUFUNK_DEFAULT_TXPOWER 		(IEEE802154_DEFAULT_TXPOWER)
 
 
 /**

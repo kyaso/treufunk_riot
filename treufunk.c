@@ -7,10 +7,10 @@
 *
 */
 
-#include "luid.h"
-#include "byteorder.h"
-#include "net/ieee802154.h"
-#include "net/gnrc.h"
+// #include "luid.h"
+// #include "byteorder.h"
+// #include "net/ieee802154.h"
+// #include "net/gnrc.h"
 #include "treufunk_registers.h"
 #include "treufunk_internal.h"
 #include "treufunk_netdev.h"
@@ -50,7 +50,7 @@ int treufunk_reset(treufunk_t *dev)
     // eui64_t addr_long;
 
     /* TEMP_BEGIN (treufunk_reset), reg_check (treufunk_reset) */
-    int ret = 0;
+    // int ret = 0;
     /* TEMP_END */
 
     /* Reset sequence number and options */
