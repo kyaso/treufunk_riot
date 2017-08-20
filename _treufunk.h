@@ -133,6 +133,7 @@ typedef struct {
   uint8_t state; /* current state of state machine; phy_status, Tab. 3.4 */
   bool tx_active; /* TODO (treufunk_t): Doc */
   xtimer_t poll_timer; /* Polling timer */
+  uint8_t phy_status;
 } treufunk_t;
 
 

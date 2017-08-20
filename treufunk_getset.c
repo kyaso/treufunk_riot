@@ -173,6 +173,7 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
 
     /* set state attribute of the Treufunk device descriptor */
     dev->state = state;
+    dev->phy_status = (dev->phy_status & 0x1F) | (state << 5);
 
     /* Start polling timer for RX and TX */
     if(state == RECEIVING || state == SENDING)
