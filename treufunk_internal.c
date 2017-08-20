@@ -10,7 +10,7 @@
 #include "periph/spi.h"
 #include "periph/gpio.h"
 /* TEMP_BEGIN (xtimer) */
-#include "xtimer.h" // Auto Init must be called once at system boot in order to use xtimer. So don't add "DISABLE_MODULE += auto_init" inside the Makefile
+// #include "xtimer.h" // Auto Init must be called once at system boot in order to use xtimer. So don't add "DISABLE_MODULE += auto_init" inside the Makefile
 /* TEMP_END */
 #include "treufunk_internal.h"
 #include "treufunk_registers.h"
