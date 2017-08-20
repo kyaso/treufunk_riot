@@ -8,6 +8,9 @@
 
 // #include "treufunk.h"
 // #include "treufunk_params.h"
+// maybe also #include "treufunk_internal.h"
+
+// #include "net/netdev.h"
 
 // treufunk_t myTreufunk;
 
@@ -94,6 +97,14 @@ static const shell_command_t shell_commands[] = {
 
 int main(void)
 {
+    const treufunk_params_t *p = &treufunk_params[0];
+    netdev_t *dev = (netdev_t *)(&myTreufunk);
+    printf("Initializing Trefunk radio at SPI_%d\n", p->spi);
+    treufunk_setup(&myTreufunk, p);
+    dev->driver->init(dev);
+
+    /* start the shell */
+    puts("Initialization successful - starting the shell now");
 
     /* define buffer to be used by the shell */
     char line_buf[SHELL_DEFAULT_BUFSIZE];
