@@ -15,48 +15,48 @@
 // #define ENABLE_DEBUG (0)
 // #include "debug.h"
 
-uint16_t treufunk_get_addr_short(treufunk_t *dev)
-{
-    return (dev->netdev.short_addr[0] << 8) | dev->netdev.short_addr[1];
-}
+// uint16_t treufunk_get_addr_short(treufunk_t *dev)
+// {
+//     return (dev->netdev.short_addr[0] << 8) | dev->netdev.short_addr[1];
+// }
+//
+// void treufunk_set_addr_short(treufunk_t *dev, uint16_t addr)
+// {
+//     dev->netdev.short_addr[0] = (uint8_t)(addr);
+//     dev->netdev.short_addr[1] = (uint8_t)(addr >> 8);
+// #ifdef MODULE_SIXLOWPAN
+//     /* https://tools.ietf.org/html/rfc4944#section-12 requires the first bit to
+//      * 0 for unicast addresses */
+//     dev->netdev.short_addr[0] &= 0x7F;
+// #endif
+// }
 
-void treufunk_set_addr_short(treufunk_t *dev, uint16_t addr)
-{
-    dev->netdev.short_addr[0] = (uint8_t)(addr);
-    dev->netdev.short_addr[1] = (uint8_t)(addr >> 8);
-#ifdef MODULE_SIXLOWPAN
-    /* https://tools.ietf.org/html/rfc4944#section-12 requires the first bit to
-     * 0 for unicast addresses */
-    dev->netdev.short_addr[0] &= 0x7F;
-#endif
-}
+// uint64_t treufunk_get_addr_long(treufunk_t *dev)
+// {
+//     uint64_t addr;
+//     uint8_t *ap = (uint8_t *)(&addr);
+//     for (int i = 0; i < 8; i++) {
+//         ap[i] = dev->netdev.long_addr[i];
+//     }
+//     return addr;
+// }
+//
+// void treufunk_set_addr_long(treufunk_t *dev, uint64_t addr)
+// {
+//     for (int i = 0; i < 8; i++) {
+//         dev->netdev.long_addr[i] = (uint8_t)(addr >> (i * 8));
+//     }
+// }
 
-uint64_t treufunk_get_addr_long(treufunk_t *dev)
-{
-    uint64_t addr;
-    uint8_t *ap = (uint8_t *)(&addr);
-    for (int i = 0; i < 8; i++) {
-        ap[i] = dev->netdev.long_addr[i];
-    }
-    return addr;
-}
-
-void treufunk_set_addr_long(treufunk_t *dev, uint64_t addr)
-{
-    for (int i = 0; i < 8; i++) {
-        dev->netdev.long_addr[i] = (uint8_t)(addr >> (i * 8));
-    }
-}
-
-uint16_t treufunk_get_pan(treufunk_t *dev)
-{
-    return dev->netdev.pan;
-}
-
-void treufunk_set_pan(treufunk_t *dev, uint16_t pan)
-{
-    dev->netdev.pan = pan;
-}
+// uint16_t treufunk_get_pan(treufunk_t *dev)
+// {
+//     return dev->netdev.pan;
+// }
+//
+// void treufunk_set_pan(treufunk_t *dev, uint16_t pan)
+// {
+//     dev->netdev.pan = pan;
+// }
 
 /**
  * Get current TX power
@@ -305,14 +305,14 @@ void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
     DEBUG("Set VCO TUNE to %d", vco_tune);
 }
 
-void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state)
-{
-    if(state)
-    {
-        dev->netdev.flags |= option;
-    }
-    else
-    {
-        dev->netdev.flags &= ~(option);
-    }
-}
+// void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state)
+// {
+//     if(state)
+//     {
+//         dev->netdev.flags |= option;
+//     }
+//     else
+//     {
+//         dev->netdev.flags &= ~(option);
+//     }
+// }

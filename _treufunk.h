@@ -141,14 +141,14 @@ void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params);
 int treufunk_reset(treufunk_t *dev);
 
 /** Addresses can only be managed by driver, because Treufunk does not support addresses */
-uint16_t treufunk_get_addr_short(treufunk_t *dev);
-void treufunk_set_addr_short(treufunk_t *dev, uint16_t addr);
-uint64_t treufunk_get_addr_long(treufunk_t *dev);
-void treufunk_set_addr_long(treufunk_t *dev, uint64_t addr);
+// uint16_t treufunk_get_addr_short(treufunk_t *dev);
+// void treufunk_set_addr_short(treufunk_t *dev, uint16_t addr);
+// uint64_t treufunk_get_addr_long(treufunk_t *dev);
+// void treufunk_set_addr_long(treufunk_t *dev, uint64_t addr);
 
 
-uint16_t treufunk_get_pan(treufunk_t *dev);
-void treufunk_set_pan(treufunk_t *dev, uint16_t pan);
+// uint16_t treufunk_get_pan(treufunk_t *dev);
+// void treufunk_set_pan(treufunk_t *dev, uint16_t pan);
 
 uint8_t treufunk_get_txpower(treufunk_t *dev);
 void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower);
@@ -162,7 +162,7 @@ void treufunk_reset_fifo(treufunk_t *dev); /* TODO: remove if not needed */
 uint8_t treufunk_get_chan(treufunk_t *dev);
 /* TODO */ void treufunk_set_chan(treufunk_t *dev, uint8_t chan);
 
-void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state);
+// void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state);
 
 
 
