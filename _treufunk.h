@@ -111,7 +111,7 @@ extern "C" {
 /* IEEE 802154 Synchronization header. 4 bytes preamble, 1 byte Start frame delimiter (SFD)
 	see IEEE802154 Standard Doc Chap. 12.1 (O-QPSK PHY, PPDU format)
 */
-static uint8_t SHR[] = {0x00, 0x00, 0x00, 0x00, 0xA7};
+//static uint8_t SHR[] = {0x00, 0x00, 0x00, 0x00, 0xA7};
 
 /**
  * 	SPI parameters
@@ -167,7 +167,7 @@ uint8_t treufunk_get_chan(treufunk_t *dev);
 
 
 size_t treufunk_send(treufunk_t *dev, uint8_t *data, size_t len);
-void treufunk_tx_prepare(treufunk_t *dev, size_t phr);
+void treufunk_tx_prepare(treufunk_t *dev);//, size_t phr);
 size_t treufunk_tx_load(treufunk_t *dev, uint8_t *data, size_t len);
 void treufunk_tx_exec(treufunk_t *dev);
 

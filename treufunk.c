@@ -47,42 +47,42 @@ int treufunk_reset(treufunk_t *dev)
     DEBUG("treufunk_reset()...\n");
     // treufunk_hardware_reset(dev);    /* TODO (treufunk_reset): Hardware reset neccessary? */
 
-    eui64_t addr_long;
+    // eui64_t addr_long;
 
     /* TEMP_BEGIN (treufunk_reset), reg_check (treufunk_reset) */
     int ret = 0;
     /* TEMP_END */
 
     /* Reset sequence number and options */
-    dev->netdev.seq = 0;
-    dev->netdev.flags = 0;
+    // dev->netdev.seq = 0;
+    // dev->netdev.flags = 0;
 
     /* set default options
     TODO (treufunk_reset): Which of them true/false?
     */
-    treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_START, false);
-    treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_END, true);
-    treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_START, false);
-    treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_END, true);
+    // treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_START, false);
+    // treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_END, true);
+    // treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_START, false);
+    // treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_END, true);
 
     /* set default protocol */
-    #ifdef MODULE_GNRC_SIXLOWPAN
-        dev->netdev.proto = GNRC_NETTYPE_SIXLOWPAN;
-    #elif MODULE_GNRC
-        dev->netdev.proto = GNRC_NETTYPE_UNDEF;
-    #endif
+    // #ifdef MODULE_GNRC_SIXLOWPAN
+    //     dev->netdev.proto = GNRC_NETTYPE_SIXLOWPAN;
+    // #elif MODULE_GNRC
+    //     dev->netdev.proto = GNRC_NETTYPE_UNDEF;
+    // #endif
 
     /* get an 8-byte unique ID to use as hardware address */
-    luid_get(addr_long.uint8, IEEE802154_LONG_ADDRESS_LEN);
-    /* make sure we mark the address as non-multicast and not globally unique */
-    addr_long.uint8[0] &= ~(0x01);
-    addr_long.uint8[0] |=  (0x02);
-    /* set short and long address */
-    treufunk_set_addr_long(dev, NTOHLL(addr_long.uint64.u64));
-    treufunk_set_addr_short(dev, NTOHS(addr_long.uint16[0].u16));
-
-    /* set default pan id */
-    treufunk_set_pan(dev, IEEE802154_DEFAULT_PANID);
+    // luid_get(addr_long.uint8, IEEE802154_LONG_ADDRESS_LEN);
+    // /* make sure we mark the address as non-multicast and not globally unique */
+    // addr_long.uint8[0] &= ~(0x01);
+    // addr_long.uint8[0] |=  (0x02);
+    // /* set short and long address */
+    // treufunk_set_addr_long(dev, NTOHLL(addr_long.uint64.u64));
+    // treufunk_set_addr_short(dev, NTOHS(addr_long.uint16[0].u16));
+    //
+    // /* set default pan id */
+    // treufunk_set_pan(dev, IEEE802154_DEFAULT_PANID);
 
 
     /* Reset all and load initial values */
@@ -290,7 +290,7 @@ size_t treufunk_send(treufunk_t *dev, uint8_t *data, size_t len)
  *
  * @param phr Length of payload (PSDU/MPDU)
  */
-void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
+void treufunk_tx_prepare(treufunk_t *dev)//, size_t phr)
 {
     uint8_t state;
 
@@ -301,19 +301,19 @@ void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
         state = treufunk_get_state(dev);
     } while(state == SENDING || state == RECEIVING || state == BUSY);
 
-    dev->tx_active = true;
+    // dev->tx_active = true;
 
     /* Put SM into SLEEP */
     DEBUG("treufunk_tx_prepare(): putting into SLEEP...\n");
     treufunk_set_state(dev, SLEEP);
 
     /* Write SHR into FIFO */
-    DEBUG("treufunk_tx_prepare(): writing SHR into FIFO...\n");
-    treufunk_fifo_write(dev, SHR, 5);
-
-    /* Write PHR (= payload/PSDU length) into FIFO */
-    DEBUG("treufunk_tx_prepare(): writing PHR into FIFO...\n");
-    treufunk_fifo_write(dev, &phr, 1);
+    // DEBUG("treufunk_tx_prepare(): writing SHR into FIFO...\n");
+    // treufunk_fifo_write(dev, SHR, 5);
+    //
+    // /* Write PHR (= payload/PSDU length) into FIFO */
+    // DEBUG("treufunk_tx_prepare(): writing PHR into FIFO...\n");
+    // treufunk_fifo_write(dev, &phr, 1);
 
 }
 
@@ -339,8 +339,8 @@ void treufunk_tx_exec(treufunk_t *dev)
     DEBUG("treufunk_tx_exec(): putting SM into TX...\n");
     treufunk_set_state(dev, SENDING);
 
-    if(dev->netdev.netdev.event_callback && (dev->netdev.flags & TREUFUNK_OPT_TELL_TX_START))
-    {
-        dev->netdev.netdev.event_callback(&(dev->netdev.netdev), NETDEV_EVENT_TX_STARTED);
-    }
+    // if(dev->netdev.netdev.event_callback && (dev->netdev.flags & TREUFUNK_OPT_TELL_TX_START))
+    // {
+    //     dev->netdev.netdev.event_callback(&(dev->netdev.netdev), NETDEV_EVENT_TX_STARTED);
+    // }
 }
