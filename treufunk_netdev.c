@@ -292,10 +292,10 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
 		return -EINVAL;
     }
 
-    #if ENABLE_DEBUG
-        /* print out memory dump of buffer */
-        od_hex_dump(buf, len, 16);
-    #endif
+    // #if ENABLE_DEBUG
+    //     /* print out memory dump of buffer */
+    //     od_hex_dump(buf, len, 16);
+    // #endif
 
     /* get PHR (size of received packet) */
     phr = *((uint8_t *)buf);
