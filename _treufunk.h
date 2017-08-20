@@ -24,9 +24,9 @@
 #define ENABLE_DEBUG (1)
 #include "debug.h"
 
-#if ENABLE_DEBUG
-	#include "od.h"
-#endif
+// #if ENABLE_DEBUG
+// 	#include "od.h"
+// #endif
 
 /* Set this to 1, if you want to use the shift register (SN74HC595) workaround with Arduino Due */
 #define DUE_SR_MODE (0)

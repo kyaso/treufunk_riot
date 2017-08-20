@@ -9,7 +9,7 @@
 
 // #include <string.h>
 // #include <assert.h>
-// #include <errno.h>
+#include <errno.h>
 
 // #include "net/eui64.h"
 #include "net/ieee802154.h"

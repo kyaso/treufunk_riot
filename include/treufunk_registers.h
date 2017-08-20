@@ -22,7 +22,9 @@ extern "C" {
 
 
 // registers
-#include "lprf_registers.h"
+//#include "lprf_registers.h"
+// for home:
+#include "lprf_registers_copy.h"
 
 
 
