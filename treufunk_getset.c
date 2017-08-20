@@ -174,6 +174,8 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     /* set state attribute of the Treufunk device descriptor */
     dev->state = treufunk_get_state(dev);
 
+    DEBUG("New state = %d\n", dev->state);
+
     /* Start polling timer for RX and TX */
     // if(state == RECEIVING || state == SENDING)
     // {
