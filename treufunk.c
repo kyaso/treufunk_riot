@@ -27,12 +27,12 @@
  * Also sets up the polling timer.
  * Actual init of spi pins happens in netdev.c/_init()
  */
-void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
+void treufunk_setup(treufunk_t *dev)//, const treufunk_params_t *params)
 {
     DEBUG("treufunk_setup()...\n");
     dev->netdev.netdev.driver = &treufunk_driver;
 
-    memcpy(&dev->params, params, sizeof(treufunk_params_t));
+    //memcpy(&dev->params, params, sizeof(treufunk_params_t));
     dev->state = SLEEP;
 }
 

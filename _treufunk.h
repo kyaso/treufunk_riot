@@ -14,8 +14,8 @@
 #include <string.h> /* for memmove() in netdev/_recv */
 
 #include "board.h"
-#include "periph/spi.h"
-#include "periph/gpio.h"
+// #include "periph/spi.h"
+// #include "periph/gpio.h"
 #include "net/netdev.h"
 #include "net/netdev/ieee802154.h"
 #include "net/gnrc/nettype.h"
@@ -116,17 +116,17 @@ static uint8_t SHR[] = {0x00, 0x00, 0x00, 0x00, 0xA7};
 /**
  * 	SPI parameters
  */
-typedef struct treufunk_params {
-  spi_t spi; /* SPI bus the device is connected to */
-  spi_clk_t spi_clk; /* SPI clock frequency */
-  spi_cs_t cs_pin; /* GPIO pin connected to chip select */
-} treufunk_params_t;
+// typedef struct treufunk_params {
+//   spi_t spi; /* SPI bus the device is connected to */
+//   spi_clk_t spi_clk; /* SPI clock frequency */
+//   spi_cs_t cs_pin; /* GPIO pin connected to chip select */
+// } treufunk_params_t;
 
 /* TODO (treufunk_t): Maybe add more */
 // device descriptor
 typedef struct {
   netdev_ieee802154_t netdev; /* netdev parent struct */
-  treufunk_params_t params; /* spi params for initialization */
+  //treufunk_params_t params; /* spi params for initialization */
   /* TODO (treufunk_t/state): This is only set when executing set_state() [...]
   Currently there is no mechanism that changes is during the automatic
   transition from TX to RX. Maybe we don't need this variable at all. */
@@ -137,7 +137,7 @@ typedef struct {
 
 
 
-void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params);
+void treufunk_setup(treufunk_t *dev);//, const treufunk_params_t *params);
 int treufunk_reset(treufunk_t *dev);
 
 /** Addresses can only be managed by driver, because Treufunk does not support addresses */
