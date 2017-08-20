@@ -82,12 +82,6 @@ static int _init(netdev_t *netdev)
 
     DEBUG("Success: chip id correct! Doing reset now...\n");
 
-    /* TEMP_BEGIN (_init): Remove the comment if you just want to read out the chip id and
-    skip the whole init process */
-    return -1;
-    /* TEMP_END */
-
-    /* reset Treufunk to default values and put it into RX state */
     return treufunk_reset(dev);
 }
 
