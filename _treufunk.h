@@ -19,7 +19,7 @@
 #include "net/netdev.h"
 #include "net/netdev/ieee802154.h"
 #include "net/gnrc/nettype.h"
-#include "xtimer.h"
+//#include "xtimer.h"
 
 #define ENABLE_DEBUG (1)
 #include "debug.h"
@@ -132,7 +132,7 @@ typedef struct {
   transition from TX to RX. Maybe we don't need this variable at all. */
   uint8_t state; /* current state of state machine; phy_status, Tab. 3.4 */
   bool tx_active; /* TODO (treufunk_t): Doc */
-  xtimer_t poll_timer; /* Polling timer */
+  //xtimer_t poll_timer; /* Polling timer */
 } treufunk_t;
 
 

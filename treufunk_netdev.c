@@ -58,9 +58,9 @@ static int _init(netdev_t *netdev)
     treufunk_t *dev = (treufunk_t *) netdev;
 
     /* Setup polling timer */
-    dev->poll_timer.next = NULL;
-    dev->poll_timer.callback = _irq_handler;
-    dev->poll_timer.arg = (void *)dev;
+    // dev->poll_timer.next = NULL;
+    // dev->poll_timer.callback = _irq_handler;
+    // dev->poll_timer.arg = (void *)dev;
     /* init gpios */
     spi_init_cs(dev->params.spi, dev->params.cs_pin);
     /* TODO (_init): Maybe also hardware reset pin */
@@ -88,50 +88,52 @@ static int _init(netdev_t *netdev)
 /* TODO (_isr) */
 static void _isr(netdev_t *netdev)
 {
-    DEBUG("POLLING ISR called\n");
-    treufunk_t *dev = (treufunk_t *)netdev;
-
-    uint8_t phy_status = treufunk_get_phy_status(dev);
-
-    /* Check if RX data is available */
-    if(PHY_SM_STATUS(phy_status) == SLEEP && !PHY_FIFO_EMPTY(phy_status))
-    {
-        DEBUG("POLL: EVT - RX_END\n");
-        if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_RX_END)) {
-            return;
-        }
-        netdev->event_callback(netdev, NETDEV_EVENT_RX_COMPLETE);
-        phy_status = treufunk_get_phy_status(dev);
-    }
-
-    /* Change to back RX, if RX data is transferred to driver and chip is sleeping */
-    if(PHY_SM_STATUS(phy_status) == SLEEP && PHY_FIFO_EMPTY(phy_status))
-    {
-        treufunk_set_state(dev, RECEIVING);
-        return;
-    }
-
-    /* Check if transmission is complete */
-    if(PHY_SM_STATUS(phy_status) == RECEIVING && PHY_FIFO_EMPTY(phy_status) && dev->tx_active)
-    {
-        DEBUG("POLL: EVT - TX_END\n");
-
-        dev->tx_active = false;
-
-        if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_END)) {
-            return;
-        }
-        netdev->event_callback(netdev, NETDEV_EVENT_TX_COMPLETE);
-
-        /* Change back to RX */
-        treufunk_set_state(dev, RECEIVING);
-
-        return;
-    }
-
-    DEBUG("POLL: nothing happened. Setting timer again...\n");
-    /* Set timer again if still listening for packets OR waiting for transmission to finish */
-    xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
+    // DEBUG("POLLING ISR called\n");
+    // treufunk_t *dev = (treufunk_t *)netdev;
+    //
+    // uint8_t phy_status = treufunk_get_phy_status(dev);
+    //
+    // /* Check if RX data is available */
+    // if(PHY_SM_STATUS(phy_status) == SLEEP && !PHY_FIFO_EMPTY(phy_status))
+    // {
+    //     DEBUG("POLL: EVT - RX_END\n");
+    //     if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_RX_END)) {
+    //         return;
+    //     }
+    //     netdev->event_callback(netdev, NETDEV_EVENT_RX_COMPLETE);
+    //     phy_status = treufunk_get_phy_status(dev);
+    // }
+    //
+    // /* Change to back RX, if RX data is transferred to driver and chip is sleeping */
+    // if(PHY_SM_STATUS(phy_status) == SLEEP && PHY_FIFO_EMPTY(phy_status))
+    // {
+    //     treufunk_set_state(dev, RECEIVING);
+    //     return;
+    // }
+    //
+    // /* Check if transmission is complete */
+    // if(PHY_SM_STATUS(phy_status) == RECEIVING && PHY_FIFO_EMPTY(phy_status) && dev->tx_active)
+    // {
+    //     DEBUG("POLL: EVT - TX_END\n");
+    //
+    //     dev->tx_active = false;
+    //
+    //     if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_END)) {
+    //         return;
+    //     }
+    //     netdev->event_callback(netdev, NETDEV_EVENT_TX_COMPLETE);
+    //
+    //     /* Change back to RX */
+    //     treufunk_set_state(dev, RECEIVING);
+    //
+    //     return;
+    // }
+    //
+    // DEBUG("POLL: nothing happened. Setting timer again...\n");
+    // /* Set timer again if still listening for packets OR waiting for transmission to finish */
+    // xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
+    //
+    return;
 
 }
 
