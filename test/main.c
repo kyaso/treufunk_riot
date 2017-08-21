@@ -19,7 +19,7 @@ static int reg_read(int argc, char **argv)
     if(argc != 2) return -1;
     uint8_t addr = strtol(argv[1], NULL, 16);
     uint8_t val;
-    val = treufunk_reg_read(myTreufunk, addr);
+    val = treufunk_reg_read(&myTreufunk, addr);
     printf("Register 0x%02x: 0x%02x\n", addr, val);
     return 0;
 }
