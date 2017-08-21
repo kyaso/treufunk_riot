@@ -6,21 +6,21 @@
 #include "shell.h"
 #include "shell_commands.h"
 
-// #include "treufunk.h"
-// #include "treufunk_params.h"
+#include "treufunk.h"
+#include "treufunk_params.h"
 // maybe also #include "treufunk_internal.h"
 
-// #include "net/netdev.h"
+#include "net/netdev.h"
 
-// treufunk_t myTreufunk;
+treufunk_t myTreufunk;
 
 static int reg_read(int argc, char **argv)
 {
     if(argc != 2) return -1;
     uint8_t addr = strtol(argv[1], NULL, 16);
     uint8_t val;
-    //val = treufunk_reg_read(myTreufunk, addr);
-    printf("Register 0x%02x: 0x%02x\n", addr, 0);
+    val = treufunk_reg_read(myTreufunk, addr);
+    printf("Register 0x%02x: 0x%02x\n", addr, val);
     return 0;
 }
 
@@ -29,7 +29,7 @@ static int reg_write(int argc, char **argv)
     if(argc != 3) return -1;
     uint8_t addr = strtol(argv[1], NULL, 16);
     uint8_t val = strtol(argv[2], NULL, 16);
-    //treufunk_reg_write(&myTreufunk, addr, val);
+    treufunk_reg_write(&myTreufunk, addr, val);
     printf("Write 0x%02x into reg 0x%02x\n", val, addr);
     return 0;
 }
@@ -45,7 +45,7 @@ static int send(int argc, char **argv)
     }
     puts("");
     printf("Sending %d bytes\n", len);
-    //treufunk_send(&myTreufunk, (uint8_t *)argv[1], len);
+    treufunk_send(&myTreufunk, (uint8_t *)argv[1], len);
     return 0;
 }
 
@@ -53,7 +53,7 @@ static int receive(int argc, char **argv)
 {
     uint8_t buf_len = 127;
     uint8_t buf[buf_len];
-    // treufunk_fifo_read(&myTreufunk, buf, buf_len);
+    treufunk_fifo_read(&myTreufunk, buf, buf_len);
     puts("Received Data:");
     for(int i = 0; i < buf_len; i++)
     {
@@ -65,7 +65,7 @@ static int receive(int argc, char **argv)
 
 static int get_phy(int argc, char **argv)
 {
-    //printf("phy_status = 0x%02x\n", treufunk_get_phy_status(&myTreufunk));
+    printf("phy_status = 0x%02x\n", treufunk_get_phy_status(&myTreufunk));
     return 0;
 }
 
@@ -74,13 +74,13 @@ static int set_state(int argc, char **argv)
     if(argc != 2) return -1;
     uint8_t to_state = atoi(argv[1]);
     printf("Setting state (acc. to phy_status) to: %d\n", to_state);
-    //treufunk_set_state(&myTreufunk, to_state);
+    treufunk_set_state(&myTreufunk, to_state);
     return 0;
 }
 
 static int get_state(int argc, char **argv)
 {
-    //printf("Current state (acc. to phy_status) = %d\n", treufunk_get_state(&myTreufunk));
+    printf("Current state (acc. to phy_status) = %d\n", treufunk_get_state(&myTreufunk));
     return 0;
 }
 
