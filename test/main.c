@@ -8,7 +8,7 @@
 
 #include "treufunk.h"
 #include "treufunk_params.h"
-// maybe also #include "treufunk_internal.h"
+#include "treufunk_internal.h"
 
 #include "net/netdev.h"
 
