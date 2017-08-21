@@ -52,7 +52,7 @@ static int send(int argc, char **argv)
 static int receive(int argc, char **argv)
 {
     uint8_t buf_len = 127;
-    uint8_t buf[buf_len];
+    uint8_t buf[127] = {0};
     treufunk_fifo_read(&myTreufunk, buf, buf_len);
     puts("Received Data:");
     for(int i = 0; i < buf_len; i++)
