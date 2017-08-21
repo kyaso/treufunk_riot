@@ -15,7 +15,7 @@ DRIVER := treufunk
 # include the selected driver
 USEMODULE += $(DRIVER)
 
-CFLAGS += -DDEVELHELP
+#CFLAGS += -DDEVELHELP
 
 # Change this at IAS/home
 # #include /home/kyaso/src/RIOT/Makefile.include
