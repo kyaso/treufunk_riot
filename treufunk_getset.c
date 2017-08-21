@@ -11,6 +11,7 @@
 #include "treufunk_internal.h"
 #include "treufunk_registers.h"
 #include "periph/spi.h"
+#include "errno.h"
 
 // #define ENABLE_DEBUG (0)
 // #include "debug.h"

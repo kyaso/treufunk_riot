@@ -133,7 +133,7 @@ static void _isr(netdev_t *netdev)
     // /* Set timer again if still listening for packets OR waiting for transmission to finish */
     // xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
     //
-    return 0;
+    return;
 
 }
 

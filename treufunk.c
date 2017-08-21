@@ -50,7 +50,7 @@ int treufunk_reset(treufunk_t *dev)
     // eui64_t addr_long;
 
     /* TEMP_BEGIN (treufunk_reset), reg_check (treufunk_reset) */
-    // int ret = 0;
+    int ret = 0; /* for RETURN_ON_ERROR */
     /* TEMP_END */
 
     /* Reset sequence number and options */
@@ -277,7 +277,7 @@ size_t treufunk_send(treufunk_t *dev, uint8_t *data, size_t len)
 {
     DEBUG("treufunk_send()...\n");
     /* TODO (treufunk_send): Check for max len */
-    treufunk_tx_prepare(dev, len);
+    treufunk_tx_prepare(dev);
     treufunk_tx_load(dev, data, len);
     treufunk_tx_exec(dev);
     return len;
