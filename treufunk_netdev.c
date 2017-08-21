@@ -44,11 +44,21 @@ const netdev_driver_t treufunk_driver = {
 
 static void _irq_handler(void *arg)
 {
+    #if ENABLE_DEBUG
+        uint32_t now, last;
+        last = xtimer_now_usec();
+    #endif
+
     netdev_t *dev = (netdev_t *) arg;
 
     if (dev->event_callback) {
         dev->event_callback(dev, NETDEV_EVENT_ISR);
     }
+
+    #if ENABLE_DEBUG
+        now = xtimer_now_usec();
+        printf("ISR time = %d\n", now - last);
+    #endif
 }
 
 
