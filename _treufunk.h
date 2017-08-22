@@ -29,7 +29,7 @@
 // #endif
 
 /* Set this to 1, if you want to use the shift register (SN74HC595) workaround with Arduino Due */
-#define DUE_SR_MODE (0)
+#define DUE_SR_MODE (1)
 
 /* TEMP, reg_check */
 #define RETURN_ON_ERROR(f) ret = (f); \
