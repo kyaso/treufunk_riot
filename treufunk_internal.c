@@ -259,7 +259,7 @@ void treufunk_fifo_write(const treufunk_t *dev,
  */
 uint8_t treufunk_get_phy_status(const treufunk_t *dev)
 {
-    DEBUG("Reading phy_status byte...\n");
+    DEBUG("get_phy_status(): Reading phy_status byte...\n");
     uint8_t phy_status;
     getbus(dev);
     /* Just transfer any byte, e.g. 8 ones or all zeros, on MOSI. Treufunk will send back phy_status on MISO */

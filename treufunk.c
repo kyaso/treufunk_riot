@@ -44,7 +44,7 @@ void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
  */
 int treufunk_reset(treufunk_t *dev)
 {
-    DEBUG("treufunk_reset()...\n");
+    DEBUG("reset()...\n");
     // treufunk_hardware_reset(dev);    /* TODO (treufunk_reset): Hardware reset neccessary? */
 
     // eui64_t addr_long;
@@ -264,7 +264,7 @@ int treufunk_reset(treufunk_t *dev)
     //xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
     // not needed to be done here. timer is set in _set_state
 
-    DEBUG("trefunk_reset(): reset complete.\n");
+    DEBUG("reset(): reset complete.\n");
 
     return 0;
 }
@@ -304,15 +304,15 @@ void treufunk_tx_prepare(treufunk_t *dev)//, size_t phr)
     // dev->tx_active = true;
 
     /* Put SM into SLEEP */
-    DEBUG("treufunk_tx_prepare(): putting into SLEEP...\n");
+    DEBUG("tx_prepare(): putting into SLEEP...\n");
     treufunk_set_state(dev, SLEEP);
 
-    /* Write SHR into FIFO */
-    // DEBUG("treufunk_tx_prepare(): writing SHR into FIFO...\n");
+    // /* Write SHR into FIFO */
+    // DEBUG("tx_prepare(): writing SHR into FIFO...\n");
     // treufunk_fifo_write(dev, SHR, 5);
     //
     // /* Write PHR (= payload/PSDU length) into FIFO */
-    // DEBUG("treufunk_tx_prepare(): writing PHR into FIFO...\n");
+    // DEBUG("tx_prepare(): writing PHR into FIFO...\n");
     // treufunk_fifo_write(dev, &phr, 1);
 
 }
@@ -326,7 +326,7 @@ void treufunk_tx_prepare(treufunk_t *dev)//, size_t phr)
  */
 size_t treufunk_tx_load(treufunk_t *dev, uint8_t *data, size_t len)
 {
-    DEBUG("treufunk_tx_load(): writing data into FIFO...\n");
+    DEBUG("tx_load(): writing data into FIFO...\n");
     treufunk_fifo_write(dev, data, len);
     return len;
 }
@@ -336,7 +336,7 @@ size_t treufunk_tx_load(treufunk_t *dev, uint8_t *data, size_t len)
  */
 void treufunk_tx_exec(treufunk_t *dev)
 {
-    DEBUG("treufunk_tx_exec(): putting SM into TX...\n");
+    DEBUG("tx_exec(): putting SM into TX...\n");
     treufunk_set_state(dev, SENDING);
 
     // if(dev->netdev.netdev.event_callback && (dev->netdev.flags & TREUFUNK_OPT_TELL_TX_START))

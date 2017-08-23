@@ -73,7 +73,7 @@ uint8_t treufunk_get_txpower(treufunk_t *dev)
  */
 void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower)
 {
-    DEBUG("Setting tx_power...\n");
+    DEBUG("(set_txpower(): Setting tx_power...\n");
     if(txpower < 0) txpower = 0;
     else if(txpower > 15) txpower = 15;
 
@@ -86,9 +86,9 @@ void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower)
 uint8_t treufunk_get_state(treufunk_t *dev)
 {
     /* right shift 5 neccessary because state bits are the first three bits of phy_status */
-    DEBUG("Getting current state...\n");
+    DEBUG("get_state(): Getting current state...\n");
     uint8_t state = PHY_SM_STATUS(treufunk_get_phy_status(dev));
-    DEBUG("treufunk_get_state(): STATE = 0x%03x\n", state);
+    DEBUG("get_statE(): treufunk_get_state(): STATE = 0x%03x\n", state);
     return (state);
 }
 
@@ -97,7 +97,7 @@ uint8_t treufunk_get_state(treufunk_t *dev)
  */
 static void _rx_resets(treufunk_t *dev)
 {
-    DEBUG("Doing rx_resets...\n");
+    DEBUG("_rx_resets(): Doing rx_resets...\n");
     /* Reset FIFO and SM */
     treufunk_reg_write(dev, RG_SM_MAIN, 0x05);
     treufunk_reg_write(dev, RG_SM_MAIN, 0x0F);
@@ -149,7 +149,7 @@ static uint8_t state_to_statecmd(uint8_t state)
  */
 void treufunk_set_state(treufunk_t *dev, uint8_t state)
 {
-    DEBUG("Setting state %d...\n", state);
+    DEBUG("set_state(): Setting state %d...\n", state);
     uint8_t state_cmd = state_to_statecmd(state);
     //if(dev->state == state) return; /* TODO (set_state): Problem: Automatic transition TX-> RX. This variable does not get changed */
     if(state_cmd == -1) return;
@@ -157,36 +157,36 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     /* Before transitioning into RX/TX, some manual resets have to be done */
     if(state_cmd == STATE_CMD_RX || state_cmd == STATE_CMD_TX) {
         _rx_resets(dev);
-        DEBUG("rx_resets done.\n");
+        DEBUG("set_state(): rx_resets done.\n");
     }
 
     /* write state_cmd to SM_COMMAND sub_reg of SM_MAIN */
-    DEBUG("Writing state_cmd (%d) into SM_MAIN reg...\n", state_cmd);
+    DEBUG("set_state(): Writing state_cmd (%d) into SM_MAIN reg...\n", state_cmd);
     treufunk_sub_reg_write(dev, SR_SM_COMMAND, state_cmd);
 
     /* Wait until state transition is complete */
-    DEBUG("Waiting until state transition is finished...\n");
+    DEBUG("set_state(): Waiting until state transition is finished...\n");
     while(treufunk_get_state(dev) == BUSY);
 
     /* set SM_COMMAND back to CMD_NONE */
-    DEBUG("Resetting state_cmd sub-reg (SM_MAIN)\n");
+    DEBUG("set_state(): Resetting state_cmd sub-reg (SM_MAIN)\n");
     treufunk_sub_reg_write(dev, SR_SM_COMMAND, STATE_CMD_NONE);
 
     /* set state attribute of the Treufunk device descriptor */
     dev->state = treufunk_get_state(dev);
 
-    DEBUG("New state = %d\n", dev->state);
+    DEBUG("set_state(): New state = %d\n", dev->state);
 
-    /* Start polling timer for RX and TX */
+    // /* Start polling timer for RX and TX */
     // if(state == RECEIVING || state == SENDING)
     // {
-    //     DEBUG("Setting timer...\n");
+    //     DEBUG("set_state(): Setting timer...\n");
     //     xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL); /* TODO (set_state): Discuss polling interval */
     // }
     // /* Remove polling timer when SLEEP */
     // else if(state == SLEEP)
     // {
-    //     DEBUG("Disabling timer...\n");
+    //     DEBUG("set_state(): Disabling timer...\n");
     //     xtimer_remove(&(dev->poll_timer));
     // }
 }
@@ -271,7 +271,7 @@ void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
     if((chan < IEEE802154_CHANNEL_MIN) ||
         (chan > IEEE802154_CHANNEL_MAX) ||
         (dev->netdev.chan == chan)) {
-            DEBUG("Invalid channel or channel already set: %d\n", chan);
+            DEBUG("set_chan(): Invalid channel or channel already set: %d\n", chan);
             return;
     }
 
@@ -283,7 +283,7 @@ void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
 
     /* Calculate channel center frequency in MHz according to the ieee802154 standard (channel page 0) */
     uint32_t center_freq = (2405 + 5 * (chan - 11)) * 1000000U;
-    DEBUG("Setting to center freq = %lu Hz\n", center_freq);
+    DEBUG("set_chan(): Setting to center freq = %lu Hz\n", center_freq);
 
     /* TODO (set_chan): */
 
@@ -293,8 +293,8 @@ void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
     treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
     treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
     treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
-    DEBUG("Set RX PLL values to int=%ld and frac=0x%lu\n", pll_int, pll_frac);
-    DEBUG("RX HByte = 0x%02x, MByte = 0x%02x, LByte = 0x%02x\n", BIT24_H_BYTE(pll_frac), BIT24_M_BYTE(pll_frac), BIT24_L_BYTE(pll_frac));
+    DEBUG("set_chan(): Set RX PLL values to int=%ld and frac=0x%lu\n", pll_int, pll_frac);
+    DEBUG("set_chan(): RX HByte = 0x%02x, MByte = 0x%02x, LByte = 0x%02x\n", BIT24_H_BYTE(pll_frac), BIT24_M_BYTE(pll_frac), BIT24_L_BYTE(pll_frac));
 
     /* ... and TX */
     _calculate_pll_values(center_freq, 0, &pll_int, &pll_frac);
@@ -302,13 +302,13 @@ void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
     treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
     treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
     treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
-    DEBUG("Set TX PLL values to int=%lu and frac=0x%lu\n", pll_int, pll_frac);
-    DEBUG("TX HByte = 0x%02x, MByte = 0x%02x, LByte = 0x%02x\n", BIT24_H_BYTE(pll_frac), BIT24_M_BYTE(pll_frac), BIT24_L_BYTE(pll_frac));
+    DEBUG("set_chan(): Set TX PLL values to int=%lu and frac=0x%lu\n", pll_int, pll_frac);
+    DEBUG("set_chan(): TX HByte = 0x%02x, MByte = 0x%02x, LByte = 0x%02x\n", BIT24_H_BYTE(pll_frac), BIT24_M_BYTE(pll_frac), BIT24_L_BYTE(pll_frac));
 
     /* Calculate VCO tune */
     vco_tune = _calc_vco_tune(chan);
     treufunk_sub_reg_write(dev, SR_PLL_VCO_TUNE, vco_tune);
-    DEBUG("Set VCO TUNE to %lu\n", vco_tune);
+    DEBUG("set_chan(): Set VCO TUNE to %lu\n", vco_tune);
 }
 
 // void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state)
