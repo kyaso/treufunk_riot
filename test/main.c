@@ -84,6 +84,15 @@ static int get_state(int argc, char **argv)
     return 0;
 }
 
+static int set_channel(int argc, char **argv)
+{
+    if(argc != 2) return -1;
+    uint8_t channel = atoi(argv[1]);
+    printf("Setting channel %d\n", channel);
+    treufunk_set_chan(&myTreufunk, channel);
+    return 0;
+}
+
 static const shell_command_t shell_commands[] = {
     { "rr", "read a register", reg_read },
     { "rw", "write to a register", reg_write },
@@ -92,6 +101,7 @@ static const shell_command_t shell_commands[] = {
     { "phy", "get phy_status", get_phy },
     { "ss", "set state", set_state },
     { "gs", "get current state", get_state },
+    { "setchan", "set channel", set_channel },
     { NULL, NULL, NULL }
 };
 
