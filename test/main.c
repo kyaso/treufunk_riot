@@ -5,6 +5,7 @@
 
 #include "shell.h"
 #include "shell_commands.h"
+#include "od.h"
 
 #include "treufunk.h"
 #include "treufunk_params.h"
@@ -55,10 +56,11 @@ static int receive(int argc, char **argv)
     uint8_t buf[127] = {0};
     treufunk_fifo_read(&myTreufunk, buf, buf_len);
     puts("Received Data:");
-    for(int i = 0; i < buf_len; i++)
-    {
-        printf("0x%02x ", buf[i]);
-    }
+    // for(int i = 0; i < buf_len; i++)
+    // {
+    //     printf("0x%02x ", buf[i]);
+    // }
+    od_hex_dump(&buf, 127, 16);
     puts("");
     return 0;
 }

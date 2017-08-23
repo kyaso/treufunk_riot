@@ -4,7 +4,7 @@ BOARD ?= arduino-due
 
 DISABLE_MODULE += auto_init
 
-#USEMODULE += od
+USEMODULE += od
 #USEMODULE += xtimer
 USEMODULE += shell
 USEMODULE += shell_commands
