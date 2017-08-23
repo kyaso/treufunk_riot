@@ -18,5 +18,5 @@ USEMODULE += $(DRIVER)
 #CFLAGS += -DDEVELHELP
 
 # Change this at IAS/home
-# #include /home/kyaso/src/RIOT/Makefile.include
-include /home/kyasotharan/riot/RIOT/Makefile.include
+include /home/kyaso/src/RIOT/Makefile.include
+#include /home/kyasotharan/riot/RIOT/Makefile.include
