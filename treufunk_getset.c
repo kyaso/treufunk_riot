@@ -219,7 +219,7 @@ uint8_t treufunk_get_chan(treufunk_t *dev)
     return dev->netdev.chan;
 }
 
-static int _calc_vco_tune(uint8_t channel)
+static uint32_t _calc_vco_tune(uint8_t channel)
 {
     switch(channel)
     {
@@ -245,11 +245,11 @@ static int _calc_vco_tune(uint8_t channel)
 
 static int _calculate_pll_values(uint32_t rf_freq,
                                 uint32_t if_freq,
-                                int *int_val,
-                                int *frac_val)
+                                uint32_t *int_val,
+                                uint32_t *frac_val)
 {
     uint32_t f_lo = 0;
-    int frac_correction = 0;
+    //int frac_correction = 0;
 
     /* 2.4 GHz */
     if(rf_freq > 2000000000)
@@ -258,7 +258,7 @@ static int _calculate_pll_values(uint32_t rf_freq,
         *int_val = f_lo / 16000000;
 
         /* TODO (_calc_pll) */
-        *frac_val = (f_lo % 16000000) * 228/3479 + frac_correction;
+        *frac_val = (f_lo % 16000000) * 228/3479; //+ frac_correction;
         return 0;
     }
 
@@ -271,18 +271,19 @@ void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
     if((chan < IEEE802154_CHANNEL_MIN) ||
         (chan > IEEE802154_CHANNEL_MAX) ||
         (dev->netdev.chan == chan)) {
+            DEBUG("Invalid channel or channel already set: %d\n", chan);
             return;
     }
 
     dev->netdev.chan = chan;
 
-    int pll_int = 0;
-    int pll_frac = 0;
-    int vco_tune = 0;
+    uint32_t pll_int = 0;
+    uint32_t pll_frac = 0;
+    uint32_t vco_tune = 0;
 
     /* Calculate channel center frequency in MHz according to the ieee802154 standard (channel page 0) */
-    int center_freq = (2405 + 5 * (chan - 11)) * 1000000U;
-    DEBUG("Setting to center freq = %d Hz\n", center_freq);
+    uint32_t center_freq = (2405 + 5 * (chan - 11)) * 1000000U;
+    DEBUG("Setting to center freq = %lu Hz\n", center_freq);
 
     /* TODO (set_chan): */
 
@@ -292,7 +293,8 @@ void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
     treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
     treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
     treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
-    DEBUG("Set RX PLL values to int=%d and frac=0x%06x\n", pll_int, pll_frac);
+    DEBUG("Set RX PLL values to int=%ld and frac=0x%lu\n", pll_int, pll_frac);
+    DEBUG("RX HByte = 0x%02x, MByte = 0x%02x, LByte = 0x%02x\n", BIT24_H_BYTE(pll_frac), BIT24_M_BYTE(pll_frac), BIT24_L_BYTE(pll_frac));
 
     /* ... and TX */
     _calculate_pll_values(center_freq, 0, &pll_int, &pll_frac);
@@ -300,12 +302,13 @@ void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
     treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
     treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
     treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
-    DEBUG("Set TX PLL values to int=%d and frac=0x%06x\n", pll_int, pll_frac);
+    DEBUG("Set TX PLL values to int=%lu and frac=0x%lu\n", pll_int, pll_frac);
+    DEBUG("TX HByte = 0x%02x, MByte = 0x%02x, LByte = 0x%02x\n", BIT24_H_BYTE(pll_frac), BIT24_M_BYTE(pll_frac), BIT24_L_BYTE(pll_frac));
 
     /* Calculate VCO tune */
     vco_tune = _calc_vco_tune(chan);
     treufunk_sub_reg_write(dev, SR_PLL_VCO_TUNE, vco_tune);
-    DEBUG("Set VCO TUNE to %d", vco_tune);
+    DEBUG("Set VCO TUNE to %lu\n", vco_tune);
 }
 
 // void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state)
