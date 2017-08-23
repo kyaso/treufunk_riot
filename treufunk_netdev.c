@@ -69,18 +69,18 @@ static int _init(netdev_t *netdev)
      * Check if SPI is working correctly by reading the two registers
      * CHIP_ID_L and CHIP_ID_H. They contain predefined values: 0x51, 0x1A
      */
-    DEBUG("Reading chip id l (at 0x04)...\n");
+    DEBUG("_init(): Reading chip id l (at 0x04)...\n");
     uint8_t id_l = treufunk_reg_read(dev, RG_CHIP_ID_L); /* 0x04 */
-    DEBUG("Reading chip id h (at 0x05)...\n");
+    DEBUG("_init(): Reading chip id h (at 0x05)...\n");
     uint8_t id_h = treufunk_reg_read(dev, RG_CHIP_ID_H); /* 0x05 */
-    DEBUG("Chip ID l = 0x%02x, Chip ID h = 0x%02x\n", id_l, id_h);
+    DEBUG("_init(): Chip ID l = 0x%02x, Chip ID h = 0x%02x\n", id_l, id_h);
     if(id_l != 0x51 || id_h != 0x1A)
     {
-        DEBUG("[treufunk] error: unable to read correct chip id\n");
+        DEBUG("ERROR (_init): unable to read correct chip id\n");
         return -1;
     }
 
-    DEBUG("Success: chip id correct! Doing reset now...\n");
+    DEBUG("_init(): Success: chip id correct! Doing reset now...\n");
 
     return treufunk_reset(dev);
 }
@@ -88,7 +88,7 @@ static int _init(netdev_t *netdev)
 /* TODO (_isr) */
 static void _isr(netdev_t *netdev)
 {
-    DEBUG("POLLING ISR called\n");
+    DEBUG("_isr(): POLLING ISR called\n");
     treufunk_t *dev = (treufunk_t *)netdev;
 
     uint8_t phy_status = treufunk_get_phy_status(dev);
@@ -96,7 +96,7 @@ static void _isr(netdev_t *netdev)
     /* Check if RX data is available */
     if(PHY_SM_STATUS(phy_status) == SLEEP && !PHY_FIFO_EMPTY(phy_status))
     {
-        DEBUG("POLL: EVT - RX_END\n");
+        DEBUG("_isr(): POLL: EVT - RX_END\n");
         if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_RX_END)) {
             return;
         }
@@ -114,7 +114,7 @@ static void _isr(netdev_t *netdev)
     /* Check if transmission is complete */
     if(PHY_SM_STATUS(phy_status) == RECEIVING && PHY_FIFO_EMPTY(phy_status) && dev->tx_active)
     {
-        DEBUG("POLL: EVT - TX_END\n");
+        DEBUG("_isr(): POLL: EVT - TX_END\n");
 
         dev->tx_active = false;
 
@@ -129,7 +129,7 @@ static void _isr(netdev_t *netdev)
         return;
     }
 
-    DEBUG("POLL: nothing happened. Setting timer again...\n");
+    DEBUG("_isr(): POLL: nothing happened. Setting timer again...\n");
     /* Set timer again if still listening for packets OR waiting for transmission to finish */
     xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
 
@@ -149,7 +149,7 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
     /* check if packet is too long */
     if(len > TREUFUNK_MAX_PKT_LENGTH)
     {
-        DEBUG("[treufunk] error: packet too large (%u bytes) to be send\n", (unsigned)len + 2);
+        DEBUG("ERROR (_send): packet too large (%u bytes) to be send\n", (unsigned)len + 2);
         return -EOVERFLOW;
     }
 
@@ -223,7 +223,7 @@ static int _find_SFD_and_shift_data(uint8_t *data, uint8_t *data_length,
 				data[sfd_start_postion+1]) >> 6, 8);
 
 	if(no_shift < 7 && one_bit_shift < 7 && two_bit_shift < 7) {
-		DEBUG("SFD not found.\n");
+		DEBUG("_find_SFD_and_shift_data(): SFD not found.\n");
 		return 0;
 	}
 
@@ -232,7 +232,7 @@ static int _find_SFD_and_shift_data(uint8_t *data, uint8_t *data_length,
 	else if (two_bit_shift >= 7)
 		shift -= 2;
 
-	DEBUG("Data will be shifted by %d bits to the right\n", shift);
+	DEBUG("ERROR (_find_SFD_and_shift_data): Data will be shifted by %d bits to the right\n", shift);
 
 	for (i = 0; i < *data_length - sfd_start_postion - 1; ++i) {
 		data[i] = ((data[i + data_start_position] << 8) |
@@ -282,7 +282,7 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
     /* remove preamble and correct alignment */
     if(_find_SFD_and_shift_data(buf, &len, 0xA7, 4) == 0)
     {
-        DEBUG("SFD not found, ignoring frame\n");
+        DEBUG("ERROR (_recv): SFD not found, ignoring frame\n");
 		return -EINVAL;
     }
 
@@ -302,7 +302,7 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
 
     // if(pkt_len > len)
     // {
-    //     DEBUG("ERRROR _recv(): Not enough space in receive buffer!\n");
+    //     DEBUG("ERROR (_recv): Not enough space in receive buffer!\n");
     //     return -ENOBUFS;
     // }
 
