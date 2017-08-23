@@ -295,11 +295,11 @@ void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
     uint8_t state;
 
     /* wait until ongoing transmissions are finished */
-    DEBUG("treufunk_tx_prepare(): waiting for Treufunk to become ready...\n");
-    do
-    {
-        state = treufunk_get_state(dev);
-    } while(state == SENDING || state == RECEIVING || state == BUSY);
+    // DEBUG("treufunk_tx_prepare(): waiting for Treufunk to become ready...\n");
+    // do
+    // {
+    //     state = treufunk_get_state(dev);
+    // } while(state == SENDING || state == RECEIVING || state == BUSY);
 
     dev->tx_active = true;
 
