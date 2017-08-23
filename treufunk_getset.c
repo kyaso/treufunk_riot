@@ -151,8 +151,8 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
 {
     DEBUG("Setting state %d...\n", state);
     uint8_t state_cmd = state_to_statecmd(state);
-    if(dev->state == state) return;
-    else if(state_cmd == -1) return;
+    //if(dev->state == state) return; /* TODO (set_state): Problem: Automatic transition TX-> RX. This variable does not get changed */
+    if(state_cmd == -1) return;
 
     /* Before transitioning into RX/TX, some manual resets have to be done */
     if(state_cmd == STATE_CMD_RX || state_cmd == STATE_CMD_TX) {
