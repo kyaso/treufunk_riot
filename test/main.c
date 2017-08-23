@@ -93,6 +93,23 @@ static int set_channel(int argc, char **argv)
     return 0;
 }
 
+static int fifo_write(int argc, char **argv)
+{
+    if(argc != 2) return -1;
+    uint8_t len = strlen(argv[1]);
+    printf("Data: ");
+    for(int i = 0; i < len; i++)
+    {
+        printf("%02x ", (uint8_t)(argv[1][i]));
+    }
+    puts("");
+    printf("Writing %d bytes to FIFO\n", len);
+    treufunk_fifo_write(&myTreufunk, (uint8_t *)argv[1], len);
+
+    return 0;
+
+}
+
 static const shell_command_t shell_commands[] = {
     { "rr", "read a register", reg_read },
     { "rw", "write to a register", reg_write },
@@ -102,6 +119,7 @@ static const shell_command_t shell_commands[] = {
     { "ss", "set state", set_state },
     { "gs", "get current state", get_state },
     { "setchan", "set channel", set_channel },
+    { "fw", "write to fifo", fifo_write },
     { NULL, NULL, NULL }
 };
 
