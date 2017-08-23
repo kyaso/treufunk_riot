@@ -86,7 +86,7 @@ void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower)
 uint8_t treufunk_get_state(treufunk_t *dev)
 {
     /* right shift 5 neccessary because state bits are the first three bits of phy_status */
-    DEBUG("get_state(): Getting current state...\n");
+    //DEBUG("get_state(): Getting current state...\n");
     uint8_t state = PHY_SM_STATUS(treufunk_get_phy_status(dev));
     DEBUG("get_state(): treufunk_get_state(): STATE = 0x%03x\n", state);
     return (state);
@@ -163,6 +163,7 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     /* write state_cmd to SM_COMMAND sub_reg of SM_MAIN */
     DEBUG("set_state(): Writing state_cmd (%d) into SM_MAIN reg...\n", state_cmd);
     treufunk_sub_reg_write(dev, SR_SM_COMMAND, state_cmd);
+    DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
 
     /* Wait until state transition is complete */
     //DEBUG("set_state(): Waiting until state transition is finished...\n");
@@ -171,6 +172,7 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     /* set SM_COMMAND back to CMD_NONE */
     DEBUG("set_state(): Resetting state_cmd sub-reg (SM_MAIN)\n");
     treufunk_sub_reg_write(dev, SR_SM_COMMAND, STATE_CMD_NONE);
+    DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
 
     /* set state attribute of the Treufunk device descriptor */
     dev->state = treufunk_get_state(dev);
