@@ -88,7 +88,7 @@ uint8_t treufunk_get_state(treufunk_t *dev)
     /* right shift 5 neccessary because state bits are the first three bits of phy_status */
     DEBUG("get_state(): Getting current state...\n");
     uint8_t state = PHY_SM_STATUS(treufunk_get_phy_status(dev));
-    DEBUG("get_statE(): treufunk_get_state(): STATE = 0x%03x\n", state);
+    DEBUG("get_state(): treufunk_get_state(): STATE = 0x%03x\n", state);
     return (state);
 }
 
