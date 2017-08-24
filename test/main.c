@@ -10,6 +10,7 @@
 #include "treufunk.h"
 #include "treufunk_params.h"
 #include "treufunk_internal.h"
+#include "treufunk_registers.h"
 
 #include "net/netdev.h"
 
@@ -116,7 +117,19 @@ static int rx_frac_write(int argc, char **argv)
 {
     uint32_t pll_frac = (uint32_t) strtol(argv[1], NULL, 16);
     printf("Setting frac of rx pll to 0x%03x\n", pll_frac);
-    treufunk_set_rx_pll_frac(pll_frac);
+    treufunk_set_rx_pll_frac(&myTreufunk, pll_frac);
+
+    return 0;
+}
+
+static int print_ldo_values(int argc, char *argv)
+{
+    puts("LDO register values:");
+    printf("LDO_A_VOUT    = 0x%02x\n", treufunk_sub_reg_read(&myTreufunk, SR_LDO_A_VOUT));
+    printf("LDO_D_VOUT    = 0x%02x\n", treufunk_sub_reg_read(&myTreufunk, SR_LDO_D_VOUT));
+    printf("LDO_PLL_VOUT  = 0x%02x\n", treufunk_sub_reg_read(&myTreufunk, SR_LDO_PLL_VOUT));
+    printf("LDO_VCO_VOUT  = 0x%02x\n", treufunk_sub_reg_read(&myTreufunk, SR_LDO_VCO_VOUT));
+    printf("LDO_TX24_VOUT = 0x%02x\n", treufunk_sub_reg_read(&myTreufunk, SR_LDO_TX24_VOUT));
 
     return 0;
 }
@@ -132,6 +145,7 @@ static const shell_command_t shell_commands[] = {
     { "setchan", "set channel", set_channel },
     { "fw", "write to fifo", fifo_write },
     { "rxfrac", "set frac of rx pll", rx_frac_write },
+    { "ldos", "print LDO values", print_ldo_values },
     { NULL, NULL, NULL }
 };
 
