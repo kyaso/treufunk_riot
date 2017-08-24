@@ -267,6 +267,26 @@ static int _calculate_pll_values(uint32_t rf_freq,
     return -EINVAL;
 }
 
+void treufunk_set_rx_pll_frac(uint32_t pll_frac)
+{
+    treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
+    treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
+    treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
+    DEBUG("_set_rx_pll_frac(): Set RX PLL frac value to 0x%lu\n", pll_frac);
+
+    return 0;
+}
+
+void treufunk_set_tx_pll_frac(uint32_t pll_frac)
+{
+    treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
+    treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
+    treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
+    DEBUG("_set_tx_pll_frac(): Set TX PLL frac value to 0x%lu\n", pll_frac);
+
+    return 0;
+}
+
 /* TODO (set_chan) */
 void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
 {
