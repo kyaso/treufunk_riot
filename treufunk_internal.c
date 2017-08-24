@@ -252,7 +252,7 @@ void treufunk_fifo_write(const treufunk_t *dev,
     //spi_transfer_bytes(SPIDEV, CSPIN, false, data, NULL, len);
     for(int i = 0; i < len; i++)
     {
-        spi_transfer_byte(SPIDEV, CSPIN, true, data[i]);
+        spi_transfer_bytes(SPIDEV, CSPIN, true, data+i, NULL, 1);
     }
     gpio_set((gpio_t)CSPIN);
     spi_release(SPIDEV);
