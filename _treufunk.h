@@ -163,6 +163,7 @@ uint8_t treufunk_get_chan(treufunk_t *dev);
 /* TODO */ void treufunk_set_chan(treufunk_t *dev, uint8_t chan);
 void treufunk_set_rx_pll_frac(treufunk_t *dev, uint32_t pll_frac);
 void treufunk_set_tx_pll_frac(treufunk_t *dev, uint32_t pll_frac);
+void treufunk_set_vco_tune(treufunk_t *dev, uint32_t vco_tune);
 
 // void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state);
 

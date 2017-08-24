@@ -287,6 +287,11 @@ void treufunk_set_tx_pll_frac(treufunk_t *dev, uint32_t pll_frac)
     return 0;
 }
 
+void treufunk_set_vco_tune(treufunk_t *dev, uint32_t vco_tune)
+{
+    treufunk_sub_reg_write(dev, SR_PLL_VCO_TUNE, vco_tune);
+}
+
 /* TODO (set_chan) */
 void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
 {
