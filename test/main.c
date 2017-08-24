@@ -112,6 +112,15 @@ static int fifo_write(int argc, char **argv)
 
 }
 
+static int rx_frac_write(int argc, char **argv)
+{
+    uint32_t pll_frac = (uint32_t) strtol(argv[1], NULL, 16);
+    printf("Setting frac of rx pll to 0x%03x\n", pll_frac);
+    treufunk_set_rx_pll_frac(pll_frac);
+
+    return 0;
+}
+
 static const shell_command_t shell_commands[] = {
     { "rr", "read a register", reg_read },
     { "rw", "write to a register", reg_write },
@@ -122,6 +131,7 @@ static const shell_command_t shell_commands[] = {
     { "gs", "get current state", get_state },
     { "setchan", "set channel", set_channel },
     { "fw", "write to fifo", fifo_write },
+    { "rxfrac", "set frac of rx pll", rx_frac_write },
     { NULL, NULL, NULL }
 };
 
