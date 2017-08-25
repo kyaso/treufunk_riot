@@ -112,7 +112,7 @@ int treufunk_reg_write(const treufunk_t *dev,
 {
     if(!reg_writable(addr))
     {
-        DEBUG("ERROR (treufunk_reg_write): Register 0x%08x is READ-ONLY! Aborting...\n", addr);
+        DEBUG("ERROR (treufunk_reg_write):\tRegister 0x%08x is READ-ONLY! Aborting...\n", addr);
         return -1;
     }
     getbus(dev);
@@ -203,10 +203,10 @@ void treufunk_fifo_read(const treufunk_t *dev,
         /* Get number of bytes in FIFO */
         spi_transfer_byte(SPIDEV, CSPIN, true, 0);
         len = due_shift_read(dev); /* Note: While we shift out the length byte out of the SR, the Treufunk already shifts in the first FIFO byte! */
-        DEBUG("fifo_read: %d bytes in FIFO.\n", len);
+        DEBUG("fifo_read:\t%d bytes in FIFO.\n", len);
         if(len > buf_len)
         {
-            DEBUG("ERROR (fifo_read): Data in FIFO is %d bytes but buffer is only of size %d. Aborting!\n", len, buf_len);
+            DEBUG("ERROR (fifo_read):\tData in FIFO is %d bytes but buffer is only of size %d. Aborting!\n", len, buf_len);
             /* Disable CS */
             gpio_set((gpio_t)CSPIN);
             spi_release(SPIDEV);
@@ -225,7 +225,7 @@ void treufunk_fifo_read(const treufunk_t *dev,
         len = spi_transfer_byte(SPIDEV, CSPIN, true, 0);
         if(len > buf_len)
         {
-            DEBUG("ERROR (fifo_read): Data in FIFO is %d bytes but buffer is only of size %d. Aborting!\n", len, buf_len);
+            DEBUG("ERROR (fifo_read):\tData in FIFO is %d bytes but buffer is only of size %d. Aborting!\n", len, buf_len);
             /* Disable CS */
             gpio_set((gpio_t)CSPIN);
         }
@@ -245,7 +245,7 @@ void treufunk_fifo_write(const treufunk_t *dev,
                             const uint8_t *data,
                             const size_t len)
 {
-    DEBUG("fifo_write...\n");
+    DEBUG("fifo_write():\tWriting %d bytes into FIFO\n", len);
     getbus(dev);
     spi_transfer_byte(SPIDEV, CSPIN, true, TREUFUNK_ACCSESS_FRAME_WRITE);
     spi_transfer_byte(SPIDEV, CSPIN, true, len);
@@ -264,7 +264,7 @@ void treufunk_fifo_write(const treufunk_t *dev,
  */
 uint8_t treufunk_get_phy_status(const treufunk_t *dev)
 {
-    DEBUG("get_phy_status(): Reading phy_status byte...\n");
+    DEBUG("get_phy_status():\tReading phy_status byte...\n");
     uint8_t phy_status;
     getbus(dev);
     /* Just transfer any byte, e.g. 8 ones or all zeros, on MOSI. Treufunk will send back phy_status on MISO */
