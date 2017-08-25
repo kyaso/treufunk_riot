@@ -245,7 +245,7 @@ void treufunk_fifo_write(const treufunk_t *dev,
                             const uint8_t *data,
                             const size_t len)
 {
-    DEBUG("fifo_write...\n");
+    DEBUG("fifo_write(): Writing %d bytes into FIFO\n", len);
     getbus(dev);
     spi_transfer_byte(SPIDEV, CSPIN, true, TREUFUNK_ACCSESS_FRAME_WRITE);
     spi_transfer_byte(SPIDEV, CSPIN, true, len);
