@@ -69,18 +69,18 @@ static int _init(netdev_t *netdev)
      * Check if SPI is working correctly by reading the two registers
      * CHIP_ID_L and CHIP_ID_H. They contain predefined values: 0x51, 0x1A
      */
-    DEBUG("_init(): Reading chip id l (at 0x04)...\n");
+    DEBUG("_init():\tReading chip id l (at 0x04)...\n");
     uint8_t id_l = treufunk_reg_read(dev, RG_CHIP_ID_L); /* 0x04 */
-    DEBUG("_init(): Reading chip id h (at 0x05)...\n");
+    DEBUG("_init():\tReading chip id h (at 0x05)...\n");
     uint8_t id_h = treufunk_reg_read(dev, RG_CHIP_ID_H); /* 0x05 */
-    DEBUG("_init(): Chip ID l = 0x%02x, Chip ID h = 0x%02x\n", id_l, id_h);
+    DEBUG("_init():\tChip ID l = 0x%02x, Chip ID h = 0x%02x\n", id_l, id_h);
     if(id_l != 0x51 || id_h != 0x1A)
     {
-        DEBUG("ERROR (_init): unable to read correct chip id\n");
+        DEBUG("ERROR (_init):\tunable to read correct chip id\n");
         return -1;
     }
 
-    DEBUG("_init(): Success: chip id correct! Doing reset now...\n");
+    DEBUG("_init():\tSuccess: chip id correct! Doing reset now...\n");
 
     return treufunk_reset(dev);
 }
