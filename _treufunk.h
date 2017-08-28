@@ -153,6 +153,7 @@ int treufunk_reset(treufunk_t *dev);
 uint8_t treufunk_get_txpower(treufunk_t *dev);
 void treufunk_set_txpower(treufunk_t *dev, uint8_t txpower);
 
+void _rx_resets(treufunk_t *dev);
 uint8_t treufunk_get_state(treufunk_t *dev);
 void treufunk_set_state(treufunk_t *dev, uint8_t state);
 void treufunk_reset_state_machine(treufunk_t *dev);
