@@ -94,7 +94,7 @@ uint8_t treufunk_get_state(treufunk_t *dev)
 /**
  * Everytime the chip is put into RX or TX state, some manual resets have to be done.
  */
-static void _rx_resets(treufunk_t *dev)
+void _rx_resets(treufunk_t *dev)
 {
     DEBUG("_rx_resets(): Doing rx_resets...\n");
     /* Reset FIFO and SM */
@@ -154,7 +154,7 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     if(state_cmd == -1) return;
 
     /* Before transitioning into RX/TX, some manual resets have to be done */
-    if(state_cmd == STATE_CMD_RX || state_cmd == STATE_CMD_TX) {
+    if(state_cmd == STATE_CMD_RX) {
         _rx_resets(dev);
         DEBUG("set_state(): rx_resets done.\n");
     }
@@ -162,7 +162,9 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     /* write state_cmd to SM_COMMAND sub_reg of SM_MAIN */
     DEBUG("set_state(): Writing state_cmd (%d) into SM_MAIN reg...\n", state_cmd);
     treufunk_sub_reg_write(dev, SR_SM_COMMAND, state_cmd);
+    //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
 
+    //if(state == SENDING) while(1) printf("%d\n", PHY_SM_STATUS(treufunk_get_phy_status(dev)));
     /* Wait until state transition is complete */
     //DEBUG("set_state(): Waiting until state transition is finished...\n");
     //while(treufunk_get_state(dev) != state);
@@ -170,6 +172,7 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     /* set SM_COMMAND back to CMD_NONE */
     DEBUG("set_state(): Resetting state_cmd sub-reg (SM_MAIN)\n");
     treufunk_sub_reg_write(dev, SR_SM_COMMAND, STATE_CMD_NONE);
+    //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
 
     /* set state attribute of the Treufunk device descriptor */
     dev->state = treufunk_get_state(dev);

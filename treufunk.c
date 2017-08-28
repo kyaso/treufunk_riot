@@ -303,6 +303,7 @@ void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
 
     dev->tx_active = true;
 
+    _rx_resets(dev);
     /* Put SM into SLEEP */
     DEBUG("tx_prepare(): putting into SLEEP...\n");
     treufunk_set_state(dev, SLEEP);
