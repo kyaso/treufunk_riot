@@ -172,8 +172,8 @@ int treufunk_reset(treufunk_t *dev)
 
     /* General TX settings */
     DEBUG("Configuring TX path...\n");
-    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_DATA_RATE,    3));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_FREQ_DEV,    21));
+    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_DATA_RATE,    2)); /* 1 Mbit */
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_FREQ_DEV,    10));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_EN,                1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_CHIP_MOD,       1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_UPS,               0));
