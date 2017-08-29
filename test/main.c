@@ -115,6 +115,17 @@ static int receive(int argc, char **argv)
     uint8_t buf[buf_len];
     memset(buf, 0, buf_len);
     treufunk_fifo_read(&myTreufunk, buf, buf_len);
+
+    /* Reverse bit order and invert the bits */
+    for(int i = 0; i < buf_len; i++)
+    {
+        buf[i] = ((buf[i] & 0xaa) >> 1) | ((buf[i] & 0x55) << 1);
+    	buf[i] = ((buf[i] & 0xcc) >> 2) | ((buf[i] & 0x33) << 2);
+    	buf[i] = (buf[i] >> 4) | (buf[i] << 4);
+        
+        buf[i] = ~buf[i];
+    }
+
     puts("Received Data:");
     // for(int i = 0; i < buf_len; i++)
     // {
