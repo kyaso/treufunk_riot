@@ -244,6 +244,18 @@ static int _find_SFD_and_shift_data(uint8_t *data, uint8_t *data_length,
 }
 
 /**
+ * Reverse the bit order of a single byte.
+ * Needed because the Treufunk sends/receives each byte in reversed bit order.
+ * @param byte [description]
+ */
+static inline void _reverse_bit_order(uint8_t *byte)
+{
+    *byte = ((*byte & 0xaa) >> 1) | ((*byte & 0x55) << 1);
+	*byte = ((*byte & 0xcc) >> 2) | ((*byte & 0x33) << 2);
+	*byte = (*byte >> 4) | (*byte << 4);
+}
+
+/**
  * Gets the received data from the FIFO.
  *
  * Since the Treufunk does not handle it automatically, we have
@@ -278,6 +290,13 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
 
     /* read FIFO data into buf */
     treufunk_fifo_read(dev, (uint8_t*)buf, len);
+
+    /* Reverse bit order and invert the bits */
+    for(int i = 0; i < len; i++)
+    {
+        _reverse_bit_order(&buf[i]);
+        buf[i] = ~buf[i];
+    }
 
     /* remove preamble and correct alignment */
     if(_find_SFD_and_shift_data(buf, &len, 0xA7, 4) == 0)
