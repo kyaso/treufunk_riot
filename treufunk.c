@@ -137,14 +137,19 @@ int treufunk_reset(treufunk_t *dev)
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_MULTIBIT, 0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_ENABLE,   1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_BW_SEL,   1));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_BW_TUNE,  5));
-    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_DR_SEL,   2));
+	// RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_BW_TUNE,  5));
+    // RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_DR_SEL,   2));
+    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_BW_TUNE,  4));
+    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_DR_SEL,   0));
+
 
     /* Polyphase filter settings */
     DEBUG("Configuring PPF...\n");
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PPF_M0,    0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PPF_M1,    0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PPF_TRIM,  0));
+    // RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PPF_M1,    1));
+	// RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PPF_TRIM,  4));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PPF_HGAIN, 1));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PPF_LLIF,  0));
 
@@ -156,6 +161,7 @@ int treufunk_reset(treufunk_t *dev)
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_OSR_SEL,            0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_BTLE_MODE,          1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_IF_SEL,             2));
+    //RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_IF_SEL,             3));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_DATA_RATE_SEL,      3));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_IQ_CROSS,           1));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_IQ_INV,             0));
