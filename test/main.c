@@ -62,12 +62,24 @@ static int send(int argc, char **argv)
     else
     {
         uint8_t len = strlen(argv[1]);
-        printf("Data:\t");
+        printf("Data:\n");
+        // for(int i = 0; i < len; i++)
+        // {
+        //     printf("%02x ", (uint8_t)(argv[1][i]));
+        // }
+        od_hex_dump(argv[1], len, 16);
+        puts(" ");
         for(int i = 0; i < len; i++)
         {
-            printf("%02x ", (uint8_t)(argv[1][i]));
+            for(int j = 0; j < 8; j++)
+            {
+                printf("%d", ((uint8_t)argv[1][i] << j)&0x80 ? 1 : 0);
+            }
+
+            if((i > 0) && (((i+1) % 8) == 0)) printf("\n");
+            else printf(" ");
         }
-        puts("");
+        puts(" ");
         printf("Sending %d bytes\n", len);
         treufunk_send(&myTreufunk, (uint8_t *)argv[1], len);
         return 0;
@@ -122,7 +134,7 @@ static int receive(int argc, char **argv)
         buf[i] = ((buf[i] & 0xaa) >> 1) | ((buf[i] & 0x55) << 1);
     	buf[i] = ((buf[i] & 0xcc) >> 2) | ((buf[i] & 0x33) << 2);
     	buf[i] = (buf[i] >> 4) | (buf[i] << 4);
-        
+
         buf[i] = ~buf[i];
     }
 
@@ -131,7 +143,24 @@ static int receive(int argc, char **argv)
     // {
     //     printf("0x%02x ", buf[i]);
     // }
-    od_hex_dump(&buf, buf_len, 16);
+
+    od_hex_dump(&buf, buf_len, 8);
+    puts("");
+    printf("0x0000: ");
+    for(int i = 0; i < buf_len; i++)
+    {
+        for(int j = 0; j < 8; j++)
+        {
+            printf("%d", (buf[i] << j)&0x80 ? 1 : 0);
+        }
+
+        if((i > 0) && (((i+1) % 8) == 0))
+        {
+            printf("\n");
+            printf("0x%04x: ", i+1);
+        }
+        else printf(" ");
+    }
     puts("");
     return 0;
 }
