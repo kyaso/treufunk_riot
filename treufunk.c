@@ -113,17 +113,19 @@ int treufunk_reset(treufunk_t *dev)
     /* LDOs */
     DEBUG("Configuring LDOs...\n");
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_LDO_A_VOUT,      21));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_LDO_D_VOUT,      24));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_LDO_PLL_VOUT,    24));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_LDO_VCO_VOUT,    24));
-    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_LDO_TX24_VOUT,   23));
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_LDO_D_VOUT,      27));
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_LDO_PLL_VOUT,    28));
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_LDO_VCO_VOUT,    27));
+    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_LDO_TX24_VOUT,   20));
 
     /* PLL config */
     DEBUG("Configuring PLL...\n");
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_IREF_PLL_CTRLB,   0));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_VCO_TUNE,   235)); /* Channel 12 */
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_VCO_TUNE,   237));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_LPF_C,        0));
-    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_LPF_R,        9));
+    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_LPF_R,        8));
+    treufunk_sub_reg_write(dev, SR_PLL_TPM_COMP_EN, 0); /* Disable two point modulation compensation loop */
+    treufunk_sub_reg_write(dev, SR_PLL_BUFFER_EN, 1); /* Enable 1.6 GHz output buffer */
 
     /* Enable 2.4GHz band */
     DEBUG("Enabling 2.4 GHz band...\n");
@@ -182,7 +184,7 @@ int treufunk_reset(treufunk_t *dev)
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_FREQ_DEV,    10));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_EN,                1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_CHIP_MOD,       1));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_UPS,               0));
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_UPS,               1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_CHIP_MOD_SP,    1)); /* TX uses 1Mbit/s datarate */
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_AMPLI_OUT_MAN_H,   1));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_AMPLI_OUT_MAN_L, 255));
@@ -196,13 +198,14 @@ int treufunk_reset(treufunk_t *dev)
     /* General state machine settings */
     DEBUG("Setting general SM settings...\n");
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_FIFO_MODE_EN,    1));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_WAKEUPONSPI,     1));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_WAKEUPONRX,      0));
-    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_WAKEUP_MODES_EN, 0));
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_WAKEUPONSPI,     0));
+	//RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_WAKEUPONRX,      0));
+    //RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_WAKEUP_MODES_EN, 0));
 
     /* Startup counter Settings */
     DEBUG("Setting up startup counter...\n");
-	RETURN_ON_ERROR(treufunk_reg_write(dev, RG_SM_TIME_POWER_TX, 0xff));
+    /* Set waiting times to max */
+    RETURN_ON_ERROR(treufunk_reg_write(dev, RG_SM_TIME_POWER_TX, 0xff));
 	RETURN_ON_ERROR(treufunk_reg_write(dev, RG_SM_TIME_POWER_RX, 0xff));
 	RETURN_ON_ERROR(treufunk_reg_write(dev, RG_SM_TIME_PLL_PON,  0xff));
 	RETURN_ON_ERROR(treufunk_reg_write(dev, RG_SM_TIME_PLL_SET,  0xff));
@@ -248,6 +251,9 @@ int treufunk_reset(treufunk_t *dev)
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_RX_TIMEOUT_H, 0xFF));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_RX_TIMEOUT_M, 0xFF));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_RX_TIMEOUT_L, 0xFF));
+
+    /* Set default channel (2.4GHz)*/
+    treufunk_sub_reg_write(dev, SR_TX_CHAN_INT, 100);
 
     /* Resets */
     DEBUG("Doing resets...\n");
