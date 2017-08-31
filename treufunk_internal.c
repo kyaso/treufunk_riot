@@ -240,9 +240,15 @@ void treufunk_fifo_read(const treufunk_t *dev,
 
 }
 
+static void _reverse_bit_order(uint8_t *byte)
+{
+	*byte = ((*byte & 0xaa) >> 1) | ((*byte & 0x55) << 1);
+	*byte = ((*byte & 0xcc) >> 2) | ((*byte & 0x33) << 2);
+	*byte = (*byte >> 4) | (*byte << 4);
+}
 
 void treufunk_fifo_write(const treufunk_t *dev,
-                            const uint8_t *data,
+                            /*const*/ uint8_t *data,
                             const size_t len)
 {
     DEBUG("fifo_write():\tWriting %d bytes into FIFO\n", len);
@@ -252,6 +258,7 @@ void treufunk_fifo_write(const treufunk_t *dev,
     //spi_transfer_bytes(SPIDEV, CSPIN, false, data, NULL, len);
     for(int i = 0; i < len; i++)
     {
+        _reverse_bit_order(data+i);
         spi_transfer_bytes(SPIDEV, CSPIN, true, data+i, NULL, 1);
     }
     gpio_set((gpio_t)CSPIN);
