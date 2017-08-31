@@ -313,8 +313,8 @@ void treufunk_tx_prepare(treufunk_t *dev)//, size_t phr)
     /* Put SM into SLEEP */
     DEBUG("tx_prepare():\tputting into SLEEP...\n");
     treufunk_set_state(dev, SLEEP);
-    uint32_t pre = 0xFF00FF00;
-    treufunk_fifo_write(dev, (uint8_t *)(&pre), 4); /* Write preamble for test */
+    uint8_t pre[4] = {0xFF, 0x00, 0xFF, 0x00};
+    treufunk_fifo_write(dev, pre, 4); /* Write preamble for test */
 
     // /* Write SHR into FIFO */
     // DEBUG("tx_prepare(): writing SHR into FIFO...\n");
@@ -337,8 +337,8 @@ size_t treufunk_tx_load(treufunk_t *dev, uint8_t *data, size_t len)
 {
     DEBUG("tx_load():\twriting data into FIFO...\n");
     treufunk_fifo_write(dev, data, len);
-    uint16_t end = 0x00FF00FF;
-    treufunk_fifo_write(dev, (uint8_t *)(&end), 4); /* Write closing */
+    uint8_t end[4] = {0x00, 0xFF, 0x00, 0xFF};
+    treufunk_fifo_write(dev, end, 4); /* Write closing */
     return len;
 }
 
