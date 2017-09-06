@@ -180,6 +180,9 @@ int treufunk_reset(treufunk_t *dev)
 
     /* General TX settings */
     DEBUG("Configuring TX path...\n");
+    treufunk_sub_reg_write(dev, SR_TX24_I_SUB_CTRL, 0); /* PA */
+    treufunk_sub_reg_write(dev, SR_TX24_CAS_BIAS_EN, 1); /* PA */
+    treufunk_sub_reg_write(dev, SR_TX24_CAS_BIAS_CTRL, 3); /* PA */
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_DATA_RATE,    2)); /* 1 Mbit */
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_FREQ_DEV,    10));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_EN,                1));
@@ -319,8 +322,7 @@ void treufunk_tx_prepare(treufunk_t *dev)//, size_t phr)
     /* Put SM into SLEEP */
     DEBUG("tx_prepare():\tputting into SLEEP...\n");
     treufunk_set_state(dev, SLEEP);
-    uint8_t pre[4] = {0xFF, 0x00, 0xFF, 0x00};
-    treufunk_fifo_write(dev, pre, 4); /* Write preamble for test */
+
 
     // /* Write SHR into FIFO */
     // DEBUG("tx_prepare(): writing SHR into FIFO...\n");
@@ -342,9 +344,13 @@ void treufunk_tx_prepare(treufunk_t *dev)//, size_t phr)
 size_t treufunk_tx_load(treufunk_t *dev, uint8_t *data, size_t len)
 {
     DEBUG("tx_load():\twriting data into FIFO...\n");
+    uint8_t pre[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+    treufunk_fifo_write(dev, pre, 8); /* Write preamble for test */
+
     treufunk_fifo_write(dev, data, len);
-    uint8_t end[4] = {0x00, 0xFF, 0x00, 0xFF};
-    treufunk_fifo_write(dev, end, 4); /* Write closing */
+
+    uint8_t end[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+    treufunk_fifo_write(dev, end, 8); /* Write closing */
     return len;
 }
 
