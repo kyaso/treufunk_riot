@@ -129,10 +129,10 @@ int treufunk_reset(treufunk_t *dev)
 
     /* Enable 2.4GHz band */
     DEBUG("Enabling 2.4 GHz band...\n");
-    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_RX_RF_MODE,     0));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_RX_LO_EXT,      0));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_LNA24_ISETT,    7));
-    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_LNA24_SPCTRIM, 15));
+    //RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_RX_RF_MODE,     0));
+	//RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_RX_LO_EXT,      0));
+	//RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_LNA24_ISETT,    7));
+    //RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_LNA24_SPCTRIM, 15));
 
     /* ADC Settings */
     DEBUG("Configuring ADC...\n");
