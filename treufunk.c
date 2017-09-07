@@ -124,7 +124,7 @@ int treufunk_reset(treufunk_t *dev)
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_VCO_TUNE,   235)); /* Channel 12 */
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_LPF_C,        0));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_LPF_R,        9));
-
+    treufunk_sub_reg_write(dev, SR_PLL_BUFFER_EN, 1); /* enable 1.6 GHz output buffer */
     /* Enable 2.4GHz band */
     DEBUG("Enabling 2.4 GHz band...\n");
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_RX_RF_MODE,     0));
