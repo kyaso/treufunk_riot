@@ -224,7 +224,7 @@ int treufunk_reset(treufunk_t *dev)
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_FIFO_SLEEP, 0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_IDLE_MODE_EN,  0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_PWR_CTRL,     15)); /* Maximum TX output power (15dBm?) */
-    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_MAXAMP,        0));
+    //RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_MAXAMP,        0));
 
     /* SM RX */
     DEBUG("Configuring SM RX...\n");
@@ -257,6 +257,9 @@ int treufunk_reset(treufunk_t *dev)
 
     /* Set default channel (2.4GHz)*/
     treufunk_sub_reg_write(dev, SR_TX_CHAN_INT, 100);
+    treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_H, 10);
+    treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_M, 19);
+    treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_L, 111);
 
     /* Resets */
     DEBUG("Doing resets...\n");
