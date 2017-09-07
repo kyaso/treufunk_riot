@@ -147,6 +147,11 @@ uint8_t treufunk_sub_reg_read(const treufunk_t *dev,
                             const uint8_t sub_reg_mask,
                             const uint8_t offset)
 {
+    if(treufunk_reg_read(dev, RG_CHIP_ID_L) != 0x51)
+    {
+        DEBUG("ERROR (sub_reg_read):\tSPI not working correctly\n");
+        return -1;
+    }
      uint8_t reg_value;
      reg_value = treufunk_reg_read(dev, reg_addr);
      return ((reg_value & sub_reg_mask) >> offset);
@@ -170,6 +175,12 @@ int treufunk_sub_reg_write(const treufunk_t *dev,
                             const uint8_t offset,
                             const uint8_t value)
 {
+    if(treufunk_reg_read(dev, RG_CHIP_ID_L) != 0x51)
+    {
+        DEBUG("ERROR (sub_reg_write):\tSPI not working correctly\n");
+        return -1;
+    }
+
     uint8_t reg_value;
     /* save current reg content */
     reg_value = treufunk_reg_read(dev, reg_addr);
@@ -195,6 +206,11 @@ void treufunk_fifo_read(const treufunk_t *dev,
                         const size_t buf_len)
 {
     DEBUG("fifo_read...\n");
+    if(treufunk_reg_read(dev, RG_CHIP_ID_L) != 0x51)
+    {
+        DEBUG("ERROR (fifo_read):\tSPI not working correctly\n");
+        return -1;
+    }
     size_t len;
     getbus(dev);
     /* Write FRAME_READ access command */
@@ -272,6 +288,11 @@ void treufunk_fifo_write(const treufunk_t *dev,
 uint8_t treufunk_get_phy_status(const treufunk_t *dev)
 {
     //DEBUG("get_phy_status(): Reading phy_status byte...\n");
+    if(treufunk_reg_read(dev, RG_CHIP_ID_L) != 0x51)
+    {
+        DEBUG("get_phy_status:\tError: SPI not working correctly\n");
+        return -1;
+    }
     uint8_t phy_status;
     getbus(dev);
     /* Just transfer any byte, e.g. 8 ones or all zeros, on MOSI. Treufunk will send back phy_status on MISO */
