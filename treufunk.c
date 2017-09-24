@@ -154,9 +154,9 @@ int treufunk_reset(treufunk_t *dev)
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_AGC_EN,             1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_FREQ_OFFSET_CAL_EN, 0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_OSR_SEL,            0));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_BTLE_MODE,          1));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_IF_SEL,             2));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_DATA_RATE_SEL,      3));
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_BTLE_MODE,          1)); /* 0xAA BLE preamble */
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_IF_SEL,             2)); /* 1 MHz */
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_DATA_RATE_SEL,      3)); /* 2 Mbits */
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_IQ_CROSS,           1));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DEM_IQ_INV,             0));
 
