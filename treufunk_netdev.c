@@ -124,7 +124,7 @@ static void _isr(netdev_t *netdev)
         netdev->event_callback(netdev, NETDEV_EVENT_TX_COMPLETE);
 
         /* Change back to RX */
-        treufunk_set_state(dev, RECEIVING);
+        //treufunk_set_state(dev, RECEIVING); not needed, because DIRECT_RX set
 
         return;
     }
