@@ -327,6 +327,12 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
 
 
     /* do info processing */
+    if(info != NULL)
+    {
+        netdev_ieee802154_rx_info_t *radio_info = info;
+        radio_info->rssi = 0xFF; /* "Lie" about maximum signal strength */
+        rario_info->lqi = 0xFF; /* Do the same with Link Quality Indication */
+    }
 
 
     return pkt_len;
