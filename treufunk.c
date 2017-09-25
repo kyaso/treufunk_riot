@@ -63,7 +63,7 @@ int treufunk_reset(treufunk_t *dev)
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_START, false);
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_END, true);
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_START, false);
-    treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_END, true);
+    treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_END, false);
 
     /* set default protocol */
     #ifdef MODULE_GNRC_SIXLOWPAN
