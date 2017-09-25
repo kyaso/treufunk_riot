@@ -125,6 +125,8 @@ static void _isr(netdev_t *netdev)
 
         /* Change back to RX */
         //treufunk_set_state(dev, RECEIVING); not needed, because DIRECT_RX set
+        /* Start polling timer because we are in RX */
+        xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
 
         return;
     }
