@@ -118,15 +118,19 @@ static void _isr(netdev_t *netdev)
 
         dev->tx_active = false;
 
+        
         if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_END)) {
+            /* Start polling timer because we are in RX */
+            xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
             return;
         }
         netdev->event_callback(netdev, NETDEV_EVENT_TX_COMPLETE);
+        /* Start polling timer because we are in RX */
+        xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
 
         /* Change back to RX */
         //treufunk_set_state(dev, RECEIVING); not needed, because DIRECT_RX set
-        /* Start polling timer because we are in RX */
-        xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
+
 
         return;
     }
