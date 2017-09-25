@@ -57,13 +57,11 @@ int treufunk_reset(treufunk_t *dev)
     dev->netdev.seq = 0;
     dev->netdev.flags = 0;
 
-    /* set default options
-    TODO (treufunk_reset): Which of them true/false?
-    */
+    /* set default options */
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_START, false);
-    treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_END, true);
+    treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_END, true); /* If set to TRUE, the driver will inform the MAC-Layer about a received frame. The MAC-Layer will then start to retrieve the frame. */
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_START, false);
-    treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_END, false);
+    treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_END, false); /* If set to TRUE, the driver will inform the MAC-Layer about a completed transmission. The MAC-Layer then uses this for network statistics */
 
     /* set default protocol */
     #ifdef MODULE_GNRC_SIXLOWPAN
