@@ -1,20 +1,41 @@
-APPLICATION = tf_sw_test
+APPLICATION = test_sw_2
 
-BOARD ?= native
+# change accordingly to the location of your RIOT
+RIOTBASE = /home/kyaso/src/RIOT
+
+include $(RIOTBASE)/tests/Makefile.tests_common
+
+BOARD = native
+
+# exclude boards with insufficient memory
+#BOARD_INSUFFICIENT_MEMORY := nucleo32-f031
+
+#FEATURES_REQUIRED = periph_spi periph_gpio
 
 DISABLE_MODULE += auto_init
 
 USEMODULE += od
-USEMODULE += xtimer
-#USEMODULE += shell
-#USEMODULE += shell_commands
-#USEMODULE += ps
+USEMODULE += shell
+USEMODULE += shell_commands
+USEMODULE += ps
 
-DRIVER := treufunk
+# define the driver to be used for selected boards
+#ifneq (,$(filter samr21-xpro,$(BOARD)))
+#  DRIVER := at86rf233
+#endif
+#ifneq (,$(filter iotlab-m3 fox,$(BOARD)))
+#  DRIVER := at86rf231
+#endif
+#ifneq (,$(filter mulle,$(BOARD)))
+#  DRIVER := at86rf212b
+#endif
+
+# use the at86rf231 as fallback device
+DRIVER ?= treufunk
 
 # include the selected driver
 USEMODULE += $(DRIVER)
 
 CFLAGS += -DDEVELHELP
 
-include /home/kyasotharan/riot/RIOT/Makefile.include
+include $(RIOTBASE)/Makefile.include

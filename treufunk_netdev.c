@@ -62,7 +62,7 @@ static int _init(netdev_t *netdev)
     dev->poll_timer.callback = _irq_handler;
     dev->poll_timer.arg = (void *)dev;
     /* init gpios */
-    spi_init_cs(dev->params.spi, dev->params.cs_pin);
+    // spi_init_cs(dev->params.spi, dev->params.cs_pin);
     /* TODO (_init): Maybe also hardware reset pin */
 
     /**
@@ -70,15 +70,15 @@ static int _init(netdev_t *netdev)
      * CHIP_ID_L and CHIP_ID_H. They contain predefined values: 0x51, 0x1A
      */
     DEBUG("_init():\tReading chip id l (at 0x04)...\n");
-    uint8_t id_l = treufunk_reg_read(dev, RG_CHIP_ID_L); /* 0x04 */
+    // uint8_t id_l = treufunk_reg_read(dev, RG_CHIP_ID_L); /* 0x04 */
     DEBUG("_init():\tReading chip id h (at 0x05)...\n");
-    uint8_t id_h = treufunk_reg_read(dev, RG_CHIP_ID_H); /* 0x05 */
-    DEBUG("_init():\tChip ID l = 0x%02x, Chip ID h = 0x%02x\n", id_l, id_h);
-    if(id_l != 0x51 || id_h != 0x1A)
-    {
-        DEBUG("ERROR (_init):\tunable to read correct chip id\n");
-        return -1;
-    }
+    // uint8_t id_h = treufunk_reg_read(dev, RG_CHIP_ID_H); /* 0x05 */
+    // DEBUG("_init():\tChip ID l = 0x%02x, Chip ID h = 0x%02x\n", id_l, id_h);
+    // if(id_l != 0x51 || id_h != 0x1A)
+    // {
+    //     DEBUG("ERROR (_init):\tunable to read correct chip id\n");
+    //     return -1;
+    // }
 
     DEBUG("_init():\tSuccess: chip id correct! Doing reset now...\n");
 
@@ -88,7 +88,7 @@ static int _init(netdev_t *netdev)
 /* TODO (_isr) */
 static void _isr(netdev_t *netdev)
 {
-    DEBUG("_isr():\tPOLLING ISR called\n");
+    //DEBUG("_isr():\tPOLLING ISR called\n");
     treufunk_t *dev = (treufunk_t *)netdev;
 
     uint8_t phy_status = treufunk_get_phy_status(dev);
@@ -134,7 +134,7 @@ static void _isr(netdev_t *netdev)
         return;
     }
 
-    DEBUG("_isr():\tPOLL: nothing happened. Setting timer again...\n");
+    //DEBUG("_isr():\tPOLL: nothing happened. Setting timer again...\n");
     /* Set timer again if still listening for packets OR waiting for transmission to finish */
     xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
 
@@ -157,6 +157,14 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
         DEBUG("ERROR (_send):\tpacket too large (%u bytes) to be send\n", (unsigned)len + 2);
         return -EOVERFLOW;
     }
+
+    /* Print out payload data */
+    DEBUG("MHR:\n");
+    od_hex_dump(vector[0].iov_base, vector[0].iov_len, 16);
+    DEBUG("\nPayload:\n");
+    od_hex_dump(vector[1].iov_base, vector[1].iov_len, 16);
+
+
 
     /* put SM into SLEEP and write SHR + PHR into FIFO */
     treufunk_tx_prepare(dev, len);
@@ -237,7 +245,7 @@ static int _find_SFD_and_shift_data(uint8_t *data, uint8_t *data_length,
 	else if (two_bit_shift >= 7)
 		shift -= 2;
 
-	DEBUG("ERROR (_find_SFD_and_shift_data):\tData will be shifted by %d bits to the right\n", shift);
+	DEBUG("_find_SFD_and_shift_data:\tData will be shifted by %d bits to the right\n", shift);
 
 	for (i = 0; i < *data_length - sfd_start_postion - 1; ++i) {
 		data[i] = ((data[i + data_start_position] << 8) |
@@ -297,11 +305,11 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
     treufunk_fifo_read(dev, (uint8_t*)buf, len);
 
     /* Reverse bit order and invert the bits */
-    for(int i = 0; i < len; i++)
-    {
-        _reverse_bit_order(&buf[i]);
-        ((uint8_t*)buf)[i] = ~((uint8_t*)buf)[i];
-    }
+    // for(int i = 0; i < len; i++)
+    // {
+    //     _reverse_bit_order(&buf[i]);
+    //     ((uint8_t*)buf)[i] = ~((uint8_t*)buf)[i];
+    // }
 
     /* remove preamble and correct alignment */
     if(_find_SFD_and_shift_data(buf, &len, 0xA7, 4) == 0)
@@ -316,8 +324,10 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
     #endif
 
     /* get PHR (size of received packet) */
-    phr = *((uint8_t *)buf);
-    pkt_len = (phr & 0x7f) - 2; /* only 7 bits are needed for phr (0-127). Subtract length of FCS as it can be discarded */
+    // phr = *((uint8_t *)buf);
+    // pkt_len = (phr & 0x7f) - 2; /* only 7 bits are needed for phr (0-127). Subtract length of FCS as it can be discarded */
+    phr = ((uint8_t *)buf)[0];
+    pkt_len = phr;
 
     /* Move payload to front of buffer */
     memmove(buf, ((uint8_t *)buf) + 1, pkt_len);
@@ -369,17 +379,17 @@ netopt_state_t _get_state(treufunk_t *dev)
     switch(treufunk_get_state(dev))
     {
         case DEEP_SLEEP:
-            return NETOPT_STATE_DEEPSLEEP;
-        case SLEEP:
             return NETOPT_STATE_SLEEP;
-        case BUSY:
-            return NETOPT_STATE_BUSY;
-        case TX_RDY:
-            return NETOPT_STATE_TXRDY;
+        case SLEEP:
+            return NETOPT_STATE_STANDBY;
+        // case BUSY:
+        //     return NETOPT_STATE_BUSY;
+        // case TX_RDY:
+        //     return NETOPT_STATE_TXRDY;
         case SENDING:
             return NETOPT_STATE_RX;
-        case RX_RDY:
-            return NETOPT_STATE_RXRDY;
+        // case RX_RDY:
+        //     return NETOPT_STATE_RXRDY;
         case RECEIVING:
             return NETOPT_STATE_RX;
         default:

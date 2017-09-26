@@ -10,7 +10,7 @@
 #include "treufunk.h"
 #include "treufunk_internal.h"
 #include "treufunk_registers.h"
-#include "periph/spi.h"
+// #include "periph/spi.h"
 
 // #define ENABLE_DEBUG (0)
 // #include "debug.h"
@@ -86,33 +86,34 @@ uint8_t treufunk_get_state(treufunk_t *dev)
 {
     /* right shift 5 neccessary because state bits are the first three bits of phy_status */
     DEBUG("get_state():\tGetting current state...\n");
-    uint8_t state = PHY_SM_STATUS(treufunk_get_phy_status(dev));
+    uint8_t state = dev->state;//PHY_SM_STATUS(treufunk_get_phy_status(dev));
     DEBUG("get_state():\ttreufunk_get_state(): STATE = 0x%03x\n", state);
-    return (state);
+    // return (state);
+    return state;
 }
 
 /**
  * Everytime the chip is put into RX or TX state, some manual resets have to be done.
  */
-void _rx_resets(treufunk_t *dev)
-{
-    DEBUG("_rx_resets():\tDoing rx_resets...\n");
-    /* Reset FIFO and SM */
-    treufunk_reg_write(dev, RG_SM_MAIN, 0x05);
-    treufunk_reg_write(dev, RG_SM_MAIN, 0x0F);
-
-    /* Reset demodulator */
-    treufunk_sub_reg_write(dev, SR_DEM_RESETB, 0);
-    treufunk_sub_reg_write(dev, SR_DEM_RESETB, 1);
-
-
-    /* Do we need to wait some time before setting the reset bit back to 1 ?
-    because during init this isn't done neither.
-
-    Answer: In theory, yes. But the SPI takes quite some time (relative to the settling time of the demod),
-    and therefore the solution above should be sufficient.
-    */
-}
+// void _rx_resets(treufunk_t *dev)
+// {
+//     DEBUG("_rx_resets():\tDoing rx_resets...\n");
+//     /* Reset FIFO and SM */
+//     treufunk_reg_write(dev, RG_SM_MAIN, 0x05);
+//     treufunk_reg_write(dev, RG_SM_MAIN, 0x0F);
+//
+//     /* Reset demodulator */
+//     treufunk_sub_reg_write(dev, SR_DEM_RESETB, 0);
+//     treufunk_sub_reg_write(dev, SR_DEM_RESETB, 1);
+//
+//
+//     /* Do we need to wait some time before setting the reset bit back to 1 ?
+//     because during init this isn't done neither.
+//
+//     Answer: In theory, yes. But the SPI takes quite some time (relative to the settling time of the demod),
+//     and therefore the solution above should be sufficient.
+//     */
+// }
 
 /**
  * Converts a state (phy_status) to the corresponding STATE_CMD (for SM_MAIN)
@@ -149,33 +150,35 @@ static uint8_t state_to_statecmd(uint8_t state)
 void treufunk_set_state(treufunk_t *dev, uint8_t state)
 {
     DEBUG("set_state():\tSetting state %d...\n", state);
-    uint8_t state_cmd = state_to_statecmd(state);
-    //if(dev->state == state) return; /* TODO (set_state): Problem: Automatic transition TX-> RX. This variable does not get changed */
-    if(state_cmd == -1) return;
+    // uint8_t state_cmd = state_to_statecmd(state);
+    // //if(dev->state == state) return; /* TODO (set_state): Problem: Automatic transition TX-> RX. This variable does not get changed */
+    // if(state_cmd == -1) return;
+    //
+    // /* Before transitioning into RX/TX, some manual resets have to be done */
+    // if(state_cmd == STATE_CMD_RX) {
+    //     _rx_resets(dev);
+    //     DEBUG("set_state():\trx_resets done.\n");
+    // }
+    //
+    // /* write state_cmd to SM_COMMAND sub_reg of SM_MAIN */
+    // DEBUG("set_state():\tWriting state_cmd (%d) into SM_MAIN reg...\n", state_cmd);
+    // treufunk_sub_reg_write(dev, SR_SM_COMMAND, state_cmd);
+    // //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
+    //
+    // //if(state == SENDING) while(1) printf("%d\n", PHY_SM_STATUS(treufunk_get_phy_status(dev)));
+    // /* Wait until state transition is complete */
+    // //DEBUG("set_state(): Waiting until state transition is finished...\n");
+    // //while(treufunk_get_state(dev) != state);
+    //
+    // /* set SM_COMMAND back to CMD_NONE */
+    // DEBUG("set_state():\tResetting state_cmd sub-reg (SM_MAIN)\n");
+    // treufunk_sub_reg_write(dev, SR_SM_COMMAND, STATE_CMD_NONE);
+    // //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
+    //
+    // /* set state attribute of the Treufunk device descriptor */
+    // dev->state = treufunk_get_state(dev);
 
-    /* Before transitioning into RX/TX, some manual resets have to be done */
-    if(state_cmd == STATE_CMD_RX) {
-        _rx_resets(dev);
-        DEBUG("set_state():\trx_resets done.\n");
-    }
-
-    /* write state_cmd to SM_COMMAND sub_reg of SM_MAIN */
-    DEBUG("set_state():\tWriting state_cmd (%d) into SM_MAIN reg...\n", state_cmd);
-    treufunk_sub_reg_write(dev, SR_SM_COMMAND, state_cmd);
-    //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
-
-    //if(state == SENDING) while(1) printf("%d\n", PHY_SM_STATUS(treufunk_get_phy_status(dev)));
-    /* Wait until state transition is complete */
-    //DEBUG("set_state(): Waiting until state transition is finished...\n");
-    //while(treufunk_get_state(dev) != state);
-
-    /* set SM_COMMAND back to CMD_NONE */
-    DEBUG("set_state():\tResetting state_cmd sub-reg (SM_MAIN)\n");
-    treufunk_sub_reg_write(dev, SR_SM_COMMAND, STATE_CMD_NONE);
-    //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
-
-    /* set state attribute of the Treufunk device descriptor */
-    dev->state = treufunk_get_state(dev);
+    dev->state = state;
 
     DEBUG("set_state():\tNew state = %d\n", dev->state);
 
@@ -245,27 +248,27 @@ static uint32_t _calc_vco_tune(uint8_t channel)
     }
 }
 
-static int _calculate_pll_values(uint32_t rf_freq,
-                                uint32_t if_freq,
-                                uint32_t *int_val,
-                                uint32_t *frac_val)
-{
-    uint32_t f_lo = 0;
-    //int frac_correction = 0;
-
-    /* 2.4 GHz */
-    if(rf_freq > 2000000000)
-    {
-        f_lo = (rf_freq - if_freq) / 3 * 2;
-        *int_val = f_lo / 16000000;
-
-        /* TODO (_calc_pll) */
-        *frac_val = (f_lo % 16000000) * 228/3479; //+ frac_correction;
-        return 0;
-    }
-
-    return -EINVAL;
-}
+// static int _calculate_pll_values(uint32_t rf_freq,
+//                                 uint32_t if_freq,
+//                                 uint32_t *int_val,
+//                                 uint32_t *frac_val)
+// {
+//     uint32_t f_lo = 0;
+//     //int frac_correction = 0;
+//
+//     /* 2.4 GHz */
+//     if(rf_freq > 2000000000)
+//     {
+//         f_lo = (rf_freq - if_freq) / 3 * 2;
+//         *int_val = f_lo / 16000000;
+//
+//         /* TODO (_calc_pll) */
+//         *frac_val = (f_lo % 16000000) * 228/3479; //+ frac_correction;
+//         return 0;
+//     }
+//
+//     return -EINVAL;
+// }
 
 void treufunk_set_rx_pll_frac(treufunk_t *dev, uint32_t pll_frac)
 {
@@ -304,38 +307,38 @@ void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
 
     dev->netdev.chan = chan;
 
-    uint32_t pll_int = 0;
-    uint32_t pll_frac = 0;
-    uint32_t vco_tune = 0;
-
-    /* Calculate channel center frequency in MHz according to the ieee802154 standard (channel page 0) */
-    uint32_t center_freq = (2405 + 5 * (chan - 11)) * 1000000U;
-    DEBUG("set_chan():\tSetting to center freq = %lu Hz\n", center_freq);
-
-    /* TODO (set_chan): */
-
-    /* Calculate PLL values for RX ... */
-    _calculate_pll_values(center_freq, 1000000, &pll_int, &pll_frac);
-    treufunk_sub_reg_write(dev, SR_RX_CHAN_INT, pll_int);
-    treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
-    treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
-    treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
-    DEBUG("set_chan():\tSet RX PLL values to int=%ld and frac=0x%lu\n", pll_int, pll_frac);
-    DEBUG("set_chan():\tRX HByte = 0x%02x, MByte = 0x%02x, LByte = 0x%02x\n", BIT24_H_BYTE(pll_frac), BIT24_M_BYTE(pll_frac), BIT24_L_BYTE(pll_frac));
-
-    /* ... and TX */
-    _calculate_pll_values(center_freq, 0, &pll_int, &pll_frac);
-    treufunk_sub_reg_write(dev, SR_TX_CHAN_INT, pll_int);
-    treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
-    treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
-    treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
-    DEBUG("set_chan():\tSet TX PLL values to int=%lu and frac=0x%lu\n", pll_int, pll_frac);
-    DEBUG("set_chan():\tTX HByte = 0x%02x, MByte = 0x%02x, LByte = 0x%02x\n", BIT24_H_BYTE(pll_frac), BIT24_M_BYTE(pll_frac), BIT24_L_BYTE(pll_frac));
-
-    /* Calculate VCO tune */
-    vco_tune = _calc_vco_tune(chan);
-    treufunk_sub_reg_write(dev, SR_PLL_VCO_TUNE, vco_tune);
-    DEBUG("set_chan():\tSet VCO TUNE to %lu\n", vco_tune);
+    // uint32_t pll_int = 0;
+    // uint32_t pll_frac = 0;
+    // uint32_t vco_tune = 0;
+    //
+    // /* Calculate channel center frequency in MHz according to the ieee802154 standard (channel page 0) */
+    // uint32_t center_freq = (2405 + 5 * (chan - 11)) * 1000000U;
+    // DEBUG("set_chan():\tSetting to center freq = %lu Hz\n", center_freq);
+    //
+    // /* TODO (set_chan): */
+    //
+    // /* Calculate PLL values for RX ... */
+    // _calculate_pll_values(center_freq, 1000000, &pll_int, &pll_frac);
+    // treufunk_sub_reg_write(dev, SR_RX_CHAN_INT, pll_int);
+    // treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
+    // treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
+    // treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
+    // DEBUG("set_chan():\tSet RX PLL values to int=%ld and frac=0x%lu\n", pll_int, pll_frac);
+    // DEBUG("set_chan():\tRX HByte = 0x%02x, MByte = 0x%02x, LByte = 0x%02x\n", BIT24_H_BYTE(pll_frac), BIT24_M_BYTE(pll_frac), BIT24_L_BYTE(pll_frac));
+    //
+    // /* ... and TX */
+    // _calculate_pll_values(center_freq, 0, &pll_int, &pll_frac);
+    // treufunk_sub_reg_write(dev, SR_TX_CHAN_INT, pll_int);
+    // treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
+    // treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
+    // treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
+    // DEBUG("set_chan():\tSet TX PLL values to int=%lu and frac=0x%lu\n", pll_int, pll_frac);
+    // DEBUG("set_chan():\tTX HByte = 0x%02x, MByte = 0x%02x, LByte = 0x%02x\n", BIT24_H_BYTE(pll_frac), BIT24_M_BYTE(pll_frac), BIT24_L_BYTE(pll_frac));
+    //
+    // /* Calculate VCO tune */
+    // vco_tune = _calc_vco_tune(chan);
+    // treufunk_sub_reg_write(dev, SR_PLL_VCO_TUNE, vco_tune);
+    // DEBUG("set_chan():\tSet VCO TUNE to %lu\n", vco_tune);
 }
 
 void treufunk_set_option(treufunk_t *dev, uint16_t option, bool state)
