@@ -237,7 +237,7 @@ static int _find_SFD_and_shift_data(uint8_t *data, uint8_t *data_length,
 	else if (two_bit_shift >= 7)
 		shift -= 2;
 
-	DEBUG("ERROR (_find_SFD_and_shift_data):\tData will be shifted by %d bits to the right\n", shift);
+	DEBUG("_find_SFD_and_shift_data:\tData will be shifted by %d bits to the right\n", shift);
 
 	for (i = 0; i < *data_length - sfd_start_postion - 1; ++i) {
 		data[i] = ((data[i + data_start_position] << 8) |
