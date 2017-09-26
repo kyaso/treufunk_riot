@@ -118,7 +118,6 @@ static void _isr(netdev_t *netdev)
 
         dev->tx_active = false;
 
-        
         if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_END)) {
             /* Start polling timer because we are in RX */
             xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
@@ -301,7 +300,7 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
     for(int i = 0; i < len; i++)
     {
         _reverse_bit_order(&buf[i]);
-        buf[i] = ~buf[i];
+        ((uint8_t*)buf)[i] = ~((uint8_t*)buf)[i];
     }
 
     /* remove preamble and correct alignment */
@@ -337,7 +336,7 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
     {
         netdev_ieee802154_rx_info_t *radio_info = info;
         radio_info->rssi = 0xFF; /* "Lie" about maximum signal strength */
-        rario_info->lqi = 0xFF; /* Do the same with Link Quality Indication */
+        radio_info->lqi = 0xFF; /* Do the same with Link Quality Indication */
     }
 
 
