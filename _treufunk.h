@@ -32,10 +32,10 @@
 #define DUE_SR_MODE (0)
 
 /* TEMP, reg_check */
-#define RETURN_ON_ERROR(f) ret = (f); \
-	if (ret) { \
-		return ret; \
-}
+// #define RETURN_ON_ERROR(f) ret = (f); \
+// 	if (ret) { \
+// 		return ret; \
+// }
 
 /**
  * Macros for H, M and L byte of 24 bit value
