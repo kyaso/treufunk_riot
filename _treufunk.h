@@ -31,12 +31,6 @@
 /* Set this to 1, if you want to use the shift register (SN74HC595) workaround with Arduino Due */
 #define DUE_SR_MODE (0)
 
-/* TEMP, reg_check */
-#define RETURN_ON_ERROR(f) ret = (f); \
-	if (ret) { \
-		return ret; \
-}
-
 /**
  * Macros for H, M and L byte of 24 bit value
  */
@@ -106,7 +100,7 @@ extern "C" {
  * Polling intervals (TODO)
  * Microseconds
  */
-#define RX_POLLING_INTERVAL (5000U)
+#define POLLING_INTERVAL (5000U)
 
 /* IEEE 802154 Synchronization header. 4 bytes preamble, 1 byte Start frame delimiter (SFD)
 	see IEEE802154 Standard Doc Chap. 12.1 (O-QPSK PHY, PPDU format)

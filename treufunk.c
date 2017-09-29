@@ -171,7 +171,7 @@ int treufunk_reset(treufunk_t *dev)
     /* General TX settings */
     DEBUG("Configuring TX path...\n");
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_DATA_RATE,    2)); /* 1 Mbit */
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_FREQ_DEV,    10));
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_FREQ_DEV,    21)); /* 500 kHz Freqdev */
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_EN,                1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_CHIP_MOD,       1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_UPS,               0));
@@ -209,7 +209,7 @@ int treufunk_reset(treufunk_t *dev)
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_FIFO_IDLE,  0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_FIFO_SLEEP, 0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_IDLE_MODE_EN,  0));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_PWR_CTRL,     15)); /* Maximum TX output power (15dBm?) */
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_PWR_CTRL,     15)); /* Maximum TX output power */
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_MAXAMP,        0));
 
     /* SM RX */
@@ -258,10 +258,6 @@ int treufunk_reset(treufunk_t *dev)
     /* go into RX state */
     treufunk_set_state(dev, RECEIVING);
 
-    /* start polling timer */
-    //xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
-    // not needed to be done here. timer is set in _set_state
-
     DEBUG("reset():\treset complete.\n");
 
     return 0;
@@ -274,7 +270,12 @@ int treufunk_reset(treufunk_t *dev)
 size_t treufunk_send(treufunk_t *dev, uint8_t *data, size_t len)
 {
     DEBUG("treufunk_send()...\n");
-    /* TODO (treufunk_send): Check for max len */
+    /* check for maximum packet length */
+    if(len > TREUFUNK_MAX_PKT_LENGTH)
+    {
+        DEBUG("ERROR (treufunk_send): Maximum packet length exceeded!\n");
+        return 0;
+    }
     treufunk_tx_prepare(dev, len);
     treufunk_tx_load(dev, data, len);
     treufunk_tx_exec(dev);

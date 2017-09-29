@@ -88,7 +88,7 @@ static int _init(netdev_t *netdev)
 /* TODO (_isr) */
 static void _isr(netdev_t *netdev)
 {
-    DEBUG("_isr():\tPOLLING ISR called\n");
+    DEBUG("_isr():\tPOLLING ISR called\n"); /* comment this DEBUG, if you want faster isr handling */
     treufunk_t *dev = (treufunk_t *)netdev;
 
     uint8_t phy_status = treufunk_get_phy_status(dev);
@@ -101,14 +101,9 @@ static void _isr(netdev_t *netdev)
             return;
         }
         netdev->event_callback(netdev, NETDEV_EVENT_RX_COMPLETE);
-        phy_status = treufunk_get_phy_status(dev);
-    }
 
-    /* Change to back RX, if RX data is transferred to driver and chip is sleeping */
-    if(PHY_SM_STATUS(phy_status) == SLEEP && PHY_FIFO_EMPTY(phy_status))
-    {
+        /* Change back to RX */
         treufunk_set_state(dev, RECEIVING);
-        return;
     }
 
     /* Check if transmission is complete */
@@ -120,12 +115,12 @@ static void _isr(netdev_t *netdev)
 
         if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_END)) {
             /* Start polling timer because we are in RX */
-            xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
+            xtimer_set(&(dev->poll_timer), POLLING_INTERVAL);
             return;
         }
         netdev->event_callback(netdev, NETDEV_EVENT_TX_COMPLETE);
         /* Start polling timer because we are in RX */
-        xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
+        xtimer_set(&(dev->poll_timer), POLLING_INTERVAL);
 
         /* Change back to RX */
         //treufunk_set_state(dev, RECEIVING); not needed, because DIRECT_RX set
@@ -136,7 +131,7 @@ static void _isr(netdev_t *netdev)
 
     DEBUG("_isr():\tPOLL: nothing happened. Setting timer again...\n");
     /* Set timer again if still listening for packets OR waiting for transmission to finish */
-    xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
+    xtimer_set(&(dev->poll_timer), POLLING_INTERVAL);
 
 }
 
