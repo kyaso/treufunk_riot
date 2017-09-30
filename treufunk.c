@@ -179,7 +179,7 @@ int treufunk_reset(treufunk_t *dev)
     /* General TX settings */
     DEBUG("Configuring TX path...\n");
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_DATA_RATE,    2)); /* 1 Mbit */
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_FREQ_DEV,    10));
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_FREQ_DEV,    21));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_EN,                1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_CHIP_MOD,       1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_UPS,               0));
@@ -231,7 +231,8 @@ int treufunk_reset(treufunk_t *dev)
 
     /* Package counter */
     /**
-     * IEEE802.15.4 frame size = 135 bytes. Datarate = 2 Mbit/s
+     * IEEE802.15.4 maximum frame size = 133 bytes. => round up to 135, to have some room to move.
+     * Datarate = 2 Mbit/s
      * => 135bytes / 2Mbit/s = 540us transmit time
      * Maximum RX Counter value = 0x0043C0 = 17344
      * Counter 32 MHz
