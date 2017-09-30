@@ -76,11 +76,10 @@ int main(void)
     xtimer_init();
 
     for (unsigned i = 0; i < TREUFUNK_NUM; i++) {
-        // const at86rf2xx_params_t *p = &at86rf2xx_params[i];
         netdev_t *dev = (netdev_t *)(&devs[i]);
 
-        printf("Initializing Treufunk radio\n");// at SPI_%d\n", p->spi);
-        treufunk_setup(&devs[i]);//, (at86rf2xx_params_t*) p);
+        printf("Initializing Treufunk radio\n");
+        treufunk_setup(&devs[i]);
         dev->event_callback = _event_cb;
         dev->driver->init(dev);
     }
