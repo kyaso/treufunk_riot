@@ -1,3 +1,10 @@
 The file "_treufunk.h" needs to be copied to drivers/include/treufunk.h. Alternatively you could also leave "_treufunk.h" in this folder, and just create a symlink called "treufunk.h" inside drivers/include.
 
 You can change SPI Parameters in the treufunk_params.h file.
+
+Also, you have to add the folling constants to the "netopt_state_t" struct in sys/include/net/netopt.h:
+
+NETOPT_STATE_DEEPSLEEP
+NETOPT_STATE_BUSY
+NETOPT_STATE_TXRDY
+NETOPT_STATE_RXRDY
