@@ -97,7 +97,7 @@ extern "C" {
 #define TREUFUNK_OPT_TELL_RX_END	(0x0800)
 
 /**
- * Polling intervals (TODO)
+ * Polling interval
  * Microseconds
  */
 #define POLLING_INTERVAL (5000U)
@@ -116,15 +116,12 @@ typedef struct treufunk_params {
   spi_cs_t cs_pin; /* GPIO pin connected to chip select */
 } treufunk_params_t;
 
-/* TODO (treufunk_t): Maybe add more */
-// device descriptor
+/**
+ * Device descriptor
+ */
 typedef struct {
   netdev_ieee802154_t netdev; /* netdev parent struct */
   treufunk_params_t params; /* spi params for initialization */
-  /* TODO (treufunk_t/state): This is only set when executing set_state() [...]
-  Currently there is no mechanism that changes is during the automatic
-  transition from TX to RX. Maybe we don't need this variable at all. */
-  uint8_t state; /* current state of state machine; phy_status, Tab. 3.4 */
   xtimer_t poll_timer; /* Polling timer */
 } treufunk_t;
 

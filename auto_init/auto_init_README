@@ -1,0 +1,7 @@
+The auto_init module in RIOT handles the automatic initialization of all connected devices. To enable auto_init for the Treufunk, copy the "auto_init_treufunk.c" to sys/auto_init/netif.
+Also, add the following line inside the funcion "auto_init(void)" in the global auto_init.c file (in sys/auto_init/):
+
+#ifdef MODULE_TREUFUNK
+    extern void auto_init_treufunk(void);
+    auto_init_treufunk();
+#endif

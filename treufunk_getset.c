@@ -150,7 +150,6 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
 {
     DEBUG("set_state():\tSetting state %d...\n", state);
     uint8_t state_cmd = state_to_statecmd(state);
-    //if(dev->state == state) return; /* TODO (set_state): Problem: Automatic transition TX-> RX. This variable does not get changed */
     if(state_cmd == -1) return;
 
     /* Before transitioning into RX/TX, some manual resets have to be done */
@@ -174,16 +173,13 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     treufunk_sub_reg_write(dev, SR_SM_COMMAND, STATE_CMD_NONE);
     //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
 
-    /* Set state attribute of the Treufunk device descriptor */
-    dev->state = treufunk_get_state(dev);
-
-    DEBUG("set_state():\tNew state = %d\n", dev->state);
+    DEBUG("set_state():\tNew state = %d\n", treufunk_get_state(dev));
 
     /* Start polling timer for RX and TX */
     if(state == RECEIVING || state == SENDING)
     {
         DEBUG("set_state():\tSetting timer...\n");
-        xtimer_set(&(dev->poll_timer), POLLING_INTERVAL); /* TODO (set_state): Discuss polling interval */
+        xtimer_set(&(dev->poll_timer), POLLING_INTERVAL);
     }
     /* Remove polling timer when SLEEP */
     else if(state == SLEEP)
@@ -197,19 +193,13 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
 /**
  * Set sm_resetb in SM_MAIN to 0 in order to reset the SM
  */
-/* TODO (reset_state_machine): This function still needed? */
 void treufunk_reset_state_machine(treufunk_t *dev)
 {
     treufunk_sub_reg_write(dev, SR_SM_RESETB, 0);
     treufunk_sub_reg_write(dev, SR_SM_RESETB, 1);
 
-    /* TODO (reset_state_machine): Wait for SM to settle? */
-    dev->state = treufunk_get_state(dev);
 }
 
-/* TODO (reset_fifo): Do we need this extra function, or would the two lines
-be enough when called inside reset() ?
-*/
 void treufunk_reset_fifo(treufunk_t *dev)
 {
     treufunk_sub_reg_write(dev, SR_FIFO_RESETB, 0);
@@ -239,7 +229,7 @@ static uint32_t _calc_vco_tune(uint8_t channel)
         case 22: return 209;
         case 23: return 207;
         case 24: return 206;
-        case 25: return 206; /* TODO (_calc_vco): same value?? */
+        case 25: return 206;
         case 26: return 204;
         default: return 0;
     }
@@ -292,8 +282,7 @@ void treufunk_set_vco_tune(treufunk_t *dev, uint32_t vco_tune)
     treufunk_sub_reg_write(dev, SR_PLL_VCO_TUNE, vco_tune);
 }
 
-/* TODO (set_chan) */
-void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
+/void treufunk_set_chan(treufunk_t *dev, uint8_t chan)
 {
     if((chan < IEEE802154_CHANNEL_MIN) ||
         (chan > IEEE802154_CHANNEL_MAX) ||

@@ -297,15 +297,6 @@ static inline void _reverse_bit_order(uint8_t *byte)
 /* TODO (_recv): If buf == NULL this function should just return the size of the frame. For now we don't support this feature */
 static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
 {
-    /* TODO
-     1. read received data from FIFO (into buf)
-     2. remove additional preamble bits (because Treufunk only has 8 bit preamble detection) and correct misaligned bits
-     3. get length of received packet (PHR)
-     4. if (buf) == NULL: just return length of data in FIFO (not supported, see description)
-     (5. read out data to (buf))
-
-    */
-
     treufunk_t *dev = (treufunk_t *)netdev;
     uint8_t phr;
     size_t pkt_len;
@@ -421,7 +412,7 @@ static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len)
             res = sizeof(uint16_t);
             break;
 
-        /* TODO (_get) */ case NETOPT_MAX_PACKET_SIZE:
+        case NETOPT_MAX_PACKET_SIZE:
             break;
 
 

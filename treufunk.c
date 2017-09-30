@@ -32,7 +32,6 @@ void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
     dev->netdev.netdev.driver = &treufunk_driver;
 
     memcpy(&dev->params, params, sizeof(treufunk_params_t));
-    /* TODO */ dev->state = SLEEP;
 }
 
 /**
