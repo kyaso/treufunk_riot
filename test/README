@@ -1,0 +1,25 @@
+This application lets you test the basic communication with the Treufunk Chip.
+It does not include any network stack related stuff. Therefore this is mainly used for debugging the chip.
+
+The most important commands are:
+
+* register read / write
+* getting phy_status
+* setting pll
+* get state
+* send
+* read out received data
+
+There are more commands available. Type "help" in the RIOT shell.
+
+Reading a register value: 			rr <addr>
+Writing into a register:			rw <addr>
+Get phy_status byte:				phy
+Send a string over the air:			tx <your message>
+Send a repeating pattern:			tx -p <pattern(hex)> <num of bytes> # example: send 10 pattern: tx -p AA 100
+Read out received data:				rx
+Set state:							ss <to state> # State number corr. to phy_status
+Get state:							gs
+Set pll int:						pllint <tx/rx> <int_val(decimal)>
+Get pll int:						pllint <tx/rx>
+pll frac set/get					exactly same as pllint, just "frac" instead of "int".
