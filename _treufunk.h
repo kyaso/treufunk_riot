@@ -131,7 +131,7 @@ typedef struct {
 
 
 void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params);
-int treufunk_reset(treufunk_t *dev);
+void treufunk_reset(treufunk_t *dev);
 
 /** Addresses can only be managed by driver, because Treufunk does not support addresses */
 uint16_t treufunk_get_addr_short(treufunk_t *dev);

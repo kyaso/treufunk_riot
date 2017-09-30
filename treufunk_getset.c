@@ -110,7 +110,7 @@ void _rx_resets(treufunk_t *dev)
     because during init this isn't done neither.
 
     Answer: In theory, yes. But the SPI takes quite some time (relative to the settling time of the demod),
-    and therefore the solution above should be sufficient.
+    and therefore the solution above is sufficient.
     */
 }
 
@@ -159,7 +159,7 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
         DEBUG("set_state():\trx_resets done.\n");
     }
 
-    /* write state_cmd to SM_COMMAND sub_reg of SM_MAIN */
+    /* Write state_cmd to SM_COMMAND sub_reg of SM_MAIN */
     DEBUG("set_state():\tWriting state_cmd (%d) into SM_MAIN reg...\n", state_cmd);
     treufunk_sub_reg_write(dev, SR_SM_COMMAND, state_cmd);
     //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
@@ -169,12 +169,12 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     //DEBUG("set_state(): Waiting until state transition is finished...\n");
     //while(treufunk_get_state(dev) != state);
 
-    /* set SM_COMMAND back to CMD_NONE */
+    /* Set SM_COMMAND back to CMD_NONE */
     DEBUG("set_state():\tResetting state_cmd sub-reg (SM_MAIN)\n");
     treufunk_sub_reg_write(dev, SR_SM_COMMAND, STATE_CMD_NONE);
     //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
 
-    /* set state attribute of the Treufunk device descriptor */
+    /* Set state attribute of the Treufunk device descriptor */
     dev->state = treufunk_get_state(dev);
 
     DEBUG("set_state():\tNew state = %d\n", dev->state);
@@ -195,7 +195,7 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
 
 
 /**
- * set sm_resetb in SM_MAIN to 0 in order to reset the SM
+ * Set sm_resetb in SM_MAIN to 0 in order to reset the SM
  */
 /* TODO (reset_state_machine): This function still needed? */
 void treufunk_reset_state_machine(treufunk_t *dev)

@@ -23,8 +23,7 @@
 /**
  * First function to be called during the initialization of the transceiver.
  *
- * Sets up the driver struct and copies the passed spi parameters to the device struct.
- * Also sets up the polling timer.
+ * Sets up the device descriptor and copies the passed spi parameters to the device descriptor.
  * Actual init of spi pins happens in netdev.c/_init()
  */
 void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
@@ -33,7 +32,7 @@ void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
     dev->netdev.netdev.driver = &treufunk_driver;
 
     memcpy(&dev->params, params, sizeof(treufunk_params_t));
-    dev->state = SLEEP;
+    /* TODO */ dev->state = SLEEP;
 }
 
 /**
@@ -42,10 +41,9 @@ void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
  * Adapted after lprf.c/init_lprf_hardware()
  * https://github.com/ias-aachen/lprf_linux_driver/blob/master/lprf.c#L1647
  */
-int treufunk_reset(treufunk_t *dev)
+void treufunk_reset(treufunk_t *dev)
 {
     DEBUG("reset()...\n");
-    // treufunk_hardware_reset(dev);    /* TODO (treufunk_reset): Hardware reset neccessary? */
 
     eui64_t addr_long;
 
@@ -53,29 +51,29 @@ int treufunk_reset(treufunk_t *dev)
     dev->netdev.seq = 0;
     dev->netdev.flags = 0;
 
-    /* set default options */
+    /* Set default options */
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_START, false);
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_RX_END, true); /* If set to TRUE, the driver will inform the MAC-Layer about a received frame. The MAC-Layer will then start to retrieve the frame. */
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_START, false);
     treufunk_set_option(dev, TREUFUNK_OPT_TELL_TX_END, false); /* If set to TRUE, the driver will inform the MAC-Layer about a completed transmission. The MAC-Layer then uses this for network statistics */
 
-    /* set default protocol */
+    /* Set default protocol */
     #ifdef MODULE_GNRC_SIXLOWPAN
         dev->netdev.proto = GNRC_NETTYPE_SIXLOWPAN;
     #elif MODULE_GNRC
         dev->netdev.proto = GNRC_NETTYPE_UNDEF;
     #endif
 
-    /* get an 8-byte unique ID to use as hardware address */
+    /* Get an 8-byte unique ID to use as hardware address */
     luid_get(addr_long.uint8, IEEE802154_LONG_ADDRESS_LEN);
-    /* make sure we mark the address as non-multicast and not globally unique */
+    /* Make sure we mark the address as non-multicast and not globally unique */
     addr_long.uint8[0] &= ~(0x01);
     addr_long.uint8[0] |=  (0x02);
-    /* set short and long address */
+    /* Set short and long address */
     treufunk_set_addr_long(dev, ntohll(addr_long.uint64.u64));
     treufunk_set_addr_short(dev, ntohs(addr_long.uint16[0].u16));
 
-    /* set default pan id */
+    /* Set default pan id */
     treufunk_set_pan(dev, IEEE802154_DEFAULT_PANID);
 
 
@@ -251,12 +249,10 @@ int treufunk_reset(treufunk_t *dev)
     /* TODO (reset): Do we have to call set channel? */
     //treufunk_set_chan(dev, IEEE802154_DEFAULT_CHANNEL);
 
-    /* go into RX state */
+    /* Go into RX state */
     treufunk_set_state(dev, RECEIVING);
 
     DEBUG("reset():\treset complete.\n");
-
-    return 0;
 }
 
 
@@ -266,7 +262,7 @@ int treufunk_reset(treufunk_t *dev)
 size_t treufunk_send(treufunk_t *dev, uint8_t *data, size_t len)
 {
     DEBUG("treufunk_send()...\n");
-    /* check for maximum packet length */
+    /* Sheck for maximum packet length */
     if(len > TREUFUNK_MAX_PKT_LENGTH)
     {
         DEBUG("ERROR (treufunk_send): Maximum packet length exceeded!\n");
@@ -281,7 +277,9 @@ size_t treufunk_send(treufunk_t *dev, uint8_t *data, size_t len)
 /**
  * Prepare for TX.
  * Before put into TX mode, the SM needs to be put into SLEEP first.
- * Also writes SHR and PHR into FIFO.
+ * Then possible received packets in the FIFO need to be processed first.
+ *
+ * After that, SHR and PHR are written into the FIFO
  *
  * @param phr Length of payload (PSDU/MPDU)
  */
@@ -300,6 +298,16 @@ void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
     /* Put SM into SLEEP */
     DEBUG("tx_prepare():\tputting into SLEEP...\n");
     treufunk_set_state(dev, SLEEP);
+
+    /* Check for possible received frames in FIFO */
+    uint8_t phy = treufunk_get_phy_status(dev);
+    if(!PHY_FIFO_EMPTY(phy))
+    {
+        /* Call MAC event_callback and signal received packet */
+        dev->netdev.netdev.event_callback(&(dev->netdev.netdev), NETDEV_EVENT_RX_COMPLETE);
+    }
+
+    /* ... Continue with TX process ... */
 
     /* Write SHR into FIFO */
     DEBUG("tx_prepare():\twriting SHR into FIFO...\n");
@@ -333,6 +341,9 @@ void treufunk_tx_exec(treufunk_t *dev)
     DEBUG("tx_exec():\tputting SM into TX...\n");
     treufunk_set_state(dev, SENDING);
 
+    /* If set in driver options, tell MAC-Layer about started TX
+        Usually this is only needed for statistics about number of send frames etc.
+    */
     if(dev->netdev.netdev.event_callback && (dev->netdev.flags & TREUFUNK_OPT_TELL_TX_START))
     {
         dev->netdev.netdev.event_callback(&(dev->netdev.netdev), NETDEV_EVENT_TX_STARTED);
