@@ -106,7 +106,7 @@ uint8_t treufunk_reg_read(const treufunk_t *dev,
     return 0xAB;
 }
 
-int treufunk_reg_write(const treufunk_t *dev,
+void treufunk_reg_write(const treufunk_t *dev,
                          const uint8_t addr,
                          const uint8_t value)
 {
@@ -165,23 +165,21 @@ uint8_t treufunk_sub_reg_read(const treufunk_t *dev,
   * NOTE: Usually we don't have to worry about the correct values for sub_reg_mask and offset, since
   * they are defined already for all existing sub-registers in "lprf_registers.h".
   */
-int treufunk_sub_reg_write(const treufunk_t *dev,
+void treufunk_sub_reg_write(const treufunk_t *dev,
                             const uint8_t reg_addr,
                             const uint8_t sub_reg_mask,
                             const uint8_t offset,
                             const uint8_t value)
 {
     uint8_t reg_value;
-    /* save current reg content */
+    /* Save current reg content */
     reg_value = treufunk_reg_read(dev, reg_addr);
-    /* set current bits of sub_reg to 0 */
+    /* Set current bits of sub_reg to 0 */
     reg_value &= (~sub_reg_mask);
-    /* set new bits */
+    /* Set new bits */
     reg_value |= (value << offset);
-    /* write back to reg */
-    /* TEMP_BEGIN (sub_reg_write), reg_check (sub_reg_write), return on error */
-    return treufunk_reg_write(dev, reg_addr, reg_value);
-    /* TEMP_END */
+    /* Write back to reg */
+    treufunk_reg_write(dev, reg_addr, reg_value);
 
 }
 

@@ -198,7 +198,7 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
 
 
 /**
- * set sm_resetb in SM_MAIN to 0 in order to reset the SM
+ * Set sm_resetb in SM_MAIN to 0 in order to reset the SM
  */
 /* TODO (reset_state_machine): This function still needed? */
 void treufunk_reset_state_machine(treufunk_t *dev)

@@ -42,16 +42,26 @@ const netdev_driver_t treufunk_driver = {
     .set = _set,
 };
 
+/**
+ * Interrupt service routine which (in our case) gets called on every timer interrupt from the polling timer
+ */
 static void _irq_handler(void *arg)
 {
     netdev_t *dev = (netdev_t *) arg;
 
+    /* Call event_callback of MAC-Layer to inform about interrupt */
     if (dev->event_callback) {
         dev->event_callback(dev, NETDEV_EVENT_ISR);
     }
 }
 
-
+/**
+ * Initializes polling timer, SPI pins and Treufunk. Before init of Treufunk the SPI communication is tested.
+ * This function gets called from the MAC-Layer
+ *
+ * @return      0   on successful driver and chip init
+                -1  on unreliable SPI com
+ */
 static int _init(netdev_t *netdev)
 {
     DEBUG("netdev/_init()...\n");
@@ -80,12 +90,20 @@ static int _init(netdev_t *netdev)
     //     return -1;
     // }
 
-    DEBUG("_init():\tSuccess: chip id correct! Doing reset now...\n");
+    DEBUG("_init():\tSuccess: Chip id correct! Doing reset now...\n");
 
-    return treufunk_reset(dev);
+    treufunk_reset(dev);
+
+    return 0;
 }
 
-/* TODO (_isr) */
+/**
+ * Handles interrupts in thread context.
+ * Gets called from the MAC thread ("netdev_thread")
+ *
+ * Checks if a packet was received, if not simply set timer again.
+ *
+ */
 static void _isr(netdev_t *netdev)
 {
     //DEBUG("_isr():\tPOLLING ISR called\n");
@@ -111,47 +129,50 @@ static void _isr(netdev_t *netdev)
         return;
     }
 
-    /* Check if transmission is complete */
-    if(PHY_SM_STATUS(phy_status) == RECEIVING && PHY_FIFO_EMPTY(phy_status) && dev->tx_active)
-    {
-        DEBUG("_isr():\tPOLL: EVT - TX_END\n");
+    // /* Check if transmission is complete */
+    // if(PHY_SM_STATUS(phy_status) == RECEIVING && PHY_FIFO_EMPTY(phy_status))
+    // {
+    //     DEBUG("_isr():\tPOLL: EVT - TX_END\n");
+    //
+    //     if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_END)) {
+    //         /* Start polling timer because we are in RX */
+    //         xtimer_set(&(dev->poll_timer), POLLING_INTERVAL);
+    //         return;
+    //     }
+    //     netdev->event_callback(netdev, NETDEV_EVENT_TX_COMPLETE);
+    //     /* Start polling timer because we are in RX */
+    //     xtimer_set(&(dev->poll_timer), POLLING_INTERVAL);
+    //
+    //     /* Change back to RX */
+    //     //treufunk_set_state(dev, RECEIVING); not needed, because DIRECT_RX set
+    //
+    //
+    //     return;
+    // }
 
-        dev->tx_active = false;
-
-        if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_END)) {
-            /* Start polling timer because we are in RX */
-            xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
-            return;
-        }
-        netdev->event_callback(netdev, NETDEV_EVENT_TX_COMPLETE);
-        /* Start polling timer because we are in RX */
-        xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
-
-        /* Change back to RX */
-        //treufunk_set_state(dev, RECEIVING); not needed, because DIRECT_RX set
-
-
-        return;
-    }
-
-    //DEBUG("_isr():\tPOLL: nothing happened. Setting timer again...\n");
-    /* Set timer again if still listening for packets OR waiting for transmission to finish */
-    xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
+    DEBUG("_isr():\tPOLL: nothing happened. Setting timer again...\n");
+    /* Set timer again if still listening for packets */
+    xtimer_set(&(dev->poll_timer), POLLING_INTERVAL);
 
 }
 
+/**
+ * Called from MAC layer if a packet has to be send over the air.
+ *
+ * For explanation of  params see drivers/include/net/netdev.h
+ */
 static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
 {
     DEBUG("netdev/_send()...\n");
     treufunk_t *dev = (treufunk_t *)netdev;
     size_t len = 2; /* 2 bytes FCS */
 
-    /* determine length of payload. This value is PHR later */
+    /* Determine length of payload. This value is PHR later */
     for(unsigned i = 0; i < count; i++)
     {
         len += vector[i].iov_len;
     }
-    /* check if packet is too long */
+    /* Check if packet is too long */
     if(len > TREUFUNK_MAX_PKT_LENGTH)
     {
         DEBUG("ERROR (_send):\tpacket too large (%u bytes) to be send\n", (unsigned)len + 2);
@@ -169,16 +190,16 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
     /* put SM into SLEEP and write SHR + PHR into FIFO */
     treufunk_tx_prepare(dev, len);
 
-    /* load payload (PSDU) data into FIFO */
+    /* Load payload (PSDU) data into FIFO */
     for(unsigned i = 0; i < count; i++, vector++)
     {
         treufunk_tx_load(dev, vector->iov_base, vector->iov_len);
     }
 
-    /* send out data */
+    /* Send out data */
     treufunk_tx_exec(dev);
 
-    /* return number of bytes that were send out */
+    /* Return number of bytes that were send out */
     return (int)len;
 }
 
@@ -259,7 +280,6 @@ static int _find_SFD_and_shift_data(uint8_t *data, uint8_t *data_length,
 /**
  * Reverse the bit order of a single byte.
  * Needed because the Treufunk sends/receives each byte in reversed bit order.
- * @param byte [description]
  */
 static inline void _reverse_bit_order(uint8_t *byte)
 {
@@ -270,6 +290,7 @@ static inline void _reverse_bit_order(uint8_t *byte)
 
 /**
  * Gets the received data from the FIFO.
+ * This function gets called from the MAC layer event_callback, after a timer interrupt detected a received packet
  *
  * Since the Treufunk does not handle it automatically, we have
  * to remove the preamble etc. manually.
@@ -281,8 +302,9 @@ static inline void _reverse_bit_order(uint8_t *byte)
  *                  TREUFUNK_MAX_PKT_LENGTH + 6 + 2
  *                6 = SHR length
  *                2 additional bytes because of possible misalignment
- * @param  info   [description]
- * @return        [description]
+ * @param  info   pointer to location where signal strength/qualitiy indicators (RSSI, LQI) should be written to
+ *                NOTE: The Treufunk has no ED, therefore we have to "lie" (see below)
+ * @return        length of received packet
  */
 /* TODO (_recv): If buf == NULL this function should just return the size of the frame. For now we don't support this feature */
 static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
@@ -301,7 +323,7 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
     size_t pkt_len;
 
 
-    /* read FIFO data into buf */
+    /* Read FIFO data into buf */
     treufunk_fifo_read(dev, (uint8_t*)buf, len);
 
     /* Reverse bit order and invert the bits */
@@ -311,7 +333,7 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
     //     ((uint8_t*)buf)[i] = ~((uint8_t*)buf)[i];
     // }
 
-    /* remove preamble and correct alignment */
+    /* Remove preamble and correct alignment */
     if(_find_SFD_and_shift_data(buf, &len, 0xA7, 4) == 0)
     {
         DEBUG("ERROR (_recv):\tSFD not found, ignoring frame\n");
@@ -319,7 +341,7 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
     }
 
     #if ENABLE_DEBUG
-        /* print out memory dump of buffer */
+        /* Print out memory dump of buffer */
         od_hex_dump(buf, len, 16);
     #endif
 
@@ -341,7 +363,7 @@ static int _recv(netdev_t *netdev, void *buf, size_t len, void *info)
     // }
 
 
-    /* do info processing */
+    /* Do signal info processing */
     if(info != NULL)
     {
         netdev_ieee802154_rx_info_t *radio_info = info;
