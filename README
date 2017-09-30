@@ -1,1 +1,3 @@
 The file "_treufunk.h" needs to be copied to drivers/include/treufunk.h. Alternatively you could also leave "_treufunk.h" in this folder, and just create a symlink called "treufunk.h" inside drivers/include.
+
+You can change SPI Parameters in the treufunk_params.h file.
