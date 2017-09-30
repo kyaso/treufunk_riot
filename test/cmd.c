@@ -135,6 +135,7 @@ int change_fifo(int argc, char **argv)
     return 0;
 }
 
+
 int ifconfig(int argc, char **argv)
 {
     (void)argc;

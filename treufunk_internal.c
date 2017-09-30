@@ -148,9 +148,9 @@ uint8_t treufunk_sub_reg_read(const treufunk_t *dev,
                             const uint8_t sub_reg_mask,
                             const uint8_t offset)
 {
-     uint8_t reg_value;
-     reg_value = treufunk_reg_read(dev, reg_addr);
-     return ((reg_value & sub_reg_mask) >> offset);
+    //  uint8_t reg_value;
+    //  reg_value = treufunk_reg_read(dev, reg_addr);
+    //  return ((reg_value & sub_reg_mask) >> offset);
 }
 
  /**
@@ -171,15 +171,15 @@ void treufunk_sub_reg_write(const treufunk_t *dev,
                             const uint8_t offset,
                             const uint8_t value)
 {
-    uint8_t reg_value;
-    /* Save current reg content */
-    reg_value = treufunk_reg_read(dev, reg_addr);
-    /* Set current bits of sub_reg to 0 */
-    reg_value &= (~sub_reg_mask);
-    /* Set new bits */
-    reg_value |= (value << offset);
-    /* Write back to reg */
-    treufunk_reg_write(dev, reg_addr, reg_value);
+    // uint8_t reg_value;
+    // /* Save current reg content */
+    // reg_value = treufunk_reg_read(dev, reg_addr);
+    // /* Set current bits of sub_reg to 0 */
+    // reg_value &= (~sub_reg_mask);
+    // /* Set new bits */
+    // reg_value |= (value << offset);
+    // /* Write back to reg */
+    // treufunk_reg_write(dev, reg_addr, reg_value);
 
 }
 

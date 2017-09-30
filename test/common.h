@@ -21,7 +21,7 @@ extern "C" {
  * @internal
  * @{
  */
-#define TREUFUNK_NUM   1//(sizeof(at86rf2xx_params) / sizeof(at86rf2xx_params[0]))
+#define TREUFUNK_NUM   2//(sizeof(at86rf2xx_params) / sizeof(at86rf2xx_params[0]))
 
 extern treufunk_t devs[TREUFUNK_NUM];
 

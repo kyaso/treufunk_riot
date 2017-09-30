@@ -186,7 +186,7 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     if(state == RECEIVING || state == SENDING)
     {
         DEBUG("set_state():\tSetting timer...\n");
-        xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL); /* TODO (set_state): Discuss polling interval */
+        xtimer_set(&(dev->poll_timer), POLLING_INTERVAL); /* TODO (set_state): Discuss polling interval */
     }
     /* Remove polling timer when SLEEP */
     else if(state == SLEEP)

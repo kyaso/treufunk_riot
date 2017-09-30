@@ -129,28 +129,7 @@ static void _isr(netdev_t *netdev)
         return;
     }
 
-    // /* Check if transmission is complete */
-    // if(PHY_SM_STATUS(phy_status) == RECEIVING && PHY_FIFO_EMPTY(phy_status))
-    // {
-    //     DEBUG("_isr():\tPOLL: EVT - TX_END\n");
-    //
-    //     if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_END)) {
-    //         /* Start polling timer because we are in RX */
-    //         xtimer_set(&(dev->poll_timer), POLLING_INTERVAL);
-    //         return;
-    //     }
-    //     netdev->event_callback(netdev, NETDEV_EVENT_TX_COMPLETE);
-    //     /* Start polling timer because we are in RX */
-    //     xtimer_set(&(dev->poll_timer), POLLING_INTERVAL);
-    //
-    //     /* Change back to RX */
-    //     //treufunk_set_state(dev, RECEIVING); not needed, because DIRECT_RX set
-    //
-    //
-    //     return;
-    // }
-
-    DEBUG("_isr():\tPOLL: nothing happened. Setting timer again...\n");
+    //DEBUG("_isr():\tPOLL: nothing happened. Setting timer again...\n");
     /* Set timer again if still listening for packets */
     xtimer_set(&(dev->poll_timer), POLLING_INTERVAL);
 

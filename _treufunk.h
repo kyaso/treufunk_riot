@@ -106,7 +106,7 @@ extern "C" {
  * Polling intervals (TODO)
  * Microseconds
  */
-#define RX_POLLING_INTERVAL (5000U)
+#define POLLING_INTERVAL (5000U)
 
 /* IEEE 802154 Synchronization header. 4 bytes preamble, 1 byte Start frame delimiter (SFD)
 	see IEEE802154 Standard Doc Chap. 12.1 (O-QPSK PHY, PPDU format)
@@ -139,7 +139,7 @@ typedef struct {
 
 
 void treufunk_setup(treufunk_t *dev);//, const treufunk_params_t *params);
-int treufunk_reset(treufunk_t *dev);
+void treufunk_reset(treufunk_t *dev);
 
 /** Addresses can only be managed by driver, because Treufunk does not support addresses */
 uint16_t treufunk_get_addr_short(treufunk_t *dev);
