@@ -197,6 +197,7 @@ void treufunk_fifo_read(/*const*/ treufunk_t *dev,
     // size_t len;
     //
     /* Pseusoframe without first byte of preamble, because Treufunk removes it */
+    /* when changing the size of this array, make sure to also change the size in the memcpy call below! */
     uint8_t pframe[9] = {0x00, 0x00, 0x00, 0xA7, 0x04, 0x01, 0x01, 0x01, 0x01};
     memcpy(buf, pframe, 9);
     dev->fifo_empty = 1;
