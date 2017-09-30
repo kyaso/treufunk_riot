@@ -104,14 +104,13 @@ static void _isr(netdev_t *netdev)
 
         /* Change back to RX */
         treufunk_set_state(dev, RECEIVING);
+        return;
     }
 
     /* Check if transmission is complete */
-    if(PHY_SM_STATUS(phy_status) == RECEIVING && PHY_FIFO_EMPTY(phy_status) && dev->tx_active)
+    if(PHY_SM_STATUS(phy_status) == RECEIVING && PHY_FIFO_EMPTY(phy_status))
     {
         DEBUG("_isr():\tPOLL: EVT - TX_END\n");
-
-        dev->tx_active = false;
 
         if (!(dev->netdev.flags & TREUFUNK_OPT_TELL_TX_END)) {
             /* Start polling timer because we are in RX */

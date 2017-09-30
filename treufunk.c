@@ -49,10 +49,6 @@ int treufunk_reset(treufunk_t *dev)
 
     eui64_t addr_long;
 
-    /* TEMP_BEGIN (treufunk_reset), reg_check (treufunk_reset) */
-    int ret = 0;
-    /* TEMP_END */
-
     /* Reset sequence number and options */
     dev->netdev.seq = 0;
     dev->netdev.flags = 0;
@@ -299,8 +295,6 @@ void treufunk_tx_prepare(treufunk_t *dev, size_t phr)
     // {
     //     state = treufunk_get_state(dev);
     // } while(state == SENDING || state == RECEIVING || state == BUSY);
-
-    dev->tx_active = true;
 
     _rx_resets(dev);
     /* Put SM into SLEEP */

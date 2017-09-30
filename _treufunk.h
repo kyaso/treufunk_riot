@@ -125,7 +125,6 @@ typedef struct {
   Currently there is no mechanism that changes is during the automatic
   transition from TX to RX. Maybe we don't need this variable at all. */
   uint8_t state; /* current state of state machine; phy_status, Tab. 3.4 */
-  bool tx_active; /* TODO (treufunk_t): Doc */
   xtimer_t poll_timer; /* Polling timer */
 } treufunk_t;
 
