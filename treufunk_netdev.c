@@ -396,6 +396,9 @@ netopt_state_t _get_state(treufunk_t *dev)
     }
 }
 
+/**
+ * Called from MAC layer to config info from device
+ */
 static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len)
 {
     int res = -ENOTSUP;
@@ -461,6 +464,9 @@ static int _get(netdev_t *netdev, netopt_t opt, void *val, size_t max_len)
     return res;
 }
 
+/**
+ * Called from MAC-Layer to configure device
+ */
 static int _set(netdev_t *netdev, netopt_t opt, void *val, size_t len)
 {
     int res = -ENOTSUP;
