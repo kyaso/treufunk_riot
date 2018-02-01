@@ -19,7 +19,7 @@
 #include "net/netdev.h"
 #include "net/netdev/ieee802154.h"
 // #include "net/gnrc/nettype.h"
-//#include "xtimer.h"
+#include "xtimer.h"
 
 #define ENABLE_DEBUG (1)
 #include "debug.h"

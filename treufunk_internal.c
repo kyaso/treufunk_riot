@@ -137,6 +137,9 @@ int treufunk_reg_write(const treufunk_t *dev,
 
     /* TEMP_END */
 
+    /* Read value in reg */
+    //DEBUG("\tReg 0x%02x: Setpoint: 0x%02x, Actual value: 0x%02x\n", addr, value, treufunk_reg_read(dev, addr));
+
     return 0;
 }
 

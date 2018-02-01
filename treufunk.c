@@ -34,6 +34,7 @@ void treufunk_setup(treufunk_t *dev, const treufunk_params_t *params)
 
     memcpy(&dev->params, params, sizeof(treufunk_params_t));
     dev->state = SLEEP;
+    xtimer_init();
 }
 
 /**
@@ -137,10 +138,10 @@ int treufunk_reset(treufunk_t *dev)
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_MULTIBIT, 0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_ENABLE,   1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_BW_SEL,   1));
-	// RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_BW_TUNE,  5));
-    // RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_DR_SEL,   2));
-    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_BW_TUNE,  4));
-    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_DR_SEL,   0));
+	 RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_BW_TUNE,  5));
+     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_DR_SEL,   2));
+    //RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_BW_TUNE,  4));
+    //RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_CTRL_ADC_DR_SEL,   0));
 
 
     /* Polyphase filter settings */
@@ -178,12 +179,12 @@ int treufunk_reset(treufunk_t *dev)
 
     /* General TX settings */
     DEBUG("Configuring TX path...\n");
-    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_DATA_RATE,    2)); /* 1 Mbit */
+    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_DATA_RATE,    3/*2*/)); /* 3 => 2 Mbit, 2 => 1 Mbit */
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_FREQ_DEV,    21));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_EN,                1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_CHIP_MOD,       1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_UPS,               0));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_CHIP_MOD_SP,    1)); /* TX uses 1Mbit/s datarate */
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_CHIP_MOD_SP,    0)); /* TX uses 0 => 2 Mbit/s (1 => 1Mbit/s) datarate */
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_AMPLI_OUT_MAN_H,   1));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_AMPLI_OUT_MAN_L, 255));
 
@@ -213,7 +214,7 @@ int treufunk_reset(treufunk_t *dev)
     DEBUG("configuring SM TX...\n");
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_MODE,          0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_INVERT_FIFO_CLK,  0));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DIRECT_RX,        1)); /* Change directly to RX after completed transmission (TX) */
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_DIRECT_RX,        0)); /* Change directly to RX after completed transmission (TX) */
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_FIFO_IDLE,  0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_FIFO_SLEEP, 0));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_IDLE_MODE_EN,  0));
@@ -253,9 +254,10 @@ int treufunk_reset(treufunk_t *dev)
     /* Resets */
     DEBUG("Doing resets...\n");
 	 /* TODO (treufunk_reset): Call function reset_fifo() or leave this ? */
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_SM_EN,       1));
+	//RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_SM_EN,       1));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_FIFO_RESETB, 0));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_FIFO_RESETB, 1));
+    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_SM_EN,       1));
     /* TODO (treufunk_reset): Call function reset_state_machine() or leave this ? */
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_SM_RESETB,   0));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_SM_RESETB,   1));
@@ -265,11 +267,17 @@ int treufunk_reset(treufunk_t *dev)
     //treufunk_set_chan(dev, IEEE802154_DEFAULT_CHANNEL);
 
     /* go into RX state */
-    treufunk_set_state(dev, RECEIVING);
+    //treufunk_set_state(dev, RECEIVING);
 
     /* start polling timer */
     //xtimer_set(&(dev->poll_timer), RX_POLLING_INTERVAL);
     // not needed to be done here. timer is set in _set_state
+
+    treufunk_set_rx_pll_frac(dev, 174762);
+    treufunk_sub_reg_write(dev, SR_RX_CHAN_INT, 100);
+    treufunk_set_tx_pll_frac(dev, 218453);
+    treufunk_sub_reg_write(dev, SR_TX_CHAN_INT, 100);
+    treufunk_set_vco_tune(dev, 237);
 
     DEBUG("reset():\treset complete.\n");
 
@@ -310,19 +318,20 @@ void treufunk_tx_prepare(treufunk_t *dev)//, size_t phr)
 
     // dev->tx_active = true;
 
-    _rx_resets(dev);
+
     /* Put SM into SLEEP */
     DEBUG("tx_prepare():\tputting into SLEEP...\n");
     treufunk_set_state(dev, SLEEP);
-    uint8_t pre[4] = {0xFF, 0x00, 0xFF, 0x00};
-    treufunk_fifo_write(dev, pre, 4); /* Write preamble for test */
+    _rx_resets(dev);
+    //uint8_t pre[4] = {0xFF, 0x00, 0xFF, 0x00};
+    //treufunk_fifo_write(dev, pre, 4); /* Write preamble for test */
 
     // /* Write SHR into FIFO */
-    // DEBUG("tx_prepare(): writing SHR into FIFO...\n");
+    // DEBUG("tx_prepare():\twriting SHR into FIFO...\n");
     // treufunk_fifo_write(dev, SHR, 5);
     //
     // /* Write PHR (= payload/PSDU length) into FIFO */
-    // DEBUG("tx_prepare(): writing PHR into FIFO...\n");
+    // DEBUG("tx_prepare():\twriting PHR into FIFO...\n");
     // treufunk_fifo_write(dev, &phr, 1);
 
 }
@@ -338,8 +347,8 @@ size_t treufunk_tx_load(treufunk_t *dev, uint8_t *data, size_t len)
 {
     DEBUG("tx_load():\twriting data into FIFO...\n");
     treufunk_fifo_write(dev, data, len);
-    uint8_t end[4] = {0x00, 0xFF, 0x00, 0xFF};
-    treufunk_fifo_write(dev, end, 4); /* Write closing */
+    //uint8_t end[4] = {0x00, 0xFF, 0x00, 0xFF};
+    //treufunk_fifo_write(dev, end, 4); /* Write closing */
     return len;
 }
 

@@ -1,0 +1,4 @@
+* GCC-ARM Path:                             export PATH=${PATH}:/home/kyaso/src/gcc-arm-emb/bin
+* Compile (+optionally ignore warnings):    make WERROR=0 all
+* Flash to Arduino:                         make WERROR=0 flash
+* Open RIOT Shell:                          make term

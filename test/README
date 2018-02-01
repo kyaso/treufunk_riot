@@ -22,4 +22,4 @@ Set state:							ss <to state> # State number corr. to phy_status
 Get state:							gs
 Set pll int:						pllint <tx/rx> <int_val(decimal)>
 Get pll int:						pllint <tx/rx>
-pll frac set/get					exactly same as pllint, just "frac" instead of "int".
+pll frac set/get					exactly same as pllint, just "frac" instead of "int"; but the frac values must be in hex.

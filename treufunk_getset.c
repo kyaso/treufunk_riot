@@ -113,6 +113,8 @@ void _rx_resets(treufunk_t *dev)
     Answer: In theory, yes. But the SPI takes quite some time (relative to the settling time of the demod),
     and therefore the solution above should be sufficient.
     */
+
+   //xtimer_sleep(1);
 }
 
 /**
@@ -171,8 +173,8 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     //while(treufunk_get_state(dev) != state);
 
     /* set SM_COMMAND back to CMD_NONE */
-    DEBUG("set_state():\tResetting state_cmd sub-reg (SM_MAIN)\n");
-    treufunk_sub_reg_write(dev, SR_SM_COMMAND, STATE_CMD_NONE);
+    //DEBUG("set_state():\tResetting state_cmd sub-reg (SM_MAIN)\n");
+    //treufunk_sub_reg_write(dev, SR_SM_COMMAND, STATE_CMD_NONE);
     //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
 
     /* set state attribute of the Treufunk device descriptor */

@@ -41,7 +41,21 @@ static int reg_write(int argc, char **argv)
 
 static int send(int argc, char **argv)
 {
+    if(argc == 1)
+    {
+        // 25 Bytes
+        uint8_t data[25] = {0xff, 0x71, 0x88, 0x02, 0xff,
+                            0x00, 0xff, 0x7d, 0xde, 0xef,
+                            0xbe, 0x42, 0x42, 0x00, 0x0a,
+                            0x00, 0x00, 0xab, 0xab, 0xab,
+                            0xab, 0xab, 0xab, 0x55, 0xa3};
+        printf("Sending default byte sequence...\n");
+        treufunk_send(&myTreufunk, data, 25);
+        return 0;
+    }
+
     if(argc != 2 && argc != 4) return -1;
+
     /* Send custom pattern */
     if(argc == 4)
     {
@@ -237,8 +251,8 @@ static int pll_frac(int argc, char **argv)
         }
         else if(argc == 3)
         {
-            //uint32_t pll_frac = (uint32_t) strtol(argv[2], NULL, 16);
-            uint32_t pll_frac = atoi(argv[2]);
+            uint32_t pll_frac = (uint32_t) strtol(argv[2], NULL, 16);
+            //uint32_t pll_frac = atoi(argv[2]);
             printf("Setting frac of TX pll to %lu (0x%06x)\n", pll_frac, pll_frac);
             treufunk_set_tx_pll_frac(&myTreufunk, pll_frac);
             return 0;
@@ -255,7 +269,8 @@ static int pll_frac(int argc, char **argv)
         }
         else if(argc == 3)
         {
-            uint32_t pll_frac = atoi(argv[2]);
+            //uint32_t pll_frac = atoi(argv[2]);
+            uint32_t pll_frac = (uint32_t) strtol(argv[2], NULL, 16);
             printf("Setting frac of RX pll to %lu (0x%06x)\n", pll_frac, pll_frac);
             treufunk_set_rx_pll_frac(&myTreufunk, pll_frac);
             return 0;
@@ -365,6 +380,14 @@ static int pll_int(int argc, char **argv)
     return 0;
 }
 
+static int reset_sm_cmd(int argc, char **argv)
+{
+    printf("Resetting state_cmd sub-reg (SM_MAIN)\n");
+    treufunk_sub_reg_write(&myTreufunk, SR_SM_COMMAND, STATE_CMD_NONE);
+
+    return 0;
+}
+
 static const shell_command_t shell_commands[] = {
     { "rr", "read a register", reg_read },
     { "rw", "write to a register", reg_write },
@@ -382,6 +405,7 @@ static const shell_command_t shell_commands[] = {
     { "vcostepup", "increase vco tune by x", vco_step_up },
     { "vcostepdn", "decrease vco tune by x", vco_step_dn },
     { "pllint", "get/set PLL int of rx or tx", pll_int },
+    { "resetsmcmd", "Reset state change register", reset_sm_cmd },
     { NULL, NULL, NULL }
 };
 
