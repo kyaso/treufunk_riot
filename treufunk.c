@@ -322,7 +322,7 @@ void treufunk_tx_prepare(treufunk_t *dev)//, size_t phr)
     /* Put SM into SLEEP */
     DEBUG("tx_prepare():\tputting into SLEEP...\n");
     treufunk_set_state(dev, SLEEP);
-    //_rx_resets(dev);
+    _rx_resets(dev);
     //uint8_t pre[4] = {0xFF, 0x00, 0xFF, 0x00};
     //treufunk_fifo_write(dev, pre, 4); /* Write preamble for test */
 
