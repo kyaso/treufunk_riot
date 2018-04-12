@@ -103,8 +103,10 @@ void _rx_resets(treufunk_t *dev)
     treufunk_reg_write(dev, RG_SM_MAIN, 0x0F);
 
     /* Reset demodulator */
-    treufunk_sub_reg_write(dev, SR_DEM_RESETB, 0);
-    treufunk_sub_reg_write(dev, SR_DEM_RESETB, 1);
+    //treufunk_sub_reg_write(dev, SR_DEM_RESETB, 0);
+    //treufunk_sub_reg_write(dev, SR_DEM_RESETB, 1);
+    treufunk_reg_write(dev, RG_DEM_MAIN, 0x29);
+    treufunk_reg_write(dev, RG_DEM_MAIN, 0xA9);
 
 
     /* Do we need to wait some time before setting the reset bit back to 1 ?
@@ -164,7 +166,9 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
 
     /* write state_cmd to SM_COMMAND sub_reg of SM_MAIN */
     DEBUG("set_state():\tWriting state_cmd (%d) into SM_MAIN reg...\n", state_cmd);
-    treufunk_sub_reg_write(dev, SR_SM_COMMAND, state_cmd);
+    //treufunk_sub_reg_write(dev, SR_SM_COMMAND, state_cmd);
+    /* Instead of using sub_reg_read (which needs an SPI read), just use reg_write for testing without the shift reg. */
+    treufunk_reg_write(dev, RG_SM_MAIN, (state_cmd<<4)+16);
     //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
 
     //if(state == SENDING) while(1) printf("%d\n", PHY_SM_STATUS(treufunk_get_phy_status(dev)));
@@ -178,9 +182,10 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
 
     /* set state attribute of the Treufunk device descriptor */
-    dev->state = treufunk_get_state(dev);
+    //dev->state = treufunk_get_state(dev);
 
-    DEBUG("set_state():\tNew state = %d\n", dev->state);
+    //DEBUG("set_state():\tNew state = %d\n", dev->state);
+    DEBUG("set_state():\tstate_cmd = %d\n", state_cmd);
 
     // /* Start polling timer for RX and TX */
     // if(state == RECEIVING || state == SENDING)
@@ -272,9 +277,15 @@ static int _calculate_pll_values(uint32_t rf_freq,
 
 void treufunk_set_rx_pll_frac(treufunk_t *dev, uint32_t pll_frac)
 {
-    treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
-    treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
-    treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
+    //treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
+    treufunk_reg_write(dev, RG_SM_RX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
+
+    //treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
+    treufunk_reg_write(dev, RG_SM_RX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
+
+    //treufunk_sub_reg_write(dev, SR_RX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
+    treufunk_reg_write(dev, RG_SM_RX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
+
     DEBUG("_set_rx_pll_frac(): Set RX PLL frac value to 0x%06x\n", pll_frac);
 
     return 0;
@@ -282,9 +293,13 @@ void treufunk_set_rx_pll_frac(treufunk_t *dev, uint32_t pll_frac)
 
 void treufunk_set_tx_pll_frac(treufunk_t *dev, uint32_t pll_frac)
 {
-    treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
-    treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
-    treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
+    //treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
+    treufunk_reg_write(dev, RG_SM_TX_CHAN_FRAC_H, BIT24_H_BYTE(pll_frac));
+    //treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
+    treufunk_reg_write(dev, RG_SM_TX_CHAN_FRAC_M, BIT24_M_BYTE(pll_frac));
+    //treufunk_sub_reg_write(dev, SR_TX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
+    treufunk_reg_write(dev, RG_SM_TX_CHAN_FRAC_L, BIT24_L_BYTE(pll_frac));
+
     DEBUG("_set_tx_pll_frac(): Set TX PLL frac value to 0x%06x\n", pll_frac);
 
     return 0;
@@ -292,7 +307,8 @@ void treufunk_set_tx_pll_frac(treufunk_t *dev, uint32_t pll_frac)
 
 void treufunk_set_vco_tune(treufunk_t *dev, uint32_t vco_tune)
 {
-    treufunk_sub_reg_write(dev, SR_PLL_VCO_TUNE, vco_tune);
+    //treufunk_sub_reg_write(dev, SR_PLL_VCO_TUNE, vco_tune);
+    treufunk_reg_write(dev, RG_PLL_VCO_TUNE, vco_tune);
 }
 
 /* TODO (set_chan) */

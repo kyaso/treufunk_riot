@@ -179,12 +179,12 @@ int treufunk_reset(treufunk_t *dev)
 
     /* General TX settings */
     DEBUG("Configuring TX path...\n");
-    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_DATA_RATE,    3/*2*/)); /* 3 => 2 Mbit, 2 => 1 Mbit */
+    RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_DATA_RATE,    2)); /* 3 => 2 Mbit, 2 => 1 Mbit */
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_PLL_MOD_FREQ_DEV,    21));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_EN,                1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_CHIP_MOD,       1));
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_UPS,               0));
-	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_CHIP_MOD_SP,    0)); /* TX uses 0 => 2 Mbit/s (1 => 1Mbit/s) datarate */
+	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_ON_CHIP_MOD_SP,    1)); /* TX uses 0 => 2 Mbit/s (1 => 1Mbit/s) datarate */
 	RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_AMPLI_OUT_MAN_H,   1));
     RETURN_ON_ERROR(treufunk_sub_reg_write(dev, SR_TX_AMPLI_OUT_MAN_L, 255));
 
@@ -322,17 +322,18 @@ void treufunk_tx_prepare(treufunk_t *dev)//, size_t phr)
     /* Put SM into SLEEP */
     DEBUG("tx_prepare():\tputting into SLEEP...\n");
     treufunk_set_state(dev, SLEEP);
-    _rx_resets(dev);
+    //_rx_resets(dev);
     //uint8_t pre[4] = {0xFF, 0x00, 0xFF, 0x00};
     //treufunk_fifo_write(dev, pre, 4); /* Write preamble for test */
 
-    // /* Write SHR into FIFO */
-    // DEBUG("tx_prepare():\twriting SHR into FIFO...\n");
-    // treufunk_fifo_write(dev, SHR, 5);
+    /* Write SHR into FIFO */
+    DEBUG("tx_prepare():\twriting SHR into FIFO...\n");
+    treufunk_fifo_write(dev, SHR, 5);
     //
-    // /* Write PHR (= payload/PSDU length) into FIFO */
-    // DEBUG("tx_prepare():\twriting PHR into FIFO...\n");
-    // treufunk_fifo_write(dev, &phr, 1);
+    /* Write PHR (= payload/PSDU length) into FIFO */
+    DEBUG("tx_prepare():\twriting PHR into FIFO...\n");
+    uint8_t phr = 25;
+    treufunk_fifo_write(dev, &phr, 1);
 
 }
 
