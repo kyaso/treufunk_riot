@@ -166,9 +166,10 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
 
     /* write state_cmd to SM_COMMAND sub_reg of SM_MAIN */
     DEBUG("set_state():\tWriting state_cmd (%d) into SM_MAIN reg...\n", state_cmd);
+    DEBUG("set_state():\tWriting %02x into SM_MAIN...\n", (state_cmd<<4)|0x0f);
     //treufunk_sub_reg_write(dev, SR_SM_COMMAND, state_cmd);
     /* Instead of using sub_reg_read (which needs an SPI read), just use reg_write for testing without the shift reg. */
-    treufunk_reg_write(dev, RG_SM_MAIN, (state_cmd<<4)+16);
+    treufunk_reg_write(dev, RG_SM_MAIN, (state_cmd<<4)|0x0f);
     //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
 
     //if(state == SENDING) while(1) printf("%d\n", PHY_SM_STATUS(treufunk_get_phy_status(dev)));
@@ -179,6 +180,7 @@ void treufunk_set_state(treufunk_t *dev, uint8_t state)
     /* set SM_COMMAND back to CMD_NONE */
     //DEBUG("set_state():\tResetting state_cmd sub-reg (SM_MAIN)\n");
     //treufunk_sub_reg_write(dev, SR_SM_COMMAND, STATE_CMD_NONE);
+    treufunk_reg_write(dev, RG_SM_MAIN, 0x0f);
     //DEBUG("set_state(): sm_main, cmd = %d\n", treufunk_sub_reg_read(dev, SR_SM_COMMAND));
 
     /* set state attribute of the Treufunk device descriptor */
